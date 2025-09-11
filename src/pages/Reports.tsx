@@ -1,6 +1,7 @@
 import { Layout } from "@/components/Layout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText, Download, Share, Filter, Plus } from "lucide-react";
 
 export default function Reports() {
   return (
@@ -11,11 +12,41 @@ export default function Reports() {
           <p className="text-text-secondary">Relatórios detalhados do sistema</p>
         </div>
 
+        {/* Action Buttons Stack */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button variant="tech" className="w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Relatório
+            </Button>
+            <Button variant="action" className="w-full sm:w-auto">
+              <Download className="h-4 w-4 mr-2" />
+              Exportar
+            </Button>
+            <Button variant="outline" className="w-full sm:w-auto">
+              <Filter className="h-4 w-4 mr-2" />
+              Filtros
+            </Button>
+            <Button variant="ghost" disabled className="w-full sm:w-auto">
+              <Share className="h-4 w-4 mr-2" />
+              Compartilhar
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto hover:bg-accent-primary hover:text-white transition-colors"
+              onClick={() => window.open('#', '_blank')}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Ver Exemplo
+            </Button>
+          </div>
+        </div>
+
         <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Relatórios
+              Relatórios Disponíveis
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
