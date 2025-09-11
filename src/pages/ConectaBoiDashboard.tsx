@@ -128,7 +128,6 @@ export default function ConectaBoiDashboard() {
               subtitle="↗ +3.2% vs ontem"
               trend="up"
               icon={<BarChart3 className="h-6 w-6" />}
-              animated
             />
             <MetricCard
               title="Eficiência Logística"
@@ -136,7 +135,6 @@ export default function ConectaBoiDashboard() {
               subtitle="↗ +1.5% vs semana"
               trend="up"
               icon={<Truck className="h-6 w-6" />}
-              animated
             />
             <MetricCard
               title="Animais Monitorados"

@@ -8,7 +8,6 @@ interface MetricCardProps {
   trend?: "up" | "down" | "stable";
   icon?: React.ReactNode;
   className?: string;
-  animated?: boolean;
 }
 
 export function MetricCard({ 
@@ -17,13 +16,11 @@ export function MetricCard({
   subtitle, 
   trend, 
   icon, 
-  className,
-  animated = false 
+  className
 }: MetricCardProps) {
   return (
     <Card className={cn(
       "tech-card p-6 relative group overflow-hidden hover:scale-105 hover:border-opacity-60 hover:shadow-lg transition-all duration-300 ease-in-out cursor-pointer",
-      animated && "pulse-data",
       className
     )}>
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
