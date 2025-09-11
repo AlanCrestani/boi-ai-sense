@@ -95,7 +95,7 @@ export default function Analytics() {
                     bottom: 5,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="white" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
                     type="number"
                     stroke="hsl(var(--text-secondary))"
