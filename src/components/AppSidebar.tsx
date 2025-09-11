@@ -71,7 +71,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={collapsed ? "w-14" : "w-64"}>
+    <Sidebar className={collapsed ? "w-16" : "w-64"} collapsible="icon">
       <SidebarContent className="bg-card-secondary/50 backdrop-blur-sm border-r border-border-subtle flex flex-col">
         {/* Logo */}
         <div className="p-4 border-b border-border-subtle">
