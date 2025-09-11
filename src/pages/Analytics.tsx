@@ -97,17 +97,17 @@ export default function Analytics() {
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
                     dataKey="data"
-                    stroke="hsl(var(--text-secondary))"
+                    stroke="white"
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
                   />
                   <YAxis 
-                    stroke="hsl(var(--text-secondary))"
+                    stroke="white"
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    label={{ value: 'Matéria Seca (kg/dia)', angle: -90, position: 'insideLeft' }}
+                    label={{ value: 'Matéria Seca (kg/dia)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }}
                   />
                   <Tooltip 
                     contentStyle={{
