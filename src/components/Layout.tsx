@@ -6,34 +6,25 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { 
-  Bell, 
-  LogOut, 
-  Search, 
-  ShoppingCart, 
-  Moon, 
-  Sun, 
-  ChevronDown,
-  MessageSquare,
-  Calendar,
-  Mail
-} from "lucide-react";
-
+import { Bell, LogOut, Search, ShoppingCart, Moon, Sun, ChevronDown, MessageSquare, Calendar, Mail } from "lucide-react";
 interface LayoutProps {
   children: ReactNode;
 }
-
-export function Layout({ children }: LayoutProps) {
-  const { user, profile, organization, signOut } = useAuth();
+export function Layout({
+  children
+}: LayoutProps) {
+  const {
+    user,
+    profile,
+    organization,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
-
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
   };
-
-  return (
-    <SidebarProvider>
+  return <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background-primary">
         <AppSidebar />
         
@@ -53,26 +44,14 @@ export function Layout({ children }: LayoutProps) {
               {/* Center Section - Navigation */}
               <div className="hidden md:flex items-center gap-2">
                 <div className="flex items-center">
-                  <Button variant="ghost" className="gap-1">
-                    Apps
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
+                  
                 </div>
                 
-                <Button variant="ghost" className="hover:text-accent-primary">
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Chat
-                </Button>
                 
-                <Button variant="ghost" className="hover:text-accent-primary">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Calendar
-                </Button>
                 
-                <Button variant="ghost" className="hover:text-accent-primary">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Email
-                </Button>
+                
+                
+                
               </div>
 
               {/* Right Section */}
@@ -118,12 +97,7 @@ export function Layout({ children }: LayoutProps) {
                 </div>
 
                 {/* Sign Out - Hidden on smaller screens */}
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={handleSignOut}
-                  className="hidden xl:flex text-text-secondary hover:text-text-primary"
-                >
+                <Button variant="ghost" size="sm" onClick={handleSignOut} className="hidden xl:flex text-text-secondary hover:text-text-primary">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sair
                 </Button>
@@ -137,6 +111,5 @@ export function Layout({ children }: LayoutProps) {
           </main>
         </div>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 }
