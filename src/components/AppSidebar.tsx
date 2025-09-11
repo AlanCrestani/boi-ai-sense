@@ -102,31 +102,22 @@ export function AppSidebar() {
                         to={item.url} 
                         end 
                         className={({ isActive: linkActive }) => `
-                          flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
-                          cursor-pointer group relative overflow-hidden
+                          flex items-center gap-3 w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
+                          cursor-pointer group
                           ${linkActive
                             ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
                             : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
                           }
                         `}
                       >
-                        {/* Gradient effect background */}
-                        <div
-                          className={`absolute inset-0 transition-opacity duration-200 ${
-                            isActive(item.url)
-                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
-                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
-                          }`}
-                        />
-                        
-                        <div className="flex items-center gap-3 relative z-10">
-                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
+                        <div className="flex items-center gap-3">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${
                             isActive(item.url) 
                               ? "text-accent-primary" 
                               : "group-hover:text-accent-primary"
                           }`} />
                           {!collapsed && (
-                            <span className={`truncate transition-all duration-200 ${
+                            <span className={`truncate transition-colors duration-200 ${
                               isActive(item.url) 
                                 ? "text-accent-primary font-medium" 
                                 : "group-hover:text-text-primary group-hover:font-medium"
@@ -155,31 +146,22 @@ export function AppSidebar() {
                         to={item.url} 
                         end 
                         className={({ isActive: linkActive }) => `
-                          flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
-                          cursor-pointer group relative overflow-hidden
+                          flex items-center gap-3 w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
+                          cursor-pointer group
                           ${linkActive
                             ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
                             : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
                           }
                         `}
                       >
-                        {/* Gradient effect background */}
-                        <div
-                          className={`absolute inset-0 transition-opacity duration-200 ${
-                            isActive(item.url)
-                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
-                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
-                          }`}
-                        />
-                        
-                        <div className="flex items-center gap-3 relative z-10">
-                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
+                        <div className="flex items-center gap-3">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${
                             isActive(item.url) 
                               ? "text-accent-primary" 
                               : "group-hover:text-accent-primary"
                           }`} />
                           {!collapsed && (
-                            <span className={`truncate transition-all duration-200 ${
+                            <span className={`truncate transition-colors duration-200 ${
                               isActive(item.url) 
                                 ? "text-accent-primary font-medium" 
                                 : "group-hover:text-text-primary group-hover:font-medium"
@@ -208,31 +190,22 @@ export function AppSidebar() {
                         to={item.url} 
                         end 
                         className={({ isActive: linkActive }) => `
-                          flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
-                          cursor-pointer group relative overflow-hidden
+                          flex items-center gap-3 w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
+                          cursor-pointer group
                           ${linkActive
                             ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
                             : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
                           }
                         `}
                       >
-                        {/* Gradient effect background */}
-                        <div
-                          className={`absolute inset-0 transition-opacity duration-200 ${
-                            isActive(item.url)
-                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
-                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
-                          }`}
-                        />
-                        
-                        <div className="flex items-center gap-3 relative z-10">
-                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
+                        <div className="flex items-center gap-3">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${
                             isActive(item.url) 
                               ? "text-accent-primary" 
                               : "group-hover:text-accent-primary"
                           }`} />
                           {!collapsed && (
-                            <span className={`truncate transition-all duration-200 ${
+                            <span className={`truncate transition-colors duration-200 ${
                               isActive(item.url) 
                                 ? "text-accent-primary font-medium" 
                                 : "group-hover:text-text-primary group-hover:font-medium"
@@ -261,31 +234,22 @@ export function AppSidebar() {
                         to={item.url} 
                         end 
                         className={({ isActive: linkActive }) => `
-                          flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
-                          cursor-pointer group relative overflow-hidden
+                          flex items-center gap-3 w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
+                          cursor-pointer group
                           ${linkActive
                             ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
                             : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
                           }
                         `}
                       >
-                        {/* Gradient effect background */}
-                        <div
-                          className={`absolute inset-0 transition-opacity duration-200 ${
-                            isActive(item.url)
-                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
-                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
-                          }`}
-                        />
-                        
-                        <div className="flex items-center gap-3 relative z-10">
-                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
+                        <div className="flex items-center gap-3">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-colors duration-200 ${
                             isActive(item.url) 
                               ? "text-accent-primary" 
                               : "group-hover:text-accent-primary"
                           }`} />
                           {!collapsed && (
-                            <span className={`truncate transition-all duration-200 ${
+                            <span className={`truncate transition-colors duration-200 ${
                               isActive(item.url) 
                                 ? "text-accent-primary font-medium" 
                                 : "group-hover:text-text-primary group-hover:font-medium"
