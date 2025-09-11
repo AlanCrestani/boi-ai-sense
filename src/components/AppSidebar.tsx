@@ -101,26 +101,37 @@ export function AppSidebar() {
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 hover-scale group ${
+                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
                           isActive(item.url) 
-                            ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary shadow-sm" 
-                            : "hover:bg-background-secondary/80 hover:shadow-md text-text-secondary hover:text-text-primary transform hover:translate-x-1"
+                            ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
+                            : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
                         }`}
                       >
-                        <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
-                          isActive(item.url) 
-                            ? "text-accent-primary" 
-                            : "group-hover:text-accent-primary group-hover:scale-110"
-                        }`} />
-                        {!collapsed && (
-                          <span className={`truncate transition-all duration-300 ${
+                        {/* Gradient effect background */}
+                        <div
+                          className={`absolute inset-0 transition-opacity duration-200 ${
+                            isActive(item.url)
+                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
+                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
+                          }`}
+                        />
+                        
+                        <div className="flex items-center gap-3 relative z-10">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
                             isActive(item.url) 
-                              ? "text-accent-primary font-medium" 
-                              : "group-hover:text-text-primary group-hover:font-medium"
-                          }`}>
-                            {item.title}
-                          </span>
-                        )}
+                              ? "text-accent-primary" 
+                              : "group-hover:text-accent-primary"
+                          }`} />
+                          {!collapsed && (
+                            <span className={`truncate transition-all duration-200 ${
+                              isActive(item.url) 
+                                ? "text-accent-primary font-medium" 
+                                : "group-hover:text-text-primary group-hover:font-medium"
+                            }`}>
+                              {item.title}
+                            </span>
+                          )}
+                        </div>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -140,26 +151,37 @@ export function AppSidebar() {
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 hover-scale group ${
+                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
                           isActive(item.url) 
-                            ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary shadow-sm" 
-                            : "hover:bg-background-secondary/80 hover:shadow-md text-text-secondary hover:text-text-primary transform hover:translate-x-1"
+                            ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
+                            : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
                         }`}
                       >
-                        <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
-                          isActive(item.url) 
-                            ? "text-accent-primary" 
-                            : "group-hover:text-accent-primary group-hover:scale-110"
-                        }`} />
-                        {!collapsed && (
-                          <span className={`truncate transition-all duration-300 ${
+                        {/* Gradient effect background */}
+                        <div
+                          className={`absolute inset-0 transition-opacity duration-200 ${
+                            isActive(item.url)
+                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
+                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
+                          }`}
+                        />
+                        
+                        <div className="flex items-center gap-3 relative z-10">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
                             isActive(item.url) 
-                              ? "text-accent-primary font-medium" 
-                              : "group-hover:text-text-primary group-hover:font-medium"
-                          }`}>
-                            {item.title}
-                          </span>
-                        )}
+                              ? "text-accent-primary" 
+                              : "group-hover:text-accent-primary"
+                          }`} />
+                          {!collapsed && (
+                            <span className={`truncate transition-all duration-200 ${
+                              isActive(item.url) 
+                                ? "text-accent-primary font-medium" 
+                                : "group-hover:text-text-primary group-hover:font-medium"
+                            }`}>
+                              {item.title}
+                            </span>
+                          )}
+                        </div>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -179,26 +201,37 @@ export function AppSidebar() {
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 hover-scale group ${
+                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
                           isActive(item.url) 
-                            ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary shadow-sm" 
-                            : "hover:bg-background-secondary/80 hover:shadow-md text-text-secondary hover:text-text-primary transform hover:translate-x-1"
+                            ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
+                            : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
                         }`}
                       >
-                        <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
-                          isActive(item.url) 
-                            ? "text-accent-primary" 
-                            : "group-hover:text-accent-primary group-hover:scale-110"
-                        }`} />
-                        {!collapsed && (
-                          <span className={`truncate transition-all duration-300 ${
+                        {/* Gradient effect background */}
+                        <div
+                          className={`absolute inset-0 transition-opacity duration-200 ${
+                            isActive(item.url)
+                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
+                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
+                          }`}
+                        />
+                        
+                        <div className="flex items-center gap-3 relative z-10">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
                             isActive(item.url) 
-                              ? "text-accent-primary font-medium" 
-                              : "group-hover:text-text-primary group-hover:font-medium"
-                          }`}>
-                            {item.title}
-                          </span>
-                        )}
+                              ? "text-accent-primary" 
+                              : "group-hover:text-accent-primary"
+                          }`} />
+                          {!collapsed && (
+                            <span className={`truncate transition-all duration-200 ${
+                              isActive(item.url) 
+                                ? "text-accent-primary font-medium" 
+                                : "group-hover:text-text-primary group-hover:font-medium"
+                            }`}>
+                              {item.title}
+                            </span>
+                          )}
+                        </div>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -218,26 +251,37 @@ export function AppSidebar() {
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 hover-scale group ${
+                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
                           isActive(item.url) 
-                            ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary shadow-sm" 
-                            : "hover:bg-background-secondary/80 hover:shadow-md text-text-secondary hover:text-text-primary transform hover:translate-x-1"
+                            ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
+                            : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
                         }`}
                       >
-                        <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
-                          isActive(item.url) 
-                            ? "text-accent-primary" 
-                            : "group-hover:text-accent-primary group-hover:scale-110"
-                        }`} />
-                        {!collapsed && (
-                          <span className={`truncate transition-all duration-300 ${
+                        {/* Gradient effect background */}
+                        <div
+                          className={`absolute inset-0 transition-opacity duration-200 ${
+                            isActive(item.url)
+                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
+                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
+                          }`}
+                        />
+                        
+                        <div className="flex items-center gap-3 relative z-10">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
                             isActive(item.url) 
-                              ? "text-accent-primary font-medium" 
-                              : "group-hover:text-text-primary group-hover:font-medium"
-                          }`}>
-                            {item.title}
-                          </span>
-                        )}
+                              ? "text-accent-primary" 
+                              : "group-hover:text-accent-primary"
+                          }`} />
+                          {!collapsed && (
+                            <span className={`truncate transition-all duration-200 ${
+                              isActive(item.url) 
+                                ? "text-accent-primary font-medium" 
+                                : "group-hover:text-text-primary group-hover:font-medium"
+                            }`}>
+                              {item.title}
+                            </span>
+                          )}
+                        </div>
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
