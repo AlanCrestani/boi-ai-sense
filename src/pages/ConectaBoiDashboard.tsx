@@ -4,6 +4,8 @@ import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 import heroImage from "@/assets/hero-dashboard.jpg";
 
 import { 
@@ -22,6 +24,26 @@ import {
 
 export default function ConectaBoiDashboard() {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  // Redirect authenticated users to user profile
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/user-profile");
+    }
+  }, [loading, user, navigate]);
+
+  const handleGetStarted = () => {
+    if (user) {
+      navigate("/user-profile");
+    } else {
+      navigate("/signup");
+    }
+  };
+
+  const handleSignIn = () => {
+    navigate("/signin");
+  };
   
   // Mock data for demonstration
   const mockAlerts = [
@@ -247,10 +269,10 @@ export default function ConectaBoiDashboard() {
           <Button 
             variant="tech" 
             size="xl"
-            onClick={() => navigate('/signup')}
+            onClick={handleGetStarted}
           >
             <Zap className="h-5 w-5" />
-            Começar Agora
+            {user ? "Ir para Dashboard" : "Começar Agora"}
           </Button>
         </div>
       </section>

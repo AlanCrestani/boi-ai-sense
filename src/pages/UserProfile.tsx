@@ -35,6 +35,13 @@ export default function UserProfile() {
     navigate("/");
   };
 
+  // Redirect if not authenticated (use useEffect to avoid setState during render)
+  React.useEffect(() => {
+    if (!loading && (!user || !profile)) {
+      navigate("/signin");
+    }
+  }, [loading, user, profile, navigate]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background-primary flex items-center justify-center">
@@ -46,8 +53,8 @@ export default function UserProfile() {
     );
   }
 
+  // Don't render anything while redirecting
   if (!user || !profile) {
-    navigate("/signin");
     return null;
   }
   return (
