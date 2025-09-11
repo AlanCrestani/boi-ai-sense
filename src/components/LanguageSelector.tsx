@@ -21,11 +21,11 @@ const languages: Language[] = [
     fallback: "BR"
   },
   {
-    code: "es-419",
+    code: "es-PY",
     name: "Español",
-    region: "América Latina",
-    flag: "data:image/svg+xml,%3csvg%20height='20'%20viewBox='0%200%2028%2020'%20width='28'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='28'%20height='20'%20fill='%23AA151B'/%3e%3crect%20width='28'%20height='12'%20y='4'%20fill='%23F1BF00'/%3e%3c/svg%3e",
-    fallback: "ES"
+    region: "Paraguay",
+    flag: "data:image/svg+xml,%3csvg%20height='20'%20viewBox='0%200%2028%2020'%20width='28'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='28'%20height='6.67'%20fill='%23D52B1E'/%3e%3crect%20width='28'%20height='6.67'%20y='6.67'%20fill='%23fff'/%3e%3crect%20width='28'%20height='6.67'%20y='13.33'%20fill='%23005496'/%3e%3ccircle%20cx='14'%20cy='10'%20r='3'%20fill='%23F7E000'%20stroke='%23009639'%20stroke-width='0.5'/%3e%3c/svg%3e",
+    fallback: "PY"
   },
   {
     code: "en-US",
@@ -49,7 +49,7 @@ export function LanguageSelector() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64">
+      <DropdownMenuContent align="end" className="w-64 bg-card-primary border-border-subtle z-50">
         {languages.map((language) => (
           <DropdownMenuItem
             key={language.code}
