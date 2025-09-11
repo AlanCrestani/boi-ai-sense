@@ -37,7 +37,7 @@ export function Layout({
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 
-                <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50">
+                <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50 hover:text-text-primary">
                   <Search className="h-5 w-5" />
                 </Button>
               </div>
@@ -62,13 +62,13 @@ export function Layout({
 
 
                 {/* Dark Mode Toggle */}
-                <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50">
+                <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50 hover:text-text-primary">
                   <Moon className="h-5 w-5" />
                 </Button>
 
                 {/* Notifications with Badge */}
                 <div className="relative">
-                  <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50">
+                  <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50 hover:text-text-primary">
                     <Bell className="h-5 w-5" />
                   </Button>
                   <div className="absolute -top-1 -right-1 bg-accent-primary h-2 w-2 rounded-full"></div>
