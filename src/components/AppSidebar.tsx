@@ -101,11 +101,14 @@ export function AppSidebar() {
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
-                          isActive(item.url) 
+                        className={({ isActive: linkActive }) => `
+                          flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
+                          cursor-pointer group relative overflow-hidden
+                          ${linkActive
                             ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
                             : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
-                        }`}
+                          }
+                        `}
                       >
                         {/* Gradient effect background */}
                         <div
@@ -151,11 +154,14 @@ export function AppSidebar() {
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
-                          isActive(item.url) 
+                        className={({ isActive: linkActive }) => `
+                          flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
+                          cursor-pointer group relative overflow-hidden
+                          ${linkActive
                             ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
                             : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
-                        }`}
+                          }
+                        `}
                       >
                         {/* Gradient effect background */}
                         <div
@@ -201,11 +207,14 @@ export function AppSidebar() {
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
-                          isActive(item.url) 
+                        className={({ isActive: linkActive }) => `
+                          flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
+                          cursor-pointer group relative overflow-hidden
+                          ${linkActive
                             ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
                             : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
-                        }`}
+                          }
+                        `}
                       >
                         {/* Gradient effect background */}
                         <div
@@ -251,11 +260,14 @@ export function AppSidebar() {
                       <NavLink 
                         to={item.url} 
                         end 
-                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
-                          isActive(item.url) 
+                        className={({ isActive: linkActive }) => `
+                          flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out 
+                          cursor-pointer group relative overflow-hidden
+                          ${linkActive
                             ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary" 
                             : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
-                        }`}
+                          }
+                        `}
                       >
                         {/* Gradient effect background */}
                         <div
