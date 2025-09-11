@@ -159,6 +159,23 @@ export default function Analytics() {
                 <span className="text-text-secondary">Eficiência Ruim (&lt;80% | &gt;120%)</span>
               </div>
             </div>
+            
+            {/* Botões para lançar leitura de cocho */}
+            <div className="mt-6 border-t border-border-subtle pt-6">
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Lançar Leitura de Cocho</h3>
+              <div className="flex flex-wrap gap-3 justify-center">
+                {[-2, -1, 0, 1, 2, 3, 4].map((value) => (
+                  <Button
+                    key={value}
+                    variant="outline"
+                    className="min-w-[60px] h-12 text-lg font-bold hover:bg-accent-primary/10"
+                    onClick={() => console.log(`Leitura lançada: ${value}`)}
+                  >
+                    {value > 0 ? `+${value}` : value}
+                  </Button>
+                ))}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
