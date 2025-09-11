@@ -24,7 +24,9 @@ import {
 const mainItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Perfil", url: "/user-profile", icon: User },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Leitura de Cocho", url: "/analytics", icon: BarChart3 },
+  { title: "Analise de Desvios", url: "/desvios", icon: Activity },
+  { title: "Logística de Tratos", url: "/logistica", icon: FileText },
   { title: "Relatórios", url: "/reports", icon: FileText },
 ];
 
