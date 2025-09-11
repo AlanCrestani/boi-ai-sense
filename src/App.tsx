@@ -16,6 +16,7 @@ import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import UserProfile from "./pages/UserProfile";
 import InvitePage from "./pages/InvitePage";
+import FeedReading from "./pages/FeedReading";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/signup" element={<SignUp />} />
             <Route path="/signin" element={<SignIn />} />
             <Route path="/user-profile" element={<UserProfile />} />
+            <Route path="/feed-reading" element={<FeedReading />} />
             <Route path="/invite/:token" element={<InvitePage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
