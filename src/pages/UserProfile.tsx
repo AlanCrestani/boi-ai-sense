@@ -116,7 +116,12 @@ export default function UserProfile() {
         {/* Navigation Breadcrumb */}
         <div className="mb-6">
           <div className="flex items-center text-sm text-text-secondary">
-            <Button variant="ghost" size="sm" className="p-0 h-auto font-normal text-text-secondary hover:text-accent-primary">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="p-0 h-auto font-normal text-text-secondary hover:text-accent-primary"
+              onClick={() => navigate("/")}
+            >
               Dashboard
             </Button>
             <span className="mx-2">•</span>
