@@ -86,7 +86,6 @@ export default function Analytics() {
             <div className="h-96">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
-                  layout="horizontal"
                   data={data}
                   margin={{
                     top: 20,
@@ -97,21 +96,18 @@ export default function Analytics() {
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                   <XAxis 
-                    type="number"
-                    stroke="hsl(var(--text-secondary))"
-                    fontSize={12}
-                    tickLine={false}
-                    axisLine={false}
-                    label={{ value: 'Matéria Seca (kg/dia)', position: 'insideBottom', offset: -10 }}
-                  />
-                  <YAxis 
-                    type="category"
                     dataKey="data"
                     stroke="hsl(var(--text-secondary))"
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    width={50}
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--text-secondary))"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    label={{ value: 'Matéria Seca (kg/dia)', angle: -90, position: 'insideLeft' }}
                   />
                   <Tooltip 
                     contentStyle={{
@@ -133,7 +129,7 @@ export default function Analytics() {
                     dataKey="consumoPrevisto" 
                     fill="#3b82f6"
                     name="consumoPrevisto"
-                    radius={[0, 4, 4, 0]}
+                    radius={[4, 4, 0, 0]}
                   />
                   {data.map((entry, index) => (
                     <Bar 
@@ -141,7 +137,7 @@ export default function Analytics() {
                       dataKey="consumoRealizado" 
                       fill={entry.corRealizado}
                       name="consumoRealizado"
-                      radius={[0, 4, 4, 0]}
+                      radius={[4, 4, 0, 0]}
                     />
                   ))}
                 </BarChart>
