@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Activity, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
 
 export default function SignUp() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -26,6 +27,9 @@ export default function SignUp() {
     e.preventDefault();
     // Implementar lógica de cadastro
     console.log("Dados do cadastro:", formData);
+    
+    // Redirecionar para o perfil após cadastro bem-sucedido
+    navigate("/user-profile");
   };
 
   return (
