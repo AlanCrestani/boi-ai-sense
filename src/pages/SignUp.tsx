@@ -5,15 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Activity, Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { Activity, Mail, Lock, User, Eye, EyeOff, Building } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { signUp, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    password: ""
+    password: "",
+    companyName: ""
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,13 +27,27 @@ export default function SignUp() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementar lógica de cadastro
-    console.log("Dados do cadastro:", formData);
     
-    // Redirecionar para o perfil após cadastro bem-sucedido
-    navigate("/user-profile");
+    if (!formData.name || !formData.email || !formData.password) {
+      toast.error("Por favor, preencha todos os campos obrigatórios");
+      return;
+    }
+
+    const { error } = await signUp(
+      formData.email, 
+      formData.password, 
+      formData.name,
+      formData.companyName || undefined
+    );
+    
+    if (error) {
+      toast.error(error.message || "Erro ao criar conta");
+    } else {
+      toast.success("Conta criada com sucesso! Verifique seu email para confirmar.");
+      navigate("/user-profile");
+    }
   };
 
   return (
@@ -113,6 +131,22 @@ export default function SignUp() {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="companyName" className="text-text-primary">Nome da Empresa (Opcional)</Label>
+                <div className="relative">
+                  <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary h-4 w-4" />
+                  <Input
+                    id="companyName"
+                    name="companyName"
+                    type="text"
+                    placeholder="Sua empresa"
+                    value={formData.companyName}
+                    onChange={handleInputChange}
+                    className="pl-10 h-11"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="email" className="text-text-primary">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-tertiary h-4 w-4" />
@@ -153,8 +187,8 @@ export default function SignUp() {
                 </div>
               </div>
 
-              <Button type="submit" variant="tech" className="w-full h-11 mt-6">
-                Criar conta
+              <Button type="submit" variant="tech" className="w-full h-11 mt-6" disabled={loading}>
+                {loading ? "Criando conta..." : "Criar conta"}
               </Button>
             </form>
 

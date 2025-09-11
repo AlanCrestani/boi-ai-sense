@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,8 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Activity, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 export default function SignIn() {
+  const navigate = useNavigate();
+  const { signIn, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberDevice, setRememberDevice] = useState(false);
   const [formData, setFormData] = useState({
@@ -23,10 +27,22 @@ export default function SignIn() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Implementar lógica de login
-    console.log("Dados do login:", formData, "Lembrar dispositivo:", rememberDevice);
+    
+    if (!formData.email || !formData.password) {
+      toast.error("Por favor, preencha todos os campos");
+      return;
+    }
+
+    const { error } = await signIn(formData.email, formData.password);
+    
+    if (error) {
+      toast.error(error.message || "Erro ao fazer login");
+    } else {
+      toast.success("Login realizado com sucesso!");
+      navigate("/user-profile");
+    }
   };
 
   return (
@@ -156,8 +172,8 @@ export default function SignIn() {
                 </Link>
               </div>
 
-              <Button type="submit" variant="tech" className="w-full h-11 mt-6">
-                Entrar
+              <Button type="submit" variant="tech" className="w-full h-11 mt-6" disabled={loading}>
+                {loading ? "Entrando..." : "Entrar"}
               </Button>
             </form>
 

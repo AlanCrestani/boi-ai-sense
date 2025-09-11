@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/hooks/useAuth";
+import InviteManager from "@/components/InviteManager";
 import { 
   Activity, 
   Users, 
@@ -19,10 +21,35 @@ import {
   BarChart3,
   MessageSquare,
   Folder,
-  User
+  User,
+  LogOut
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function UserProfile() {
+  const { user, profile, organization, userRole, signOut, loading } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background-primary flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary mx-auto mb-4"></div>
+          <p className="text-text-secondary">Carregando perfil...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user || !profile) {
+    navigate("/signin");
+    return null;
+  }
   return (
     <div className="min-h-screen bg-background-primary">
       {/* Sidebar */}
@@ -75,6 +102,41 @@ export default function UserProfile() {
               Perfil
             </Button>
           </nav>
+
+          {/* User info and logout */}
+          <div className="mt-auto pt-4 border-t border-border-subtle">
+            <div className="flex items-center gap-3 mb-4">
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={profile?.avatar_url} />
+                <AvatarFallback className="bg-accent-primary text-white text-sm">
+                  {profile?.full_name?.charAt(0) || user?.email?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-text-primary truncate">
+                  {profile?.full_name}
+                </p>
+                <p className="text-xs text-text-secondary truncate">
+                  {userRole && (
+                    <Badge variant="secondary" className="text-xs">
+                      {userRole === 'owner' ? 'Proprietário' :
+                       userRole === 'admin' ? 'Admin' :
+                       userRole === 'manager' ? 'Gerente' :
+                       userRole === 'employee' ? 'Funcionário' : 'Visualizador'}
+                    </Badge>
+                  )}
+                </p>
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start text-text-secondary hover:text-text-primary"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4 mr-3" />
+              Sair
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -120,8 +182,11 @@ export default function UserProfile() {
               </Avatar>
               
               <div className="text-center mt-4">
-                <h2 className="text-2xl font-bold text-text-primary">João da Silva</h2>
-                <p className="text-text-secondary">Gestor Pecuário</p>
+                <h2 className="text-2xl font-bold text-text-primary">{profile?.full_name || 'Usuário'}</h2>
+                <p className="text-text-secondary">{profile?.position || 'Gestor Pecuário'}</p>
+                {organization && (
+                  <p className="text-sm text-text-tertiary">{organization.name}</p>
+                )}
               </div>
             </div>
 
@@ -163,7 +228,7 @@ export default function UserProfile() {
             <Tabs defaultValue="profile" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="profile">Perfil</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
+                <TabsTrigger value="team">Equipe</TabsTrigger>
                 <TabsTrigger value="reports">Relatórios</TabsTrigger>
                 <TabsTrigger value="settings">Configurações</TabsTrigger>
               </TabsList>
@@ -177,26 +242,39 @@ export default function UserProfile() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <p className="text-text-secondary">
-                        Olá, eu sou João da Silva. Trabalho com gestão pecuária há mais de 15 anos 
+                        Olá, eu sou {profile?.full_name || 'um usuário'}. 
+                        {profile?.position ? ` Trabalho como ${profile.position}` : ' Trabalho com gestão pecuária há mais de 15 anos'} 
                         e utilizo o ConectaBoi Insights para otimizar a produtividade do rebanho 
                         através de análises inteligentes e dados precisos.
                       </p>
                       
                       <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-text-secondary">
-                          <MapPin className="h-4 w-4" />
-                          <span>Fazenda São João, Campo Grande - MS</span>
-                        </div>
+                        {profile?.department && (
+                          <div className="flex items-center gap-2 text-text-secondary">
+                            <MapPin className="h-4 w-4" />
+                            <span>{profile.department}</span>
+                          </div>
+                        )}
                         
                         <div className="flex items-center gap-2 text-text-secondary">
                           <Mail className="h-4 w-4" />
-                          <span>joao.silva@fazenda.com</span>
+                          <span>{profile?.email || user?.email}</span>
                         </div>
                         
                         <div className="flex items-center gap-2 text-text-secondary">
                           <Calendar className="h-4 w-4" />
-                          <span>Membro desde Janeiro 2024</span>
+                          <span>Membro desde {new Date(profile?.created_at).toLocaleDateString('pt-BR', { 
+                            month: 'long', 
+                            year: 'numeric' 
+                          })}</span>
                         </div>
+                        
+                        {organization && (
+                          <div className="flex items-center gap-2 text-text-secondary">
+                            <Users className="h-4 w-4" />
+                            <span>{organization.name}</span>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -237,12 +315,8 @@ export default function UserProfile() {
                 </div>
               </TabsContent>
               
-              <TabsContent value="analytics" className="mt-6">
-                <Card className="border-border-subtle bg-background-secondary/50">
-                  <CardContent className="p-6">
-                    <p className="text-text-secondary">Conteúdo de Analytics em desenvolvimento...</p>
-                  </CardContent>
-                </Card>
+              <TabsContent value="team" className="mt-6">
+                <InviteManager />
               </TabsContent>
               
               <TabsContent value="reports" className="mt-6">
