@@ -3,6 +3,7 @@ import { AIAgentCard } from "@/components/dashboard/AIAgentCard";
 import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-dashboard.jpg";
 
 import { 
@@ -20,6 +21,8 @@ import {
 } from "lucide-react";
 
 export default function ConectaBoiDashboard() {
+  const navigate = useNavigate();
+  
   // Mock data for demonstration
   const mockAlerts = [
     {
@@ -241,7 +244,11 @@ export default function ConectaBoiDashboard() {
             </div>
           </div>
           
-          <Button variant="tech" size="xl">
+          <Button 
+            variant="tech" 
+            size="xl"
+            onClick={() => navigate('/signup')}
+          >
             <Zap className="h-5 w-5" />
             Começar Agora
           </Button>
