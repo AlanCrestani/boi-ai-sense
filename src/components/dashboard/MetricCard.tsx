@@ -22,11 +22,12 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <Card className={cn(
-      "tech-card p-6",
+      "tech-card p-6 relative group overflow-hidden",
       animated && "pulse-data",
       className
     )}>
-      <div className="flex items-center justify-between">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="flex items-center justify-between relative z-10">
         <div className="flex-1">
           <p className="text-sm font-medium text-muted-foreground mb-1">
             {title}
