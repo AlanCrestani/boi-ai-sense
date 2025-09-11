@@ -22,7 +22,7 @@ export function MetricCard({
 }: MetricCardProps) {
   return (
     <Card className={cn(
-      "tech-card p-6 relative group overflow-hidden",
+      "tech-card p-6 relative group overflow-hidden hover:scale-105 hover:border-opacity-60 hover:shadow-lg transition-all duration-300 ease-in-out cursor-pointer",
       animated && "pulse-data",
       className
     )}>
