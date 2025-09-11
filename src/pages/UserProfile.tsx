@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/useAuth";
+import { Layout } from "@/components/Layout";
 import InviteManager from "@/components/InviteManager";
 import { 
   Activity, 
@@ -16,24 +16,14 @@ import {
   Mail, 
   Calendar,
   Settings,
-  Bell,
-  Home,
   BarChart3,
-  MessageSquare,
-  Folder,
-  User,
-  LogOut
+  User
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export default function UserProfile() {
-  const { user, profile, organization, userRole, signOut, loading } = useAuth();
+  const { user, profile, organization, userRole, loading } = useAuth();
   const navigate = useNavigate();
-
-  const handleSignOut = async () => {
-    await signOut();
-    navigate("/");
-  };
 
   // Redirect if not authenticated (use useEffect to avoid setState during render)
   React.useEffect(() => {
@@ -44,12 +34,14 @@ export default function UserProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background-primary flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary mx-auto mb-4"></div>
-          <p className="text-text-secondary">Carregando perfil...</p>
+      <Layout>
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-primary mx-auto mb-4"></div>
+            <p className="text-text-secondary">Carregando perfil...</p>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
@@ -57,61 +49,9 @@ export default function UserProfile() {
   if (!user || !profile) {
     return null;
   }
+
   return (
-    <div className="min-h-screen bg-background-primary">
-      {/* Header */}
-      <header className="bg-card-secondary/50 backdrop-blur-sm border-b border-border-subtle">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Activity className="h-8 w-8 text-accent-primary" />
-                <div className="absolute inset-0 bg-accent-primary/20 blur-lg rounded-full" />
-              </div>
-              <div className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                ConectaBoi
-              </div>
-            </div>
-
-            {/* User Menu */}
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon">
-                <Bell className="h-5 w-5" />
-              </Button>
-              
-              <div className="flex items-center gap-3">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src={profile?.avatar_url} />
-                  <AvatarFallback className="bg-accent-primary text-white text-sm">
-                    {profile?.full_name?.charAt(0) || user?.email?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="hidden sm:block">
-                  <p className="text-sm font-medium text-text-primary">
-                    {profile?.full_name}
-                  </p>
-                  <p className="text-xs text-text-secondary">
-                    {organization?.name}
-                  </p>
-                </div>
-              </div>
-
-              <Button 
-                variant="ghost" 
-                size="sm"
-                onClick={handleSignOut}
-                className="text-text-secondary hover:text-text-primary"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sair
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Container */}
+    <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Navigation Breadcrumb */}
         <div className="mb-6">
@@ -120,7 +60,7 @@ export default function UserProfile() {
               variant="ghost" 
               size="sm" 
               className="p-0 h-auto font-normal text-text-secondary hover:text-accent-primary"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/dashboard")}
             >
               Dashboard
             </Button>
@@ -363,6 +303,6 @@ export default function UserProfile() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </Layout>
   );
 }

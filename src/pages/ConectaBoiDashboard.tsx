@@ -26,16 +26,16 @@ export default function ConectaBoiDashboard() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
 
-  // Redirect authenticated users to user profile
+  // Redirect authenticated users to dashboard
   useEffect(() => {
     if (!loading && user) {
-      navigate("/user-profile");
+      navigate("/dashboard");
     }
   }, [loading, user, navigate]);
 
   const handleGetStarted = () => {
     if (user) {
-      navigate("/user-profile");
+      navigate("/dashboard");
     } else {
       navigate("/signup");
     }
