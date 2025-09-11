@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { format, subDays } from 'date-fns';
 
 export default function Analytics() {
@@ -128,18 +128,18 @@ export default function Analytics() {
                   <Bar 
                     dataKey="consumoPrevisto" 
                     fill="#3b82f6"
-                    name="consumoPrevisto"
+                    name="Previsto"
                     radius={[4, 4, 0, 0]}
                   />
-                  {data.map((entry, index) => (
-                    <Bar 
-                      key={index}
-                      dataKey="consumoRealizado" 
-                      fill={entry.corRealizado}
-                      name="consumoRealizado"
-                      radius={[4, 4, 0, 0]}
-                    />
-                  ))}
+                  <Bar 
+                    dataKey="consumoRealizado" 
+                    name="Realizado"
+                    radius={[4, 4, 0, 0]}
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.corRealizado} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
