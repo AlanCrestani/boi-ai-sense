@@ -85,15 +85,6 @@ export function Layout({ children }: LayoutProps) {
                   </Avatar>
                 </Button>
 
-                {/* Shopping Cart with Badge */}
-                <div className="relative">
-                  <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50">
-                    <ShoppingCart className="h-5 w-5" />
-                  </Button>
-                  <Badge className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground h-5 w-5 text-xs rounded-full flex items-center justify-center">
-                    0
-                  </Badge>
-                </div>
 
                 {/* Dark Mode Toggle */}
                 <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50">
