@@ -70,14 +70,26 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       end 
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 hover-scale group ${
                         isActive(item.url) 
-                          ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary" 
-                          : "hover:bg-background-secondary/50 text-text-secondary hover:text-text-primary"
+                          ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary shadow-sm" 
+                          : "hover:bg-background-secondary/80 hover:shadow-md text-text-secondary hover:text-text-primary transform hover:translate-x-1"
                       }`}
                     >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
+                        isActive(item.url) 
+                          ? "text-accent-primary" 
+                          : "group-hover:text-accent-primary group-hover:scale-110"
+                      }`} />
+                      {!collapsed && (
+                        <span className={`truncate transition-all duration-300 ${
+                          isActive(item.url) 
+                            ? "text-accent-primary font-medium" 
+                            : "group-hover:text-text-primary group-hover:font-medium"
+                        }`}>
+                          {item.title}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -97,14 +109,26 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       end 
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 hover-scale group ${
                         isActive(item.url) 
-                          ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary" 
-                          : "hover:bg-background-secondary/50 text-text-secondary hover:text-text-primary"
+                          ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary shadow-sm" 
+                          : "hover:bg-background-secondary/80 hover:shadow-md text-text-secondary hover:text-text-primary transform hover:translate-x-1"
                       }`}
                     >
-                      <item.icon className="h-4 w-4 flex-shrink-0" />
-                      {!collapsed && <span className="truncate">{item.title}</span>}
+                      <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
+                        isActive(item.url) 
+                          ? "text-accent-primary" 
+                          : "group-hover:text-accent-primary group-hover:scale-110"
+                      }`} />
+                      {!collapsed && (
+                        <span className={`truncate transition-all duration-300 ${
+                          isActive(item.url) 
+                            ? "text-accent-primary font-medium" 
+                            : "group-hover:text-text-primary group-hover:font-medium"
+                        }`}>
+                          {item.title}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
