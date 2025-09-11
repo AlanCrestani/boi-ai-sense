@@ -1,5 +1,6 @@
 import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Breadcrumb,
   BreadcrumbItem,
@@ -8,9 +9,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import { ArrowLeft, Scale, TrendingUp, Activity } from "lucide-react";
+import { ArrowLeft, Scale, TrendingUp, Activity, BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MetricCard } from "@/components/dashboard/MetricCard";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { format, subDays } from 'date-fns';
 
 export default function FeedReading() {
   const navigate = useNavigate();
@@ -18,6 +21,36 @@ export default function FeedReading() {
   const handleBackToDashboard = () => {
     navigate('/dashboard');
   };
+
+  // Gerar dados mock para os últimos 14 dias
+  const generateMockData = () => {
+    const data = [];
+    for (let i = 13; i >= 0; i--) {
+      const date = subDays(new Date(), i);
+      const consumoPrevisto = Math.round(450 + Math.random() * 100); // 450-550 kg
+      const consumoRealizado = Math.round(consumoPrevisto * (0.7 + Math.random() * 0.5)); // 70-120% do previsto
+      
+      // Calcular eficiência
+      const eficiencia = (consumoRealizado / consumoPrevisto) * 100;
+      let corRealizado = '#ef4444'; // vermelho por padrão
+      
+      if (eficiencia >= 90 && eficiencia <= 110) {
+        corRealizado = '#22c55e'; // verde - boa eficiência
+      } else if (eficiencia >= 80 && eficiencia < 90 || eficiencia > 110 && eficiencia <= 120) {
+        corRealizado = '#eab308'; // amarelo - eficiência média
+      }
+
+      data.push({
+        data: format(date, 'dd/MM'),
+        consumoPrevisto,
+        consumoRealizado,
+        corRealizado
+      });
+    }
+    return data;
+  };
+
+  const data = generateMockData();
 
   return (
     <Layout>
@@ -84,20 +117,110 @@ export default function FeedReading() {
           />
         </div>
 
-        {/* Main Content Area - Placeholder for future features */}
-        <div className="tech-card p-8 text-center">
-          <Scale className="h-16 w-16 mx-auto mb-4 text-primary/60" />
-          <h2 className="text-xl font-semibold text-text-primary mb-2">
-            Sistema de Leitura de Cocho
-          </h2>
-          <p className="text-text-secondary mb-6">
-            Aqui você pode monitorar em tempo real o consumo de ração, 
-            níveis dos cochos e receber alertas sobre anomalias no sistema.
-          </p>
-          <Button variant="default">
-            Configurar Sensores
-          </Button>
-        </div>
+        {/* Chart Area */}
+        <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Consumo de Matéria Seca - Últimos 14 Dias
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={data}
+                  margin={{
+                    top: 20,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="data"
+                    stroke="white"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis 
+                    stroke="white"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    label={{ value: 'Matéria Seca (kg/dia)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'hsl(var(--card))',
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--text-primary))'
+                    }}
+                    formatter={(value: number, name: string) => [
+                      `${value} kg`,
+                      name === 'consumoPrevisto' ? 'Previsto' : 'Realizado'
+                    ]}
+                  />
+                  <Legend 
+                    wrapperStyle={{ color: 'hsl(var(--text-secondary))' }}
+                    formatter={(value: string) => value === 'consumoPrevisto' ? 'Previsto' : 'Realizado'}
+                  />
+                  <Bar 
+                    dataKey="consumoPrevisto" 
+                    fill="#3b82f6"
+                    name="Previsto"
+                    radius={[4, 4, 0, 0]}
+                  />
+                  <Bar 
+                    dataKey="consumoRealizado" 
+                    name="Realizado"
+                    radius={[4, 4, 0, 0]}
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.corRealizado} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* Legenda de cores */}
+            <div className="mt-4 flex items-center justify-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-500 rounded"></div>
+                <span className="text-text-secondary">Eficiência Boa (90-110%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                <span className="text-text-secondary">Eficiência Média (80-90% | 110-120%)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-red-500 rounded"></div>
+                <span className="text-text-secondary">Eficiência Ruim (&lt;80% | &gt;120%)</span>
+              </div>
+            </div>
+            
+            {/* Botões para lançar leitura de cocho */}
+            <div className="mt-6 border-t border-border-subtle pt-6">
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Lançar Leitura de Cocho</h3>
+              <div className="flex flex-wrap gap-3 justify-center">
+                {[-2, -1, 0, 1, 2, 3, 4].map((value) => (
+                  <Button
+                    key={value}
+                    variant="outline"
+                    className="min-w-[60px] h-12 text-lg font-bold hover:bg-accent-primary/10"
+                    onClick={() => console.log(`Leitura lançada: ${value}`)}
+                  >
+                    {value > 0 ? `+${value}` : value}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </Layout>
   );
