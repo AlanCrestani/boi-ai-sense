@@ -10,6 +10,8 @@ import Analytics from "./pages/Analytics";
 import Reports from "./pages/Reports";
 import Team from "./pages/Team";
 import Settings from "./pages/Settings";
+import Alerts from "./pages/Alerts";
+import Optimizations from "./pages/Optimizations";
 import SignUp from "./pages/SignUp";
 import SignIn from "./pages/SignIn";
 import UserProfile from "./pages/UserProfile";
@@ -29,6 +31,10 @@ const App = () => (
             <Route path="/" element={<ConectaBoiDashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/desvios" element={<Analytics />} />
+            <Route path="/logistica" element={<Analytics />} />
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/optimizations" element={<Optimizations />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/team" element={<Team />} />
             <Route path="/settings" element={<Settings />} />

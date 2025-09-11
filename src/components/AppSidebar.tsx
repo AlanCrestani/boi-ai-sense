@@ -24,15 +24,23 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const mainItems = [
+const principalItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
+];
+
+const operationalItems = [
   { title: "Leitura de Cocho", url: "/analytics", icon: BarChart3 },
-  { title: "Analise de Desvios", url: "/desvios", icon: Activity },
+  { title: "Análise de Desvios", url: "/desvios", icon: Activity },
   { title: "Logística de Tratos", url: "/logistica", icon: FileText },
-  { title: "Relatórios", url: "/reports", icon: FileText },
+];
+
+const aiInsightsItems = [
+  { title: "Alertas & Feedbacks", url: "/alerts", icon: Activity },
+  { title: "Otimizações Recomendadas", url: "/optimizations", icon: BarChart3 },
 ];
 
 const managementItems = [
+  { title: "Relatórios", url: "/reports", icon: FileText },
   { title: "Equipe", url: "/team", icon: Users },
   { title: "Configurações", url: "/settings", icon: Settings },
 ];
@@ -82,12 +90,12 @@ export function AppSidebar() {
 
         {/* Navigation Content */}
         <div className="flex-1">
-          {/* Main Navigation */}
+          {/* Principal */}
           <SidebarGroup>
             <SidebarGroupLabel className="text-text-tertiary">Principal</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {mainItems.map((item) => (
+                {principalItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <NavLink 
@@ -121,9 +129,87 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          {/* Management */}
+          {/* Operacional */}
           <SidebarGroup>
-            <SidebarGroupLabel className="text-text-tertiary">Gerenciamento</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-text-tertiary">Operacional</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {operationalItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        end 
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 hover-scale group ${
+                          isActive(item.url) 
+                            ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary shadow-sm" 
+                            : "hover:bg-background-secondary/80 hover:shadow-md text-text-secondary hover:text-text-primary transform hover:translate-x-1"
+                        }`}
+                      >
+                        <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
+                          isActive(item.url) 
+                            ? "text-accent-primary" 
+                            : "group-hover:text-accent-primary group-hover:scale-110"
+                        }`} />
+                        {!collapsed && (
+                          <span className={`truncate transition-all duration-300 ${
+                            isActive(item.url) 
+                              ? "text-accent-primary font-medium" 
+                              : "group-hover:text-text-primary group-hover:font-medium"
+                          }`}>
+                            {item.title}
+                          </span>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          {/* Insights de IA */}
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-text-tertiary">Insights de IA</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {aiInsightsItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        end 
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-300 hover-scale group ${
+                          isActive(item.url) 
+                            ? "bg-accent-primary/20 text-accent-primary font-medium border-r-2 border-accent-primary shadow-sm" 
+                            : "hover:bg-background-secondary/80 hover:shadow-md text-text-secondary hover:text-text-primary transform hover:translate-x-1"
+                        }`}
+                      >
+                        <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-300 ${
+                          isActive(item.url) 
+                            ? "text-accent-primary" 
+                            : "group-hover:text-accent-primary group-hover:scale-110"
+                        }`} />
+                        {!collapsed && (
+                          <span className={`truncate transition-all duration-300 ${
+                            isActive(item.url) 
+                              ? "text-accent-primary font-medium" 
+                              : "group-hover:text-text-primary group-hover:font-medium"
+                          }`}>
+                            {item.title}
+                          </span>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          {/* Gestão */}
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-text-tertiary">Gestão</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {managementItems.map((item) => (
