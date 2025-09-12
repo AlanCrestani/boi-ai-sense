@@ -26,6 +26,7 @@ export default function Analytics() {
   const navigate = useNavigate();
   const [selectedVagao, setSelectedVagao] = useState("vagao-1");
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("carregamento");
   const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
 
@@ -346,7 +347,7 @@ export default function Analytics() {
         </div>
 
         {/* Tabs for Different Analysis Types */}
-        <Tabs defaultValue="carregamento" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="carregamento" className="flex items-center gap-2">
               <TruckIcon className="h-4 w-4" />
@@ -1160,7 +1161,8 @@ export default function Analytics() {
       {/* Loading Agent Chat */}
       <LoadingAgentChat 
         isOpen={isChatOpen} 
-        onClose={() => setIsChatOpen(false)} 
+        onClose={() => setIsChatOpen(false)}
+        agentType={activeTab === "carregamento" ? "loading" : "distribution"} 
       />
     </Layout>
   );

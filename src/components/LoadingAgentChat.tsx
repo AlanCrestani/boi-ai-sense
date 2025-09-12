@@ -15,9 +15,10 @@ interface Message {
 interface LoadingAgentChatProps {
   isOpen: boolean;
   onClose: () => void;
+  agentType?: 'loading' | 'distribution';
 }
 
-const mockAgentResponses = [
+const mockLoadingResponses = [
   "Olá! Sou o agente especializado em carregamento. Como posso ajudar você hoje?",
   "Analisando os dados do último carregamento... Detectei um desvio de 2.3kg no Vagão 1. Quer que eu investigue?",
   "O consumo de milho está 5% acima do previsto hoje. Isso pode estar relacionado à umidade do ingrediente.",
@@ -28,11 +29,26 @@ const mockAgentResponses = [
   "Baseado no histórico, sugiro aumentar o tempo de mistura em 30 segundos para melhorar a homogeneidade."
 ];
 
-export function LoadingAgentChat({ isOpen, onClose }: LoadingAgentChatProps) {
+const mockDistributionResponses = [
+  "Olá! Sou o agente especializado em distribuição. Como posso ajudar você hoje?",
+  "Analisando a eficiência de distribuição... Detectei que o Curral 15 teve eficiência de 89% hoje. Precisa de atenção.",
+  "O Tratador Luiz Lopez está com performance consistente de 96%. Agustin Lopez teve variação maior.",
+  "Identifiquei que o Trato 1 sempre tem menor precisão - é normal o 'aquecimento' inicial do sistema.",
+  "A eficiência por tipo de dieta mostra que TERMINACION tem os melhores resultados hoje.",
+  "O vagão BAHMAN representa 68% da produção total. Performance excelente.",
+  "Recomendo revisar a sequência do Trato 3 - houve degradação na eficiência neste período.",
+  "A produtividade por hora mostra pico às 10h. Padrão normal de operação identificado."
+];
+
+export function LoadingAgentChat({ isOpen, onClose, agentType = 'loading' }: LoadingAgentChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const currentResponses = agentType === 'loading' ? mockLoadingResponses : mockDistributionResponses;
+  const agentTitle = agentType === 'loading' ? 'Agente de Carregamento' : 'Agente de Distribuição';
+  const agentDescription = agentType === 'loading' ? 'Online • Especialista em Desvios' : 'Online • Especialista em Eficiência';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,10 +62,10 @@ export function LoadingAgentChat({ isOpen, onClose }: LoadingAgentChatProps) {
     if (isOpen && messages.length === 0) {
       // Mensagem inicial do agente
       setTimeout(() => {
-        addAgentMessage(mockAgentResponses[0]);
+        addAgentMessage(currentResponses[0]);
       }, 500);
     }
-  }, [isOpen]);
+  }, [isOpen, currentResponses]);
 
   const addAgentMessage = (text: string) => {
     const newMessage: Message = {
@@ -77,7 +93,7 @@ export function LoadingAgentChat({ isOpen, onClose }: LoadingAgentChatProps) {
     const responseDelay = Math.random() * 2000 + 1000; // 1-3 segundos
     
     setTimeout(() => {
-      const randomResponse = mockAgentResponses[Math.floor(Math.random() * mockAgentResponses.length)];
+      const randomResponse = currentResponses[Math.floor(Math.random() * currentResponses.length)];
       addAgentMessage(randomResponse);
     }, responseDelay);
   };
@@ -108,8 +124,8 @@ export function LoadingAgentChat({ isOpen, onClose }: LoadingAgentChatProps) {
                 <Bot className="h-4 w-4 text-white" />
               </div>
               <div>
-                <CardTitle className="text-lg">Agente de Carregamento</CardTitle>
-                <p className="text-sm text-muted-foreground">Online • Especialista em Desvios</p>
+                <CardTitle className="text-lg">{agentTitle}</CardTitle>
+                <p className="text-sm text-muted-foreground">{agentDescription}</p>
               </div>
             </div>
             <Button
