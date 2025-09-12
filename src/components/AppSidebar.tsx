@@ -29,7 +29,7 @@ const principalItems = [
 ];
 
 const operationalItems = [
-  { title: "Leitura de Cocho", url: "/analytics", icon: BarChart3 },
+  { title: "Leitura de Cocho", url: "/feed-reading", icon: BarChart3 },
   { title: "Análise de Desvios", url: "/desvios", icon: Activity },
   { title: "Logística de Tratos", url: "/logistica", icon: FileText },
 ];
