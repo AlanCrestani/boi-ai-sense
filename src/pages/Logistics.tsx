@@ -171,35 +171,35 @@ export default function Logistics() {
           <p className="text-text-secondary">Gerencie rotas, distribuição e equipamentos de trato</p>
         </div>
 
-        {/* Metrics Cards */}
+        {/* Content Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
             title="Rotas Ativas"
             value="2"
-            subtitle="+1 hoje"
+            subtitle="↗ +1 hoje"
             trend="up"
-            icon={<Route className="h-5 w-5" />}
+            icon={<Route className="h-6 w-6" />}
           />
           <MetricCard
             title="Equipamentos Operando"
             value="2/3"
-            subtitle="1 em manutenção"
+            subtitle="→ 1 em manutenção"
             trend="stable"
-            icon={<Truck className="h-5 w-5" />}
+            icon={<Truck className="h-6 w-6" />}
           />
           <MetricCard
             title="Eficiência Média"
             value="94%"
-            subtitle="+3% esta semana"
+            subtitle="↗ +3% esta semana"
             trend="up"
-            icon={<CheckCircle className="h-5 w-5" />}
+            icon={<CheckCircle className="h-6 w-6" />}
           />
           <MetricCard
             title="Tempo Médio/Rota"
             value="2h 15m"
-            subtitle="-15min otimizado"
+            subtitle="↘ -15min otimizado"
             trend="down"
-            icon={<Clock className="h-5 w-5" />}
+            icon={<Clock className="h-6 w-6" />}
           />
         </div>
 
