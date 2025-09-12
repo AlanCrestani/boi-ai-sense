@@ -208,69 +208,6 @@ export default function Analytics() {
           <p className="text-text-secondary">Monitore desvios operacionais no carregamento e distribuição de ração</p>
         </div>
 
-        {/* Date Range Selector */}
-        <div className="flex items-center gap-4 mb-8 p-4 bg-card-secondary/30 rounded-lg border border-border-subtle">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-text-primary">Período de análise:</span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-[140px] justify-start text-left font-normal",
-                    !startDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "dd/MM/yyyy") : <span>Data inicial</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={setStartDate}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-            
-            <span className="text-text-secondary">até</span>
-            
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-[140px] justify-start text-left font-normal",
-                    !endDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "dd/MM/yyyy") : <span>Data final</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={setEndDate}
-                  initialFocus
-                  className="p-3 pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-            
-            <Button variant="secondary" size="sm" className="ml-2">
-              Aplicar Filtro
-            </Button>
-          </div>
-        </div>
-
         {/* Content Grid - Metrics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
@@ -317,6 +254,69 @@ export default function Analytics() {
           </TabsList>
 
           <TabsContent value="carregamento">
+            {/* Date Range Selector */}
+            <div className="flex items-center gap-4 mb-8 p-4 bg-card-secondary/30 rounded-lg border border-border-subtle">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-text-primary">Período de análise:</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[140px] justify-start text-left font-normal",
+                        !startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "dd/MM/yyyy") : <span>Data inicial</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                
+                <span className="text-text-secondary">até</span>
+                
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-[140px] justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "dd/MM/yyyy") : <span>Data final</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+                
+                <Button variant="secondary" size="sm" className="ml-2">
+                  Aplicar Filtro
+                </Button>
+              </div>
+            </div>
+            
             {/* Chat Button - Fixed position for this section */}
             <div className="fixed bottom-6 right-6 z-50">
               <Button
