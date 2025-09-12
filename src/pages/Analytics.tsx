@@ -129,6 +129,98 @@ export default function Analytics() {
     }));
   };
 
+  // Dados mock para análise de distribuição
+  const generateMockEfficiencyDistributionHist = () => [
+    { eficiencia: '75-80', frequencia: 3 },
+    { eficiencia: '80-85', frequencia: 8 },
+    { eficiencia: '85-90', frequencia: 15 },
+    { eficiencia: '90-95', frequencia: 25 },
+    { eficiencia: '95-100', frequencia: 35 },
+    { eficiencia: '100-105', frequencia: 30 },
+    { eficiencia: '105-110', frequencia: 20 },
+    { eficiencia: '110-115', frequencia: 12 },
+    { eficiencia: '115-120', frequencia: 5 }
+  ];
+
+  const generateMockEfficiencyByHandler = () => [
+    { tratador: 'Luiz Lopez', q1: 92, median: 96, q3: 102, min: 85, max: 115, outliers: [118, 122] },
+    { tratador: 'Agustin Lopez', q1: 88, median: 94, q3: 99, min: 82, max: 108, outliers: [112] }
+  ];
+
+  const generateMockEfficiencyByDietType = () => [
+    { dieta: 'CRECIMIENTO', q1: 90, median: 95, q3: 101, min: 83, max: 112, outliers: [115, 118] },
+    { dieta: 'TERMINACION', q1: 88, median: 93, q3: 98, min: 80, max: 110, outliers: [113] },
+    { dieta: 'RECRIA FEMEA', q1: 85, median: 90, q3: 96, min: 78, max: 105, outliers: [] }
+  ];
+
+  const generateMockRealizadoVsPrevisto = () => {
+    const data = [];
+    for (let i = 0; i < 50; i++) {
+      const previsto = 400 + Math.random() * 200;
+      const realizado = previsto * (0.8 + Math.random() * 0.4);
+      data.push({ previsto, realizado });
+    }
+    return data;
+  };
+
+  const generateMockDesvioAbsolutoByTrato = () => [
+    { trato: 'Trato 1', desvio: 3.2 },
+    { trato: 'Trato 2', desvio: 2.1 },
+    { trato: 'Trato 3', desvio: 1.8 },
+    { trato: 'Trato 4', desvio: 1.2 }
+  ];
+
+  const generateMockEfficiencyByTrato = () => [
+    { trato: 'Trato 1', eficiencia: 92.5 },
+    { trato: 'Trato 2', eficiencia: 96.8 },
+    { trato: 'Trato 3', eficiencia: 89.2 },
+    { trato: 'Trato 4', eficiencia: 98.1 }
+  ];
+
+  const generateMockProductivityByHour = () => {
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+    return hours.map(hour => ({
+      hora: `${hour.toString().padStart(2, '0')}:00`,
+      volume: hour >= 6 && hour <= 18 ? 80 + Math.random() * 60 : 20 + Math.random() * 30
+    }));
+  };
+
+  const generateMockPercentualDeviations = () => [
+    { desvio: '-20 a -15', frequencia: 2 },
+    { desvio: '-15 a -10', frequencia: 5 },
+    { desvio: '-10 a -5', frequencia: 12 },
+    { desvio: '-5 a 0', frequencia: 18 },
+    { desvio: '0 a 5', frequencia: 25 },
+    { desvio: '5 a 10', frequencia: 20 },
+    { desvio: '10 a 15', frequencia: 12 },
+    { desvio: '15 a 20', frequencia: 6 }
+  ];
+
+  const generateMockEfficiencyVsAbsoluteDeviation = () => {
+    const data = [];
+    for (let i = 0; i < 40; i++) {
+      const eficiencia = 80 + Math.random() * 40;
+      const desvioAbsoluto = Math.random() * 5;
+      data.push({ eficiencia, desvioAbsoluto });
+    }
+    return data;
+  };
+
+  const generateMockProductionByWagon = () => [
+    { name: 'BAHMAN', value: 45, fill: '#0088FE' },
+    { name: 'Vagão 2', value: 25, fill: '#00C49F' },
+    { name: 'Vagão 3', value: 18, fill: '#FFBB28' },
+    { name: 'Vagão 4', value: 12, fill: '#FF8042' }
+  ];
+
+  const generateMockEfficiencyTimeline = () => {
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+    return hours.map(hour => ({
+      hora: `${hour.toString().padStart(2, '0')}:00`,
+      eficiencia: 100 - (hour * 0.8) + (Math.random() * 10 - 5)
+    }));
+  };
+
   // Dados mock para distribuição (mantendo compatibilidade)
   const generateMockData = () => {
     const data = [];
@@ -169,6 +261,19 @@ export default function Analytics() {
   const volumeByWagon = generateMockVolumeByWagon();
   const efficiencyOverTime = generateMockEfficiencyOverTime();
   const volumePerHour = generateMockVolumePerHour();
+  
+  // Dados para análise de distribuição
+  const efficiencyDistributionHist = generateMockEfficiencyDistributionHist();
+  const efficiencyByHandler = generateMockEfficiencyByHandler();
+  const efficiencyByDietType = generateMockEfficiencyByDietType();
+  const realizadoVsPrevisto = generateMockRealizadoVsPrevisto();
+  const desvioAbsolutoByTrato = generateMockDesvioAbsolutoByTrato();
+  const efficiencyByTrato = generateMockEfficiencyByTrato();
+  const productivityByHour = generateMockProductivityByHour();
+  const percentualDeviations = generateMockPercentualDeviations();
+  const efficiencyVsAbsoluteDeviation = generateMockEfficiencyVsAbsoluteDeviation();
+  const productionByWagon = generateMockProductionByWagon();
+  const efficiencyTimeline = generateMockEfficiencyTimeline();
 
   const CustomBar = (props: any) => {
     const { payload, ...rest } = props;
@@ -737,92 +842,244 @@ export default function Analytics() {
           </TabsContent>
 
           <TabsContent value="distribuicao">
-            <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Análise de Desvios em Distribuição - Últimos 14 Dias
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <div className="h-96">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={data}
-                      margin={{
-                        top: 20,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                      }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis 
-                        dataKey="data"
-                        stroke="white"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis 
-                        stroke="white"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        label={{ value: 'Peso Distribuído (kg)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }}
-                      />
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: 'hsl(var(--card))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                          color: 'hsl(var(--text-primary))'
-                        }}
-                        formatter={(value: number, name: string) => [
-                          `${value} kg`,
-                          name === 'consumoPrevisto' ? 'Programado' : 'Distribuído'
-                        ]}
-                      />
-                      <Legend 
-                        wrapperStyle={{ color: 'hsl(var(--text-secondary))' }}
-                        formatter={(value: string) => value === 'consumoPrevisto' ? 'Programado' : 'Distribuído'}
-                      />
-                      <Bar 
-                        dataKey="consumoPrevisto" 
-                        fill="#3b82f6"
-                        name="Programado"
-                        radius={[4, 4, 0, 0]}
-                      />
-                      <Bar 
-                        dataKey="consumoRealizado" 
-                        name="Distribuído"
-                        radius={[4, 4, 0, 0]}
-                      >
-                        {data.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.corRealizado} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                {/* Legenda de cores */}
-                <div className="mt-4 flex items-center justify-center gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-green-500 rounded"></div>
-                    <span className="text-text-secondary">Desvio Baixo (90-110%)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-                    <span className="text-text-secondary">Desvio Médio (80-90% | 110-120%)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-500 rounded"></div>
-                    <span className="text-text-secondary">Desvio Alto (&lt;80% | &gt;120%)</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Análises Quantitativas Gerais */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-text-primary mb-6">Análises Quantitativas Gerais</h2>
+              
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                {/* 1. Distribuição da Eficiência (Histograma) */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Distribuição da Eficiência (Histograma)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={efficiencyDistributionHist} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="eficiencia" stroke="white" fontSize={12} />
+                          <YAxis stroke="white" fontSize={12} label={{ value: 'Frequência', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }} />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              color: 'hsl(var(--foreground))'
+                            }}
+                            formatter={(value) => [`${value}`, 'Frequência']}
+                          />
+                          <Bar dataKey="frequencia" fill="#0088FE" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 2. Realizado vs Previsto (Scatter Plot) */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Realizado vs Previsto (Scatter Plot)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={realizadoVsPrevisto.slice(0, 15)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="previsto" stroke="white" fontSize={12} label={{ value: 'Previsto (kg)', position: 'insideBottom', offset: -5, style: { textAnchor: 'middle', fill: 'white' } }} />
+                          <YAxis stroke="white" fontSize={12} label={{ value: 'Realizado (kg)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }} />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              color: 'hsl(var(--foreground))'
+                            }}
+                            formatter={(value) => [`${Math.round(Number(value))} kg`, '']}
+                          />
+                          <Bar dataKey="realizado" fill="#00C49F" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 3. Desvio Absoluto por Trato */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Desvio Absoluto por Trato</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={desvioAbsolutoByTrato} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="trato" stroke="white" fontSize={12} />
+                          <YAxis stroke="white" fontSize={12} label={{ value: 'Desvio Absoluto (kg)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }} />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              color: 'hsl(var(--foreground))'
+                            }}
+                            formatter={(value) => [`${value} kg`, 'Desvio']}
+                          />
+                          <Bar dataKey="desvio" fill="#FFBB28" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 4. Eficiência Média por Trato */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Eficiência Média por Trato</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={efficiencyByTrato} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="trato" stroke="white" fontSize={12} />
+                          <YAxis stroke="white" fontSize={12} domain={[80, 110]} label={{ value: 'Eficiência (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }} />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              color: 'hsl(var(--foreground))'
+                            }}
+                            formatter={(value) => [`${Number(value).toFixed(1)}%`, 'Eficiência']}
+                          />
+                          <Bar dataKey="eficiencia" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 5. Produtividade por Hora */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Produtividade por Hora</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={productivityByHour} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="hora" stroke="white" fontSize={12} />
+                          <YAxis stroke="white" fontSize={12} label={{ value: 'Volume (kg)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }} />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              color: 'hsl(var(--foreground))'
+                            }}
+                            formatter={(value) => [`${Math.round(Number(value))} kg`, 'Volume']}
+                          />
+                          <Line type="monotone" dataKey="volume" stroke="#82ca9d" strokeWidth={3} dot={{ r: 4 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 6. Distribuição dos Desvios Percentuais */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Distribuição dos Desvios Percentuais</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={percentualDeviations} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="desvio" stroke="white" fontSize={12} />
+                          <YAxis stroke="white" fontSize={12} label={{ value: 'Frequência', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }} />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              color: 'hsl(var(--foreground))'
+                            }}
+                            formatter={(value) => [`${value}`, 'Frequência']}
+                          />
+                          <Bar dataKey="frequencia" fill="#FF8042" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 7. Distribuição da Produção por Vagão */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Distribuição da Produção por Vagão</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={productionByWagon}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            outerRadius={80}
+                            fill="#8884d8"
+                            dataKey="value"
+                          />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              color: 'hsl(var(--foreground))',
+                              fontSize: '14px',
+                              fontWeight: '500'
+                            }}
+                            formatter={(value) => [`${value}%`, 'Participação']}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 8. Eficiência ao Longo do Tempo */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Eficiência ao Longo do Tempo</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-80">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={efficiencyTimeline} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                          <XAxis dataKey="hora" stroke="white" fontSize={12} />
+                          <YAxis stroke="white" fontSize={12} domain={[85, 105]} label={{ value: 'Eficiência (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'white' } }} />
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px',
+                              color: 'hsl(var(--foreground))'
+                            }}
+                            formatter={(value) => [`${Number(value).toFixed(1)}%`, 'Eficiência']}
+                          />
+                          <Line type="monotone" dataKey="eficiencia" stroke="#8884d8" strokeWidth={3} dot={{ r: 4 }} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
