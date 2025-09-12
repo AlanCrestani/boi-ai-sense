@@ -905,6 +905,16 @@ export default function Analytics() {
               </div>
             </div>
             
+            {/* Chat Button - Fixed position for Distribution section */}
+            <div className="fixed bottom-6 right-6 z-50">
+              <Button
+                className="w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                onClick={() => setIsChatOpen(true)}
+              >
+                <MessageCircle className="h-6 w-6" />
+              </Button>
+            </div>
+            
             {/* Análises Quantitativas Gerais */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-text-primary mb-6">Análises Quantitativas Gerais</h2>
