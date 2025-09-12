@@ -10,7 +10,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import { BarChart3, ArrowLeft, TruckIcon, MapPin, AlertTriangle, TrendingDown, MessageCircle } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { BarChart3, ArrowLeft, TruckIcon, MapPin, AlertTriangle, TrendingDown, MessageCircle, CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie, LineChart, Line } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,11 +20,14 @@ import { useState } from "react";
 import { format, subDays } from 'date-fns';
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { LoadingAgentChat } from "@/components/LoadingAgentChat";
+import { cn } from "@/lib/utils";
 
 export default function Analytics() {
   const navigate = useNavigate();
   const [selectedVagao, setSelectedVagao] = useState("vagao-1");
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
+  const [endDate, setEndDate] = useState<Date | undefined>(new Date());
 
   const handleBackToDashboard = () => {
     navigate("/dashboard");
@@ -201,6 +206,69 @@ export default function Analytics() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-text-primary mb-2">Análise de Desvios</h1>
           <p className="text-text-secondary">Monitore desvios operacionais no carregamento e distribuição de ração</p>
+        </div>
+
+        {/* Date Range Selector */}
+        <div className="flex items-center gap-4 mb-8 p-4 bg-card-secondary/30 rounded-lg border border-border-subtle">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-text-primary">Período de análise:</span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[140px] justify-start text-left font-normal",
+                    !startDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {startDate ? format(startDate, "dd/MM/yyyy") : <span>Data inicial</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={startDate}
+                  onSelect={setStartDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+            
+            <span className="text-text-secondary">até</span>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[140px] justify-start text-left font-normal",
+                    !endDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {endDate ? format(endDate, "dd/MM/yyyy") : <span>Data final</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={endDate}
+                  onSelect={setEndDate}
+                  initialFocus
+                  className="p-3 pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+            
+            <Button variant="secondary" size="sm" className="ml-2">
+              Aplicar Filtro
+            </Button>
+          </div>
         </div>
 
         {/* Content Grid - Metrics Cards */}
