@@ -17,7 +17,7 @@ const languages: Language[] = [
     code: "pt-BR",
     name: "Português",
     region: "Brasil",
-    flag: "data:image/svg+xml,%3csvg%20height='20'%20viewBox='0%200%2028%2020'%20width='28'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='28'%20height='20'%20fill='%23009c3b'/%3e%3ccircle%20cx='14'%20cy='10'%20r='7'%20fill='%23ffdf00'/%3e%3cpath%20d='M7%2010a7%207%200%201%201%2014%200%207%207%200%200%201-14%200'%20fill='%23002776'/%3e%3cpath%20d='M14%207.5a2.5%202.5%200%201%200%200%205%202.5%202.5%200%200%200%200-5'%20fill='%23009c3b'/%3e%3c/svg%3e",
+    flag: "data:image/svg+xml,%3csvg%20height='20'%20viewBox='0%200%2028%2020'%20width='28'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='28'%20height='20'%20fill='%23009c3b'/%3e%3cpath%20d='M4%2010L14%204L24%2010L14%2016Z'%20fill='%23ffdf00'/%3e%3cellipse%20cx='14'%20cy='10'%20rx='8'%20ry='5.5'%20fill='%23002776'/%3e%3cpath%20d='M8%2010q6-3%2012%200q-6%203-12%200'%20fill='none'%20stroke='%23fff'%20stroke-width='0.5'/%3e%3ccircle%20cx='11'%20cy='8.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='14'%20cy='7.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='17'%20cy='8.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='12.5'%20cy='10.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='15.5'%20cy='10.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='14'%20cy='12.5'%20r='0.3'%20fill='%23fff'/%3e%3c/svg%3e",
     fallback: "BR"
   },
   {
