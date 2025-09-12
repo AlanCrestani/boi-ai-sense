@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { useNavigate } from "react-router-dom";
 import { 
-  ChevronLeft, 
+  ArrowLeft, 
   Truck, 
   Clock, 
   CheckCircle, 
@@ -27,6 +27,10 @@ import {
 
 export default function Logistics() {
   const navigate = useNavigate();
+
+  const handleBackToDashboard = () => {
+    navigate('/dashboard');
+  };
 
   const logisticsData = [
     {
@@ -136,47 +140,39 @@ export default function Logistics() {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/dashboard")}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Voltar ao Dashboard
-              </Button>
-            </div>
-            
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbLink onClick={() => navigate("/dashboard")} className="cursor-pointer">
-                    Dashboard
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Logística de Tratos</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+      <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* Breadcrumbs and Back Button */}
+        <div className="flex items-center justify-between mb-6">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Logística de Tratos</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          
+          <Button 
+            onClick={handleBackToDashboard}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar ao Dashboard
+          </Button>
+        </div>
 
-            <div>
-              <h1 className="text-3xl font-bold gradient-text">Logística de Tratos</h1>
-              <p className="text-muted-foreground">
-                Gestão completa de rotas, equipamentos e distribuição de alimentação
-              </p>
-            </div>
-          </div>
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-text-primary mb-2">Logística de Tratos</h1>
+          <p className="text-text-secondary">Gerencie rotas, distribuição e equipamentos de trato</p>
         </div>
 
         {/* Metrics Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <MetricCard
             title="Rotas Ativas"
             value="2"
