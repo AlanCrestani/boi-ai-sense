@@ -10,7 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import { BarChart3, ArrowLeft, TruckIcon, MapPin, AlertTriangle, TrendingDown } from "lucide-react";
+import { BarChart3, ArrowLeft, TruckIcon, MapPin, AlertTriangle, TrendingDown, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie, LineChart, Line } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -247,6 +247,19 @@ export default function Analytics() {
           </TabsList>
 
           <TabsContent value="carregamento">
+            {/* Chat Button - Fixed position for this section */}
+            <div className="fixed bottom-6 right-6 z-50">
+              <Button
+                className="w-14 h-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+                onClick={() => {
+                  // TODO: Implementar funcionalidade do chat com agente
+                  console.log('Abrir chat com agente de carregamento');
+                }}
+              >
+                <MessageCircle className="h-6 w-6" />
+              </Button>
+            </div>
+            
             {/* Análises Quantitativas */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-text-primary mb-6">Análises Quantitativas</h2>
