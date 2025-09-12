@@ -17,10 +17,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useState } from "react";
 import { format, subDays } from 'date-fns';
 import { MetricCard } from "@/components/dashboard/MetricCard";
+import { LoadingAgentChat } from "@/components/LoadingAgentChat";
 
 export default function Analytics() {
   const navigate = useNavigate();
   const [selectedVagao, setSelectedVagao] = useState("vagao-1");
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleBackToDashboard = () => {
     navigate("/dashboard");
@@ -251,10 +253,7 @@ export default function Analytics() {
             <div className="fixed bottom-6 right-6 z-50">
               <Button
                 className="w-14 h-14 rounded-full bg-primary hover:bg-primary/90 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
-                onClick={() => {
-                  // TODO: Implementar funcionalidade do chat com agente
-                  console.log('Abrir chat com agente de carregamento');
-                }}
+                onClick={() => setIsChatOpen(true)}
               >
                 <MessageCircle className="h-6 w-6" />
               </Button>
@@ -757,6 +756,12 @@ export default function Analytics() {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Loading Agent Chat */}
+      <LoadingAgentChat 
+        isOpen={isChatOpen} 
+        onClose={() => setIsChatOpen(false)} 
+      />
     </Layout>
   );
 }
