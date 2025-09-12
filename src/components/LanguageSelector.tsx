@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import brazilFlag from "@/assets/brazil-flag.webp";
 
 export interface Language {
   code: string;
@@ -17,7 +18,7 @@ const languages: Language[] = [
     code: "pt-BR",
     name: "Português",
     region: "Brasil",
-    flag: "data:image/svg+xml,%3csvg%20height='20'%20viewBox='0%200%2028%2020'%20width='28'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20width='28'%20height='20'%20fill='%23009c3b'/%3e%3cpath%20d='M4%2010L14%204L24%2010L14%2016Z'%20fill='%23ffdf00'/%3e%3cellipse%20cx='14'%20cy='10'%20rx='8'%20ry='5.5'%20fill='%23002776'/%3e%3cpath%20d='M8%2010q6-3%2012%200q-6%203-12%200'%20fill='none'%20stroke='%23fff'%20stroke-width='0.5'/%3e%3ccircle%20cx='11'%20cy='8.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='14'%20cy='7.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='17'%20cy='8.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='12.5'%20cy='10.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='15.5'%20cy='10.5'%20r='0.3'%20fill='%23fff'/%3e%3ccircle%20cx='14'%20cy='12.5'%20r='0.3'%20fill='%23fff'/%3e%3c/svg%3e",
+    flag: brazilFlag,
     fallback: "BR"
   },
   {
