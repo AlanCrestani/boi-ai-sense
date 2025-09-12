@@ -17,6 +17,7 @@ import SignIn from "./pages/SignIn";
 import UserProfile from "./pages/UserProfile";
 import InvitePage from "./pages/InvitePage";
 import FeedReading from "./pages/FeedReading";
+import Logistics from "./pages/Logistics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,7 +34,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/desvios" element={<Analytics />} />
-            <Route path="/logistica" element={<Analytics />} />
+            <Route path="/logistica" element={<Logistics />} />
             <Route path="/alerts" element={<Alerts />} />
             <Route path="/optimizations" element={<Optimizations />} />
             <Route path="/reports" element={<Reports />} />
