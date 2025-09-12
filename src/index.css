@@ -16,9 +16,9 @@
     --popover: 210 65% 16%;
     --popover-foreground: 0 0% 96%;
 
-    /* Primary - Verde-limão tecnológico para destaques */
-    --primary: 150 94% 49%;     /* #05F283 */
-    --primary-foreground: 207 71% 8%;
+    /* Primary - Verde sutil tecnológico para destaques */
+    --primary: 150 65% 42%;     /* Verde mais sutil e profissional */
+    --primary-foreground: 0 0% 98%;
 
     /* Secondary - Tons de azul para variações */
     --secondary: 210 65% 20%;
@@ -38,17 +38,17 @@
 
     --border: 210 65% 25%;
     --input: 210 65% 25%;
-    --ring: 150 94% 49%;
+    --ring: 150 65% 42%;
 
     --radius: 0.75rem;
 
     /* Tech Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(150 94% 49%), hsl(174 100% 50%));
+    --gradient-primary: linear-gradient(135deg, hsl(150 65% 42%), hsl(174 100% 50%));
     --gradient-bg: linear-gradient(180deg, hsl(207 71% 8%), hsl(210 65% 12%));
     --gradient-card: linear-gradient(145deg, hsl(210 65% 16%), hsl(210 65% 20%));
     
     /* Glows and Effects */
-    --glow-primary: 0 0 30px hsl(150 94% 49% / 0.3);
+    --glow-primary: 0 0 30px hsl(150 65% 42% / 0.3);
     --glow-accent: 0 0 25px hsl(174 100% 50% / 0.4);
     --glow-alert: 0 0 20px hsl(351 89% 50% / 0.5);
     
