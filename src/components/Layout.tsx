@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -37,9 +38,15 @@ export function Layout({
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 
-                <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50 hover:text-text-primary">
-                  <Search className="h-5 w-5" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" className="hover:bg-background-secondary/50 hover:text-text-primary">
+                    <Search className="h-5 w-5" />
+                  </Button>
+                  <Input 
+                    placeholder="Buscar..." 
+                    className="w-64 h-9"
+                  />
+                </div>
               </div>
 
               {/* Center Section - Navigation */}
