@@ -2,13 +2,22 @@ import React, { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator
+} from "@/components/ui/breadcrumb";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Upload, FileSpreadsheet, Trash2, CheckCircle } from 'lucide-react';
+import { Upload, FileSpreadsheet, Trash2, CheckCircle, ArrowLeft } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 interface UploadFile {
   file: File;
@@ -20,8 +29,13 @@ interface UploadFile {
 export default function CsvUpload() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+
+  const handleBackToDashboard = () => {
+    navigate('/dashboard');
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -153,6 +167,30 @@ export default function CsvUpload() {
   return (
     <Layout>
       <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        {/* Breadcrumbs and Back Button */}
+        <div className="flex items-center justify-between mb-6">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Upload de CSV</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          
+          <Button 
+            onClick={handleBackToDashboard}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Voltar ao Dashboard
+          </Button>
+        </div>
+
         {/* Page Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-text-primary mb-2">Upload de CSV</h1>
