@@ -18,6 +18,7 @@ import UserProfile from "./pages/UserProfile";
 import InvitePage from "./pages/InvitePage";
 import FeedReading from "./pages/FeedReading";
 import Logistics from "./pages/Logistics";
+import CsvUpload from "./pages/CsvUpload";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/signin" element={<SignIn />} />
             <Route path="/user-profile" element={<UserProfile />} />
             <Route path="/feed-reading" element={<FeedReading />} />
+            <Route path="/csv-upload" element={<CsvUpload />} />
             <Route path="/invite/:token" element={<InvitePage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -40,6 +40,7 @@ const aiInsightsItems = [
 ];
 
 const managementItems = [
+  { title: "Upload CSV", url: "/csv-upload", icon: FileText },
   { title: "Relatórios", url: "/reports", icon: FileText },
   { title: "Equipe", url: "/team", icon: Users },
   { title: "Configurações", url: "/settings", icon: Settings },
