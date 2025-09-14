@@ -100,17 +100,40 @@ export default function CsvUpload() {
           idx === i ? { ...f, status: 'uploading' as const } : f
         ));
 
-        const fileName = `${user.id}/${Date.now()}_${uploadFile.file.name}`;
+        // Determine folder based on file name prefix
+        let folder = "";
+        const fileName = uploadFile.file.name;
+        
+        if (fileName.startsWith("01")) folder = "01";
+        else if (fileName.startsWith("02")) folder = "02";
+        else if (fileName.startsWith("03")) folder = "03";
+        else if (fileName.startsWith("04")) folder = "04";
+        else if (fileName.startsWith("05")) folder = "05";
+        else {
+          console.error(`Arquivo ${fileName} não segue padrão esperado`);
+          setFiles(prev => prev.map((f, idx) => 
+            idx === i ? { 
+              ...f, 
+              status: 'error' as const, 
+              error: 'Nome do arquivo não segue padrão esperado (deve começar com 01, 02, 03, 04 ou 05)'
+            } : f
+          ));
+          continue;
+        }
+
+        const filePath = `${folder}/${fileName}`;
         
         try {
           const { error } = await supabase.storage
             .from('csv-uploads')
-            .upload(fileName, uploadFile.file, {
+            .upload(filePath, uploadFile.file, {
               cacheControl: '3600',
-              upsert: false
+              upsert: true
             });
 
           if (error) throw error;
+
+          console.log(`✅ ${fileName} enviado para ${folder}/`);
 
           // Update status to completed
           setFiles(prev => prev.map((f, idx) => 
@@ -118,7 +141,7 @@ export default function CsvUpload() {
           ));
 
         } catch (error) {
-          console.error('Upload error:', error);
+          console.error('Erro no upload:', error);
           setFiles(prev => prev.map((f, idx) => 
             idx === i ? { 
               ...f, 
