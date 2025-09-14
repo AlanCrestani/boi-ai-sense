@@ -33,6 +33,37 @@ export default function CsvUpload() {
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Create csv-processed folder structure on component mount
+  React.useEffect(() => {
+    const createProcessedStructure = async () => {
+      if (!user) return;
+      
+      try {
+        const placeholderBlob = new Blob(['# Pasta para arquivos processados\n'], { type: 'text/plain' });
+        
+        // Create placeholder files for each processed folder
+        const folders = ['01', '02', '03', '04', '05'];
+        for (const folder of folders) {
+          const { error } = await supabase.storage
+            .from('csv-uploads')
+            .upload(`csv-processed/${folder}/.placeholder`, placeholderBlob, {
+              cacheControl: '3600',
+              upsert: true
+            });
+          
+          if (error && !error.message.includes('already exists')) {
+            console.error(`Erro criando pasta processed/${folder}:`, error);
+          }
+        }
+        console.log('✅ Estrutura csv-processed criada');
+      } catch (error) {
+        console.error('Erro criando estrutura processed:', error);
+      }
+    };
+
+    createProcessedStructure();
+  }, [user]);
+
   const handleBackToDashboard = () => {
     navigate('/dashboard');
   };
