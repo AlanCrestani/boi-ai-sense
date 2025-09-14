@@ -78,6 +78,41 @@ export default function CsvUpload() {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const processFile = async (fileName: string, folder: string) => {
+    try {
+      // 1. Download the file from original location
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from('csv-uploads')
+        .download(`${folder}/${fileName}`);
+
+      if (downloadError) throw downloadError;
+
+      // 2. Upload to csv-processed folder
+      const processedPath = `csv-processed/${folder}/${fileName}`;
+      const { error: uploadError } = await supabase.storage
+        .from('csv-uploads')
+        .upload(processedPath, fileData, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      // 3. Delete from original location
+      const { error: deleteError } = await supabase.storage
+        .from('csv-uploads')
+        .remove([`${folder}/${fileName}`]);
+
+      if (deleteError) throw deleteError;
+
+      console.log(`✅ Arquivo ${fileName} movido para processed/${folder}/`);
+      return true;
+    } catch (error) {
+      console.error(`❌ Erro no pós-processamento de ${fileName}:`, error);
+      return false;
+    }
+  };
+
   const uploadFiles = async () => {
     if (!user) {
       toast({
@@ -124,6 +159,7 @@ export default function CsvUpload() {
         const filePath = `${folder}/${fileName}`;
         
         try {
+          // 1. Upload to temporary location
           const { error } = await supabase.storage
             .from('csv-uploads')
             .upload(filePath, uploadFile.file, {
@@ -135,10 +171,17 @@ export default function CsvUpload() {
 
           console.log(`✅ ${fileName} enviado para ${folder}/`);
 
-          // Update status to completed
-          setFiles(prev => prev.map((f, idx) => 
-            idx === i ? { ...f, status: 'completed' as const, progress: 100 } : f
-          ));
+          // 2. Process file (move to csv-processed and clean original)
+          const processed = await processFile(fileName, folder);
+          
+          if (processed) {
+            // Update status to completed
+            setFiles(prev => prev.map((f, idx) => 
+              idx === i ? { ...f, status: 'completed' as const, progress: 100 } : f
+            ));
+          } else {
+            throw new Error('Falha no pós-processamento');
+          }
 
         } catch (error) {
           console.error('Erro no upload:', error);
