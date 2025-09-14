@@ -71,3 +71,7 @@ This is a livestock management platform (Conecta Boi) with features for:
 - Alert management
 - Team collaboration with invite system
 - Multi-language support (via LanguageSelector component)
+
+## Task Master AI Instructions
+**Import Task Master's development workflow commands and guidelines, treat as if import is in the main CLAUDE.md file.**
+@./.taskmaster/CLAUDE.md
