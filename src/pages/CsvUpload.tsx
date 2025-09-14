@@ -18,6 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Upload, FileSpreadsheet, Trash2, CheckCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
+import { CsvProcessor } from '@/components/CsvProcessor';
 
 interface UploadFile {
   file: File;
@@ -428,6 +429,41 @@ export default function CsvUpload() {
             </Button>
           </div>
         )}
+
+        {/* Processing Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-text-primary mb-4">Processamento de Dados</h2>
+          <p className="text-text-secondary mb-6">
+            Após o upload, processe os arquivos CSV usando os pipelines apropriados:
+          </p>
+          
+          <div className="grid gap-4 md:grid-cols-2">
+            <CsvProcessor
+              pipeline="02"
+              title="Desvio Carregamento"
+              description="Processa dados de desvio no carregamento de ingredientes"
+              filename="02_desvio_carregamento.csv"
+            />
+            <CsvProcessor
+              pipeline="03"
+              title="Desvio Distribuição"
+              description="Processa dados de desvio na distribuição de dietas"
+              filename="03_desvio_distribuicao.csv"
+            />
+            <CsvProcessor
+              pipeline="04"
+              title="Itens de Trato"
+              description="Processa dados de itens utilizados no trato"
+              filename="04_itens_trato.csv"
+            />
+            <CsvProcessor
+              pipeline="05"
+              title="Trato por Curral"
+              description="Processa dados de trato distribuído por curral"
+              filename="05_trato_curral.csv"
+            />
+          </div>
+        </div>
       </div>
     </Layout>
   );
