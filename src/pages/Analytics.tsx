@@ -20,6 +20,7 @@ import { useState } from "react";
 import { format, subDays } from 'date-fns';
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { LoadingAgentChat } from "@/components/LoadingAgentChat";
+import { useDesviosData } from "@/hooks/useDesviosData";
 import { cn } from "@/lib/utils";
 
 export default function Analytics() {
@@ -30,209 +31,39 @@ export default function Analytics() {
   const [startDate, setStartDate] = useState<Date | undefined>(subDays(new Date(), 30));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
 
+  // Usar dados reais do hook
+  const {
+    loading,
+    error,
+    ingredientConsumption,
+    consumptionShare,
+    plannedVsActual,
+    efficiencyByLoad,
+    deviationByLoadAndWagon,
+    efficiencyDistribution,
+    ingredientsByVolume,
+    volumeByDiet,
+    avgDeviationByIngredient,
+    volumeByWagon,
+    efficiencyOverTime,
+    volumePerHour,
+  } = useDesviosData(startDate, endDate);
+
   const handleBackToDashboard = () => {
     navigate("/dashboard");
   };
 
-  // Dados mock para diferentes análises
-  const generateMockIngredientConsumption = () => [
-    { ingrediente: 'Milho', consumo: 420 },
-    { ingrediente: 'Soja', consumo: 180 },
-    { ingrediente: 'Farelo Trigo', consumo: 150 },
-    { ingrediente: 'Vitaminas', consumo: 80 },
-    { ingrediente: 'Minerais', consumo: 60 }
-  ];
-
-  const generateMockConsumptionShare = () => [
-    { name: 'Milho', value: 47, fill: '#0088FE' },
-    { name: 'Soja', value: 20, fill: '#00C49F' },
-    { name: 'Farelo Trigo', value: 17, fill: '#FFBB28' },
-    { name: 'Vitaminas', value: 9, fill: '#FF8042' },
-    { name: 'Minerais', value: 7, fill: '#8884d8' }
-  ];
-
-  const generateMockPlannedVsActual = () => [
-    { ingrediente: 'Milho', previsto: 400, realizado: 420 },
-    { ingrediente: 'Soja', previsto: 200, realizado: 180 },
-    { ingrediente: 'Farelo Trigo', previsto: 160, realizado: 150 },
-    { ingrediente: 'Vitaminas', previsto: 75, realizado: 80 },
-    { ingrediente: 'Minerais', previsto: 65, realizado: 60 }
-  ];
-
-  const generateMockEfficiencyByLoad = () => [
-    { carregamento: 'Carga 1', eficiencia: 95.2 },
-    { carregamento: 'Carga 2', eficiencia: 88.7 },
-    { carregamento: 'Carga 3', eficiencia: 102.3 },
-    { carregamento: 'Carga 4', eficiencia: 91.8 },
-    { carregamento: 'Carga 5', eficiencia: 97.1 }
-  ];
-
-  const generateMockDeviationByLoadAndWagon = () => [
-    { item: 'Carga 1 - V1', desvio: 2.3 },
-    { item: 'Carga 1 - V2', desvio: -1.8 },
-    { item: 'Carga 2 - V1', desvio: 4.2 },
-    { item: 'Carga 2 - V2', desvio: 1.5 },
-    { item: 'Carga 3 - V1', desvio: -2.1 }
-  ];
-
-  const generateMockEfficiencyDistribution = () => [
-    { faixa: '80-85%', quantidade: 5 },
-    { faixa: '85-90%', quantidade: 12 },
-    { faixa: '90-95%', quantidade: 18 },
-    { faixa: '95-100%', quantidade: 22 },
-    { faixa: '100-105%', quantidade: 15 },
-    { faixa: '105-110%', quantidade: 8 }
-  ];
-
-  const generateMockIngredientsByVolume = () => [
-    { ingrediente: 'Milho Grão', volume: 1250 },
-    { ingrediente: 'Farelo Soja', volume: 890 },
-    { ingrediente: 'Farelo Trigo', volume: 670 },
-    { ingrediente: 'Núcleo Vitamínico', volume: 340 },
-    { ingrediente: 'Calcário', volume: 180 }
-  ];
-
-  const generateMockVolumeByDiet = () => [
-    { dieta: 'Engorda', volume: 2800 },
-    { dieta: 'Crescimento', volume: 1950 },
-    { dieta: 'Lactação', volume: 1450 },
-    { dieta: 'Gestação', volume: 890 }
-  ];
-
-  const generateMockAvgDeviationByIngredient = () => [
-    { ingrediente: 'Milho', desvio: 2.1 },
-    { ingrediente: 'Soja', desvio: -1.8 },
-    { ingrediente: 'Farelo Trigo', desvio: 3.2 },
-    { ingrediente: 'Vitaminas', desvio: 0.8 },
-    { ingrediente: 'Minerais', desvio: -2.5 }
-  ];
-
-  const generateMockVolumeByWagon = () => [
-    { name: 'Vagão 1', value: 35, fill: '#0088FE' },
-    { name: 'Vagão 2', value: 28, fill: '#00C49F' },
-    { name: 'Vagão 3', value: 22, fill: '#FFBB28' },
-    { name: 'Vagão 4', value: 15, fill: '#FF8042' }
-  ];
-
-  const generateMockEfficiencyOverTime = () => {
-    const hours = Array.from({ length: 24 }, (_, i) => i);
-    return hours.map(hour => ({
-      hora: `${hour.toString().padStart(2, '0')}:00`,
-      eficiencia: 85 + Math.random() * 20
-    }));
-  };
-
-  const generateMockVolumePerHour = () => {
-    const hours = Array.from({ length: 24 }, (_, i) => i);
-    return hours.map(hour => ({
-      hora: `${hour.toString().padStart(2, '0')}:00`,
-      volume: Math.round(50 + Math.random() * 100)
-    }));
-  };
-
-  // Dados mock para análise de distribuição
-  const generateMockEfficiencyDistributionHist = () => [
-    { eficiencia: '75-80', frequencia: 3 },
-    { eficiencia: '80-85', frequencia: 8 },
-    { eficiencia: '85-90', frequencia: 15 },
-    { eficiencia: '90-95', frequencia: 25 },
-    { eficiencia: '95-100', frequencia: 35 },
-    { eficiencia: '100-105', frequencia: 30 },
-    { eficiencia: '105-110', frequencia: 20 },
-    { eficiencia: '110-115', frequencia: 12 },
-    { eficiencia: '115-120', frequencia: 5 }
-  ];
-
-  const generateMockEfficiencyByHandler = () => [
-    { tratador: 'Luiz Lopez', q1: 92, median: 96, q3: 102, min: 85, max: 115, outliers: [118, 122] },
-    { tratador: 'Agustin Lopez', q1: 88, median: 94, q3: 99, min: 82, max: 108, outliers: [112] }
-  ];
-
-  const generateMockEfficiencyByDietType = () => [
-    { dieta: 'CRECIMIENTO', q1: 90, median: 95, q3: 101, min: 83, max: 112, outliers: [115, 118] },
-    { dieta: 'TERMINACION', q1: 88, median: 93, q3: 98, min: 80, max: 110, outliers: [113] },
-    { dieta: 'RECRIA FEMEA', q1: 85, median: 90, q3: 96, min: 78, max: 105, outliers: [] }
-  ];
-
-  const generateMockRealizadoVsPrevisto = () => {
-    const data = [];
-    for (let i = 0; i < 50; i++) {
-      const previsto = 400 + Math.random() * 200;
-      const realizado = previsto * (0.8 + Math.random() * 0.4);
-      data.push({ previsto, realizado });
-    }
-    return data;
-  };
-
-  const generateMockDesvioAbsolutoByTrato = () => [
-    { trato: 'Trato 1', desvio: 3.2 },
-    { trato: 'Trato 2', desvio: 2.1 },
-    { trato: 'Trato 3', desvio: 1.8 },
-    { trato: 'Trato 4', desvio: 1.2 }
-  ];
-
-  const generateMockEfficiencyByTrato = () => [
-    { trato: 'Trato 1', eficiencia: 92.5 },
-    { trato: 'Trato 2', eficiencia: 96.8 },
-    { trato: 'Trato 3', eficiencia: 89.2 },
-    { trato: 'Trato 4', eficiencia: 98.1 }
-  ];
-
-  const generateMockProductivityByHour = () => {
-    const hours = Array.from({ length: 24 }, (_, i) => i);
-    return hours.map(hour => ({
-      hora: `${hour.toString().padStart(2, '0')}:00`,
-      volume: hour >= 6 && hour <= 18 ? 80 + Math.random() * 60 : 20 + Math.random() * 30
-    }));
-  };
-
-  const generateMockPercentualDeviations = () => [
-    { desvio: '-20 a -15', frequencia: 2 },
-    { desvio: '-15 a -10', frequencia: 5 },
-    { desvio: '-10 a -5', frequencia: 12 },
-    { desvio: '-5 a 0', frequencia: 18 },
-    { desvio: '0 a 5', frequencia: 25 },
-    { desvio: '5 a 10', frequencia: 20 },
-    { desvio: '10 a 15', frequencia: 12 },
-    { desvio: '15 a 20', frequencia: 6 }
-  ];
-
-  const generateMockEfficiencyVsAbsoluteDeviation = () => {
-    const data = [];
-    for (let i = 0; i < 40; i++) {
-      const eficiencia = 80 + Math.random() * 40;
-      const desvioAbsoluto = Math.random() * 5;
-      data.push({ eficiencia, desvioAbsoluto });
-    }
-    return data;
-  };
-
-  const generateMockProductionByWagon = () => [
-    { name: 'BAHMAN', value: 45, fill: '#0088FE' },
-    { name: 'Vagão 2', value: 25, fill: '#00C49F' },
-    { name: 'Vagão 3', value: 18, fill: '#FFBB28' },
-    { name: 'Vagão 4', value: 12, fill: '#FF8042' }
-  ];
-
-  const generateMockEfficiencyTimeline = () => {
-    const hours = Array.from({ length: 24 }, (_, i) => i);
-    return hours.map(hour => ({
-      hora: `${hour.toString().padStart(2, '0')}:00`,
-      eficiencia: 100 - (hour * 0.8) + (Math.random() * 10 - 5)
-    }));
-  };
-
-  // Dados mock para distribuição (mantendo compatibilidade)
+  // Dados mock para distribuição (mantendo compatibilidade) - para aba de distribuição
   const generateMockData = () => {
     const data = [];
     for (let i = 13; i >= 0; i--) {
       const date = subDays(new Date(), i);
       const consumoPrevisto = Math.round(450 + Math.random() * 100);
       const consumoRealizado = Math.round(consumoPrevisto * (0.7 + Math.random() * 0.5));
-      
+
       const eficiencia = (consumoRealizado / consumoPrevisto) * 100;
       let corRealizado = '#ef4444';
-      
+
       if (eficiencia >= 90 && eficiencia <= 110) {
         corRealizado = '#22c55e';
       } else if (eficiencia >= 80 && eficiencia < 90 || eficiencia > 110 && eficiencia <= 120) {
@@ -249,37 +80,106 @@ export default function Analytics() {
     return data;
   };
 
-  const data = generateMockData();
-  const ingredientConsumption = generateMockIngredientConsumption();
-  const consumptionShare = generateMockConsumptionShare();
-  const plannedVsActual = generateMockPlannedVsActual();
-  const efficiencyByLoad = generateMockEfficiencyByLoad();
-  const deviationByLoadAndWagon = generateMockDeviationByLoadAndWagon();
-  const efficiencyDistribution = generateMockEfficiencyDistribution();
-  const ingredientsByVolume = generateMockIngredientsByVolume();
-  const volumeByDiet = generateMockVolumeByDiet();
-  const avgDeviationByIngredient = generateMockAvgDeviationByIngredient();
-  const volumeByWagon = generateMockVolumeByWagon();
-  const efficiencyOverTime = generateMockEfficiencyOverTime();
-  const volumePerHour = generateMockVolumePerHour();
-  
-  // Dados para análise de distribuição
-  const efficiencyDistributionHist = generateMockEfficiencyDistributionHist();
-  const efficiencyByHandler = generateMockEfficiencyByHandler();
-  const efficiencyByDietType = generateMockEfficiencyByDietType();
-  const realizadoVsPrevisto = generateMockRealizadoVsPrevisto();
-  const desvioAbsolutoByTrato = generateMockDesvioAbsolutoByTrato();
-  const efficiencyByTrato = generateMockEfficiencyByTrato();
-  const productivityByHour = generateMockProductivityByHour();
-  const percentualDeviations = generateMockPercentualDeviations();
-  const efficiencyVsAbsoluteDeviation = generateMockEfficiencyVsAbsoluteDeviation();
-  const productionByWagon = generateMockProductionByWagon();
-  const efficiencyTimeline = generateMockEfficiencyTimeline();
+  // Dados mock para análise de distribuição
+  const efficiencyDistributionHist = [
+    { eficiencia: '75-80', frequencia: 3 },
+    { eficiencia: '80-85', frequencia: 8 },
+    { eficiencia: '85-90', frequencia: 15 },
+    { eficiencia: '90-95', frequencia: 25 },
+    { eficiencia: '95-100', frequencia: 35 },
+    { eficiencia: '100-105', frequencia: 30 },
+    { eficiencia: '105-110', frequencia: 20 },
+    { eficiencia: '110-115', frequencia: 12 },
+    { eficiencia: '115-120', frequencia: 5 }
+  ];
 
-  const CustomBar = (props: any) => {
+  const realizadoVsPrevisto = Array.from({ length: 50 }, () => {
+    const previsto = 400 + Math.random() * 200;
+    const realizado = previsto * (0.8 + Math.random() * 0.4);
+    return { previsto, realizado };
+  });
+
+  const desvioAbsolutoByTrato = [
+    { trato: 'Trato 1', desvio: 3.2 },
+    { trato: 'Trato 2', desvio: 2.1 },
+    { trato: 'Trato 3', desvio: 1.8 },
+    { trato: 'Trato 4', desvio: 1.2 }
+  ];
+
+  const efficiencyByTrato = [
+    { trato: 'Trato 1', eficiencia: 92.5 },
+    { trato: 'Trato 2', eficiencia: 96.8 },
+    { trato: 'Trato 3', eficiencia: 89.2 },
+    { trato: 'Trato 4', eficiencia: 98.1 }
+  ];
+
+  const productivityByHour = Array.from({ length: 24 }, (_, hour) => ({
+    hora: `${hour.toString().padStart(2, '0')}:00`,
+    volume: hour >= 6 && hour <= 18 ? 80 + Math.random() * 60 : 20 + Math.random() * 30
+  }));
+
+  const percentualDeviations = [
+    { desvio: '-20 a -15', frequencia: 2 },
+    { desvio: '-15 a -10', frequencia: 5 },
+    { desvio: '-10 a -5', frequencia: 12 },
+    { desvio: '-5 a 0', frequencia: 18 },
+    { desvio: '0 a 5', frequencia: 25 },
+    { desvio: '5 a 10', frequencia: 20 },
+    { desvio: '10 a 15', frequencia: 12 },
+    { desvio: '15 a 20', frequencia: 6 }
+  ];
+
+  const productionByWagon = [
+    { name: 'BAHMAN', value: 45, fill: '#0088FE' },
+    { name: 'Vagão 2', value: 25, fill: '#00C49F' },
+    { name: 'Vagão 3', value: 18, fill: '#FFBB28' },
+    { name: 'Vagão 4', value: 12, fill: '#FF8042' }
+  ];
+
+  const efficiencyTimeline = Array.from({ length: 24 }, (_, hour) => ({
+    hora: `${hour.toString().padStart(2, '0')}:00`,
+    eficiencia: 100 - (hour * 0.8) + (Math.random() * 10 - 5)
+  }));
+
+  const data = generateMockData();
+
+  const CustomBar = (props: { payload?: { corRealizado?: string }; [key: string]: unknown }) => {
     const { payload, ...rest } = props;
     return <Bar {...rest} fill={payload?.corRealizado || '#ef4444'} />;
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <p className="text-text-secondary">Carregando dados de desvios...</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Layout>
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+              <p className="text-red-500 mb-2">Erro ao carregar dados</p>
+              <p className="text-text-secondary text-sm">{error}</p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
