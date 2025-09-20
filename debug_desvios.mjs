@@ -78,7 +78,7 @@ async function debugDesviosPage() {
         // Verificar se o supabase está disponível globalmente
         if (window.supabase) {
           const result = await window.supabase
-            .from('staging02_desvio_carregamento')
+            .from('staging_02_desvio_carregamento')
             .select('count(*)', { count: 'exact' });
           return { success: true, data: result };
         } else {

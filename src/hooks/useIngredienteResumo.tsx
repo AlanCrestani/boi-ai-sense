@@ -14,6 +14,7 @@ interface UseIngredienteResumoProps {
   startDate?: Date;
   endDate?: Date;
   organizationId?: string;
+  enabled?: boolean;
 }
 
 // Função auxiliar para buscar a data mais recente disponível
@@ -33,25 +34,32 @@ export const getLatestAvailableDate = async (organizationId?: string): Promise<D
     const { data, error } = await query;
 
     if (error || !data || data.length === 0) {
-      console.log('Nenhuma data encontrada para organization_id:', organizationId);
       return null;
     }
 
-    console.log('Última data disponível:', data[0].data, 'para org:', organizationId);
-    return new Date(data[0].data);
+    // Adicionar timezone para evitar problemas de conversão
+    // A data vem como '2025-09-01' e precisa ser interpretada corretamente
+    const [year, month, day] = data[0].data.split('-').map(Number);
+    return new Date(year, month - 1, day, 12, 0, 0); // Usar meio-dia para evitar problemas de timezone
   } catch (err) {
     console.error('Erro ao buscar última data disponível:', err);
     return null;
   }
 };
 
-export const useIngredienteResumo = ({ date, startDate, endDate, organizationId }: UseIngredienteResumoProps = {}) => {
+export const useIngredienteResumo = ({ date, startDate, endDate, organizationId, enabled = true }: UseIngredienteResumoProps = {}) => {
   const [data, setData] = useState<IngredienteResumo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { organization } = useAuth();
 
   useEffect(() => {
+    // Se disabled, não faz nada
+    if (!enabled) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       setLoading(true);
       setError(null);
@@ -60,16 +68,14 @@ export const useIngredienteResumo = ({ date, startDate, endDate, organizationId 
       const orgId = organizationId || organization?.id;
 
       if (!orgId) {
-        console.log('Nenhuma organization_id disponível');
         setData([]);
         setLoading(false);
         return;
       }
 
-      console.log('Buscando dados para organization_id:', orgId);
-
       try {
-        let query = supabase
+        // Usar any temporariamente para evitar problemas de tipagem
+        let query = (supabase as any)
           .from('view_ingrediente_resumo')
           .select('*')
           .eq('organization_id', orgId)
@@ -114,7 +120,8 @@ export const useIngredienteResumo = ({ date, startDate, endDate, organizationId 
             return acc;
           }, {});
 
-          setData(Object.values(aggregated));
+          const finalData = Object.values(aggregated);
+          setData(finalData);
         } else {
           setData([]);
         }
@@ -127,7 +134,7 @@ export const useIngredienteResumo = ({ date, startDate, endDate, organizationId 
     };
 
     fetchData();
-  }, [date, startDate, endDate, organizationId, organization?.id]);
+  }, [date, startDate, endDate, organizationId, organization?.id, enabled]);
 
   return { data, loading, error };
 };

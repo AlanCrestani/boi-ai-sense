@@ -48,7 +48,7 @@ async function executeSQL() {
             WHEN (realizado_kg / NULLIF(previsto_kg, 0)) * 100 >= 70 THEN 'Regular (70-84%)'
             ELSE 'Ruim (<70%)'
           END as faixa_eficiencia
-        FROM public.staging02_desvio_carregamento
+        FROM public.staging_02_desvio_carregamento
         WHERE realizado_kg IS NOT NULL
           AND previsto_kg IS NOT NULL
           AND previsto_kg > 0
@@ -71,7 +71,7 @@ async function executeSQL() {
         SUM(previsto_kg) as previsto_total,
         SUM(realizado_kg) as realizado_total,
         COUNT(DISTINCT nro_carregamento) as total_carregamentos
-      FROM public.staging02_desvio_carregamento
+      FROM public.staging_02_desvio_carregamento
       WHERE dieta IS NOT NULL
         AND realizado_kg IS NOT NULL
       GROUP BY organization_id, dieta, data`,
@@ -85,7 +85,7 @@ async function executeSQL() {
         SUM(realizado_kg) as total_realizado,
         COUNT(DISTINCT nro_carregamento) as total_carregamentos,
         AVG(ABS(desvio_pc)) as desvio_medio
-      FROM public.staging02_desvio_carregamento
+      FROM public.staging_02_desvio_carregamento
       WHERE vagao IS NOT NULL
         AND realizado_kg IS NOT NULL
       GROUP BY organization_id, vagao, data`,
@@ -104,7 +104,7 @@ async function executeSQL() {
         ) as eficiencia,
         AVG(ABS(desvio_pc)) as desvio_medio_pc,
         SUM(realizado_kg) as volume_total
-      FROM public.staging02_desvio_carregamento
+      FROM public.staging_02_desvio_carregamento
       WHERE hora IS NOT NULL
         AND realizado_kg IS NOT NULL
         AND previsto_kg IS NOT NULL

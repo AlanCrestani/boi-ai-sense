@@ -5,16 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { BarChart3, CalendarIcon, TrendingUp, Target, Gauge } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { EChartsBar } from '@/components/charts/EChartsBar';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -22,27 +13,23 @@ import { useIngredienteResumo, getLatestAvailableDate } from '@/hooks/useIngredi
 import { useAuth } from '@/hooks/useAuth';
 import { MetricCard } from '@/components/dashboard/MetricCard';
 import { cn } from '@/lib/utils';
-import { useMediaQuery } from 'react-responsive';
 
 export default function Analytics() {
   // Iniciar com null e buscar a data mais recente disponível
   const [date, setDate] = useState<Date | null>(null);
   const [isLoadingDate, setIsLoadingDate] = useState(true);
-  const { organization } = useAuth();
-
-  // Hook para detectar mobile
-  const isMobile = useMediaQuery({ maxWidth: 768 });
-
-  // 1. Definir margens padrão do gráfico (reserva espaço para a legenda na direita)
-  const CHART_MARGIN = isMobile
-    ? { top: 20, right: 20, left: 40, bottom: 100 } // Mobile: legenda embaixo
-    : { top: 50, right: 0, left: 70, bottom: 50 }; // Desktop: margens balanceadas para centralizar legenda
+  const { organization, loading: authLoading } = useAuth();
 
   // Buscar a data mais recente ao carregar o componente
   useEffect(() => {
     const loadLatestDate = async () => {
+      // Aguarda auth carregar completamente
+      if (authLoading) {
+        return;
+      }
+
       if (!organization?.id) {
-        console.log('Aguardando organization_id...');
+        setIsLoadingDate(false);
         return;
       }
 
@@ -58,12 +45,14 @@ export default function Analytics() {
     };
 
     loadLatestDate();
-  }, [organization?.id]);
+  }, [organization?.id, authLoading]);
 
-  // Buscar dados da view_ingrediente_resumo apenas quando tivermos uma data
+  // Buscar dados da view_ingrediente_resumo apenas quando tivermos uma data e organização
   const { data, loading, error } = useIngredienteResumo({
     date: date || undefined,
     organizationId: organization?.id,
+    // Desabilitar busca se ainda estiver carregando auth ou não tiver organização
+    enabled: !authLoading && !!organization?.id,
   });
 
   // Formatar dados para o gráfico
@@ -81,29 +70,6 @@ export default function Analytics() {
   const totalDiferenca = totalRealizado - totalPrevisto;
   const percentualDiferenca = totalPrevisto > 0 ? (totalDiferenca / totalPrevisto) * 100 : 0;
 
-  // Custom tooltip para o gráfico
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      const diferenca = payload[0]?.payload?.diferenca || 0;
-      const percentual =
-        payload[0]?.payload?.previsto > 0
-          ? ((payload[0]?.payload?.realizado / payload[0]?.payload?.previsto - 1) * 100).toFixed(1)
-          : 0;
-
-      return (
-        <div className="bg-card border border-border rounded-lg shadow-lg p-3">
-          <p className="font-semibold text-text-primary">{label}</p>
-          <p className="text-blue-500">Previsto: {payload[0]?.value} kg</p>
-          <p className="text-green-500">Realizado: {payload[1]?.value} kg</p>
-          <p className={cn('font-semibold', diferenca >= 0 ? 'text-yellow-500' : 'text-red-500')}>
-            Diferença: {diferenca > 0 ? '+' : ''}
-            {diferenca} kg ({percentual}%)
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <Layout>
@@ -133,42 +99,8 @@ export default function Analytics() {
 
           {/* Tab Content - Carregamento */}
           <TabsContent value="carregamento" className="space-y-8">
-            {/* Filtro de Data */}
-            <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-text-primary">Filtros</CardTitle>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          'w-[240px] justify-start text-left font-normal border-border-subtle',
-                          !date && 'text-muted-foreground'
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {date
-                          ? format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
-                          : 'Selecione uma data'}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={date || undefined}
-                        onSelect={newDate => newDate && setDate(newDate)}
-                        initialFocus
-                        locale={ptBR}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-              </CardHeader>
-            </Card>
-
             {/* Métricas em Tempo Real */}
-            {chartData.length > 0 && (
+            {!authLoading && organization?.id && chartData.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-text-primary mb-6">
                   Métricas do Carregamento
@@ -205,6 +137,40 @@ export default function Analytics() {
                     icon={<TrendingUp className="h-6 w-6" />}
                   />
                 </div>
+
+                {/* Filtro de Data abaixo dos cards */}
+                <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm mt-6">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-text-primary">Filtros</CardTitle>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              'w-[240px] justify-start text-left font-normal border-border-subtle',
+                              !date && 'text-muted-foreground'
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {date
+                              ? format(date, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                              : 'Selecione uma data'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={date || undefined}
+                            onSelect={newDate => newDate && setDate(newDate)}
+                            initialFocus
+                            locale={ptBR}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </CardHeader>
+                </Card>
               </div>
             )}
 
@@ -223,11 +189,13 @@ export default function Analytics() {
                   </p>
                 </CardHeader>
                 <CardContent>
-                  {isLoadingDate || loading ? (
+                  {authLoading || isLoadingDate || loading ? (
                     <div className="h-[400px] flex items-center justify-center">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-                        <p className="text-sm text-muted-foreground">Carregando dados...</p>
+                        <p className="text-sm text-muted-foreground">
+                          {authLoading ? 'Carregando autenticação...' : 'Carregando dados...'}
+                        </p>
                       </div>
                     </div>
                   ) : error ? (
@@ -246,74 +214,7 @@ export default function Analytics() {
                       </div>
                     </div>
                   ) : (
-                    <div className="h-[400px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        {/* 2. Aplicar margens no BarChart para controlar espaçamento */}
-                        <BarChart data={chartData} margin={CHART_MARGIN}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                          <XAxis
-                            dataKey="name"
-                            interval={0}
-                            angle={isMobile ? 0 : -45}
-                            textAnchor={isMobile ? 'middle' : 'end'}
-                            height={isMobile ? 80 : 60}
-                            tick={{
-                              fontSize: isMobile ? 10 : 12,
-                              fill: '#ffffff',
-                            }}
-                          />
-                          <YAxis
-                            label={{
-                              value: 'Quantidade (kg)',
-                              angle: -90,
-                              position: 'insideLeft',
-                              offset: -40,
-                              dy: 0,
-                              style: { fill: '#ffffff', textAnchor: 'middle' },
-                            }}
-                            tick={{ fill: '#ffffff' }}
-                            tickFormatter={value => value.toLocaleString('pt-BR')}
-                          />
-                          <Tooltip content={<CustomTooltip />} />
-                          {/* 3. Legenda customizada posicionada no meio da área de plotagem (lado direito) */}
-                          {isMobile ? (
-                            <Legend
-                              layout="horizontal"
-                              align="center"
-                              verticalAlign="top"
-                              wrapperStyle={{
-                                color: '#ffffff',
-                                paddingBottom: 20,
-                                fontSize: 14,
-                              }}
-                            />
-                          ) : (
-                            <Legend
-                              layout="vertical"
-                              align="right"
-                              verticalAlign="middle"
-                              wrapperStyle={{
-                                color: '#ffffff',
-                                paddingLeft: 30,
-                                fontSize: 14,
-                              }}
-                            />
-                          )}
-                          <Bar
-                            dataKey="previsto"
-                            fill="#3b82f6"
-                            name="Previsto (kg)"
-                            radius={[4, 4, 0, 0]}
-                          />
-                          <Bar
-                            dataKey="realizado"
-                            fill="#10b981"
-                            name="Realizado (kg)"
-                            radius={[4, 4, 0, 0]}
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                    <EChartsBar data={chartData} height={400} date={date} />
                   )}
                 </CardContent>
               </Card>

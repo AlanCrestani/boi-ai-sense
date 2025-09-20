@@ -1,7 +1,7 @@
 -- =====================================================
--- Migration: Create staging03_desvio_distribuicao table
+-- Migration: Create staging_03_desvio_distribuicao table
 -- Date: 2025-09-19
--- Description: Creates staging03_desvio_distribuicao table for pipeline 03 (desvio distribuição)
+-- Description: Creates staging_03_desvio_distribuicao table for pipeline 03 (desvio distribuição)
 -- =====================================================
 
 -- Drop table if it exists (for clean migration)

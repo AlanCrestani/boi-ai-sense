@@ -26,7 +26,7 @@ async function createTable() {
   console.log('🚀 Creating staging_03_desvio_distribuicao table...\n');
 
   // Read migration SQL
-  const migrationPath = join(__dirname, 'supabase/migrations/20250919_create_staging03_desvio_distribuicao.sql');
+  const migrationPath = join(__dirname, 'supabase/migrations/20250919_create_staging_03_desvio_distribuicao.sql');
   const sql = fs.readFileSync(migrationPath, 'utf8');
 
   console.log(`📋 Executing SQL from migration file...\n`);

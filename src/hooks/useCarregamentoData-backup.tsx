@@ -98,9 +98,9 @@ export const useCarregamentoData = (filters?: CarregamentoFilters) => {
     }));
 
     try {
-      // 1. Consumo por Ingrediente (tabela staging02_desvio_carregamento)
+      // 1. Consumo por Ingrediente (tabela staging_02_desvio_carregamento)
       let ingredientQuery = supabase
-        .from('staging02_desvio_carregamento')
+        .from('staging_02_desvio_carregamento')
         .select('ingrediente, realizado_kg')
         .eq('organization_id', organization.id)
         .not('ingrediente', 'is', null)
@@ -142,9 +142,9 @@ export const useCarregamentoData = (filters?: CarregamentoFilters) => {
         fill: colors[index % colors.length]
       }));
 
-      // 3. Previsto x Realizado (tabela staging02_desvio_carregamento)
+      // 3. Previsto x Realizado (tabela staging_02_desvio_carregamento)
       let plannedQuery = supabase
-        .from('staging02_desvio_carregamento')
+        .from('staging_02_desvio_carregamento')
         .select('ingrediente, previsto_kg, realizado_kg')
         .eq('organization_id', organization.id)
         .not('ingrediente', 'is', null)

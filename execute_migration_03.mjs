@@ -21,7 +21,7 @@ async function executeMigration() {
   console.log('🚀 Executing Pipeline 03 migration...\n');
 
   // Read migration SQL
-  const migrationPath = join(__dirname, 'supabase/migrations/20250919_create_staging03_desvio_distribuicao.sql');
+  const migrationPath = join(__dirname, 'supabase/migrations/20250919_create_staging_03_desvio_distribuicao.sql');
   const sql = fs.readFileSync(migrationPath, 'utf8');
 
   console.log(`📋 Executing SQL:\n${sql.substring(0, 200)}...\n`);

@@ -33,7 +33,7 @@ WITH eficiencia_ranges AS (
       WHEN (realizado_kg / NULLIF(previsto_kg, 0)) * 100 >= 70 THEN 'Regular (70-84%)'
       ELSE 'Ruim (<70%)'
     END as faixa_eficiencia
-  FROM public.staging02_desvio_carregamento
+  FROM public.staging_02_desvio_carregamento
   WHERE realizado_kg IS NOT NULL
     AND previsto_kg IS NOT NULL
     AND previsto_kg > 0
@@ -56,7 +56,7 @@ SELECT
   SUM(previsto_kg)::numeric as previsto_total,
   SUM(realizado_kg)::numeric as realizado_total,
   COUNT(DISTINCT nro_carregamento)::integer as total_carregamentos
-FROM public.staging02_desvio_carregamento
+FROM public.staging_02_desvio_carregamento
 WHERE dieta IS NOT NULL
   AND realizado_kg IS NOT NULL
 GROUP BY organization_id, dieta, data;
@@ -70,7 +70,7 @@ SELECT
   SUM(realizado_kg)::numeric as total_realizado,
   COUNT(DISTINCT nro_carregamento)::integer as total_carregamentos,
   AVG(ABS(desvio_pc))::numeric as desvio_medio
-FROM public.staging02_desvio_carregamento
+FROM public.staging_02_desvio_carregamento
 WHERE vagao IS NOT NULL
   AND realizado_kg IS NOT NULL
 GROUP BY organization_id, vagao, data;
@@ -89,7 +89,7 @@ SELECT
   )::numeric as eficiencia,
   AVG(ABS(desvio_pc))::numeric as desvio_medio_pc,
   SUM(realizado_kg)::numeric as volume_total
-FROM public.staging02_desvio_carregamento
+FROM public.staging_02_desvio_carregamento
 WHERE hora IS NOT NULL
   AND realizado_kg IS NOT NULL
   AND previsto_kg IS NOT NULL

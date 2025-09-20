@@ -5,8 +5,8 @@
 -- =====================================================
 
 -- Rename tables to standardized format
-ALTER TABLE public.staging02_desvio_carregamento RENAME TO staging_02_desvio_carregamento;
-ALTER TABLE public.staging04_itens_trato RENAME TO staging_04_itens_trato;
+ALTER TABLE public.staging_02_desvio_carregamento RENAME TO staging_02_desvio_carregamento;
+ALTER TABLE public.staging_04_itens_trato RENAME TO staging_04_itens_trato;
 
 -- Update indexes names to match new table names
 DROP INDEX IF EXISTS idx_staging02_organization_id;

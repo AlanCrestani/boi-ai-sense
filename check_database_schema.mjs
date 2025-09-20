@@ -42,8 +42,8 @@ async function checkDatabaseSchema() {
       'profiles', 
       'user_roles',
       'invitations',
-      'staging02_desvio_carregamento',
-      'staging04_itens_trato'
+      'staging_02_desvio_carregamento',
+      'staging_04_itens_trato'
     ];
 
     for (const tableName of expectedTables) {

@@ -68,7 +68,7 @@ Sistema para processar arquivos CSV de controle de alimentação bovina, com upl
 
 ## ESTRUTURA DE DADOS
 
-### TABELA: staging02_desvio_carregamento
+### TABELA: staging_02_desvio_carregamento
 ```
 id (uuid, primary key)
 organization_id (uuid, not null)
@@ -91,7 +91,7 @@ id_carregamento (uuid)
 created_at (timestamptz, default now())
 ```
 
-### TABELA: staging04_itens_trato
+### TABELA: staging_04_itens_trato
 ```
 id (uuid, primary key)
 organization_id (uuid, not null)
@@ -164,13 +164,13 @@ created_at (timestamptz, default now())
 
 ### CA02 - PROCESSAMENTO PIPELINE 02
 - [ ] Edge function process-csv-02 criada e deployada
-- [ ] Dados inseridos corretamente em staging02_desvio_carregamento
+- [ ] Dados inseridos corretamente em staging_02_desvio_carregamento
 - [ ] Apenas vagões BAHMAN e SILOKING processados
 - [ ] Campo merge gerado corretamente
 
 ### CA03 - PROCESSAMENTO PIPELINE 04
 - [ ] Edge function process-csv-04 criada e deployada
-- [ ] Dados inseridos corretamente em staging04_itens_trato
+- [ ] Dados inseridos corretamente em staging_04_itens_trato
 - [ ] Apenas vagões BAHMAN e SILOKING processados
 - [ ] Campo merge gerado corretamente
 
@@ -188,8 +188,8 @@ created_at (timestamptz, default now())
 ## PLANO DE IMPLEMENTAÇÃO
 
 ### FASE 1 - PREPARAÇÃO DO BANCO (1 dia)
-1. Criar migration para tabela staging02_desvio_carregamento
-2. Criar migration para tabela staging04_itens_trato
+1. Criar migration para tabela staging_02_desvio_carregamento
+2. Criar migration para tabela staging_04_itens_trato
 3. Aplicar RLS policies
 4. Testar estrutura com dados de exemplo
 
