@@ -1,71 +1,46 @@
 {
 	"mcpServers": {
 		"task-master-ai": {
-			"type": "stdio",
 			"command": "npx",
-			"args": [
-				"-y",
-				"--package=task-master-ai",
-				"task-master-ai"
-			],
+			"args": ["-y", "--package=task-master-ai", "task-master-ai"],
 			"env": {
 				"ANTHROPIC_API_KEY": "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",
-				"PERPLEXITY_API_KEY": "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",
-				"OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
-				"GOOGLE_API_KEY": "YOUR_GOOGLE_KEY_HERE",
-				"XAI_API_KEY": "YOUR_XAI_KEY_HERE",
-				"OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
-				"MISTRAL_API_KEY": "YOUR_MISTRAL_KEY_HERE",
-				"AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
-				"OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
+				"PERPLEXITY_API_KEY": "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"
 			}
 		},
 		"context7": {
-			"type": "stdio",
 			"command": "npx",
-			"args": [
-				"-y",
-				"@upstash/context7-mcp@latest"
-			]
+			"args": ["-y", "@upstash/context7-mcp@latest"],
+			"env": {
+				"CONTEXT7_API_KEY": "$CONTEXT7_API_KEY"
+			}
 		},
 		"supabase": {
-			"type": "stdio",
 			"command": "npx",
 			"args": [
 				"-y",
 				"@supabase/mcp-server-supabase@latest",
-				"--project-ref=$SUPABASE_PROJECT_REF"
+				"--read-only",
+				"--project-ref=zirowpnlxjenkxiqcuwz"
 			],
 			"env": {
-				"SUPABASE_ACCESS_TOKEN": "$SUPABASE_ACCESS_TOKEN"
+				"SUPABASE_ACCESS_TOKEN": "sbp_62c84ba609b88c8a20d2219358f129f713055a9a"
 			}
 		},
 		"playwright": {
-			"type": "stdio",
 			"command": "npx",
-			"args": [
-				"@playwright/mcp@latest"
-			]
+			"args": ["-y", "@playwright/mcp@latest"]
 		},
 		"github": {
-			"type": "stdio",
-			"url": "https://api.githubcopilot.com/mcp/",
-			"headers": {
-				"Authorization": "Bearer $GITHUB_TOKEN"
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-github@latest"],
+			"env": {
+				"GITHUB_PERSONAL_ACCESS_TOKEN": "$GITHUB_TOKEN"
 			}
 		},
-		"vercel": {
-			"type": "stdio",
-			"url": "https://mcp.vercel.com/"
-		},
 		"sentry": {
-			"type": "stdio",
 			"command": "npx",
-			"args": [
-				"-y",
-				"mcp-remote@latest",
-				"https://mcp.sentry.dev/mcp"
-			]
+			"args": ["-y", "mcp-remote@latest", "https://mcp.sentry.dev/mcp"]
 		}
 	}
 }
