@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { BarChart3, CalendarIcon, TrendingUp, Target, Gauge } from 'lucide-react';
+import { BarChart3, CalendarIcon, TrendingUp, Target, Gauge, PieChart } from 'lucide-react';
 import { EChartsBar } from '@/components/charts/EChartsBar';
+import { EChartsPie } from '@/components/charts/EChartsPie';
 import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -176,13 +177,13 @@ export default function Analytics() {
 
             {/* Gráfico de Barras - Previsto vs Realizado */}
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-text-primary mb-6">Análises Quantitativas</h2>
+              <h2 className="text-2xl font-bold text-text-primary mb-6">Comparativo Quantitativo</h2>
 
               <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2 text-text-primary">
                     <BarChart3 className="h-5 w-5" />
-                    Comparativo: Previsto vs Realizado por Ingrediente
+                    Previsto vs Realizado por Ingrediente
                   </CardTitle>
                   <p className="text-sm text-muted-foreground">
                     Quantidade em kg de cada ingrediente - planejado versus executado
@@ -215,6 +216,52 @@ export default function Analytics() {
                     </div>
                   ) : (
                     <EChartsBar data={chartData} height={400} date={date} />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Gráfico de Pizza - Distribuição */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-text-primary mb-6">Distribuição por Ingrediente</h2>
+
+              <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2 text-text-primary">
+                    <PieChart className="h-5 w-5" />
+                    Participação no Total Realizado
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Percentual de cada ingrediente no total de peso realizado
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  {authLoading || isLoadingDate || loading ? (
+                    <div className="h-[450px] flex items-center justify-center">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                        <p className="text-sm text-muted-foreground">
+                          {authLoading ? 'Carregando autenticação...' : 'Carregando dados...'}
+                        </p>
+                      </div>
+                    </div>
+                  ) : error ? (
+                    <div className="h-[450px] flex items-center justify-center">
+                      <div className="text-center text-destructive">
+                        <p>Erro ao carregar dados</p>
+                        <p className="text-sm">{error.message}</p>
+                      </div>
+                    </div>
+                  ) : chartData.length === 0 ? (
+                    <div className="h-[450px] flex items-center justify-center">
+                      <div className="text-center text-muted-foreground">
+                        <PieChart className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p>Nenhum dado disponível para a data selecionada</p>
+                        <p className="text-sm mt-1">Tente selecionar outra data</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <EChartsPie data={chartData} height={450} date={date} showType="realizado" />
                   )}
                 </CardContent>
               </Card>
