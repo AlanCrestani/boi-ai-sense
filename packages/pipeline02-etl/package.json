@@ -1,0 +1,23 @@
+{
+  "name": "@conecta-boi/pipeline02-etl",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "npm run build && node dist/test/test-all.js"
+  },
+  "dependencies": {
+    "@conecta-boi/database": "workspace:*",
+    "@conecta-boi/etl-validation": "workspace:*",
+    "zod": "^3.23.8",
+    "drizzle-orm": "^0.36.1",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.8.3"
+  }
+}

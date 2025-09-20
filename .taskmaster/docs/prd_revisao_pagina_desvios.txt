@@ -1,0 +1,290 @@
+# PRD - Revisão da Aba "Desvios em Carregamento" da Página /desvios
+
+## 1. Visão Geral do Projeto
+
+### Contexto
+A página `/desvios` possui duas abas: "Desvios em Carregamento" e "Desvios em Distribuição". A aba de carregamento já utiliza dados reais das views do Supabase através do hook `useDesviosData`, mas possui limitações significativas que prejudicam a experiência do usuário e a confiabilidade dos dados apresentados. A aba de distribuição permanecerá inalterada neste projeto.
+
+### Objetivo Principal
+Refatorar e otimizar exclusivamente a aba "Desvios em Carregamento" para implementar filtros funcionais por período, melhorar performance, criar métricas dinâmicas e proporcionar uma experiência consistente e confiável para análise de desvios operacionais.
+
+## 2. Análise da Situação Atual
+
+### Views Disponíveis no Banco de Dados
+- `view_carregamento_dieta` - Dados de carregamento por dieta
+- `view_carregamento_eficiencia` - Eficiência de carregamentos
+- `view_dieta_resumo` - Resumo por dieta
+- `view_eficiencia_diaria` - Eficiência diária
+- `view_horario_performance` - Performance por horário
+- `view_ingrediente_categoria_volume` - Volume por categoria de ingrediente
+- `view_ingrediente_participacao` - Participação percentual dos ingredientes
+- `view_ingrediente_problema` - Ingredientes com problemas/desvios
+- `view_ingrediente_resumo` - Resumo geral dos ingredientes
+- `view_pazeiro_ranking` - Ranking de pazeiros
+- `view_pazeiro_resumo` - Resumo por pazeiro
+- `view_status_performance` - Performance por status
+- `view_vagao_resumo` - Resumo por vagão
+
+### Problemas Identificados
+
+#### Problemas Críticos (Foco: Aba Carregamento)
+1. **Filtros de Data Não Funcionais**: Os campos de data (startDate/endDate) são capturados mas não aplicados nas consultas às views
+2. **Performance Inadequada**: 12 consultas simultâneas ao banco sem otimização na aba carregamento
+3. **Falta de Loading States Granulares**: Loading único para toda a aba carregamento
+4. **Métricas Estáticas**: Cards de métricas principais com valores hardcoded que não refletem os dados filtrados
+5. **Botão "Aplicar Filtro" Não Funcional**: Presente na interface mas sem implementação
+
+#### Problemas de UX/UI
+1. **Métricas Estáticas**: Cards de métricas principais com valores hardcoded
+2. **Responsividade Limitada**: Alguns gráficos não se adaptam bem a diferentes tamanhos de tela
+3. **Falta de Estados de Erro Específicos**: Tratamento genérico de erros
+4. **Ausência de Indicadores de Dados Vazios**: Não há feedback quando views retornam dados vazios
+
+#### Problemas Técnicos
+1. **Hook Sobregregado**: `useDesviosData` faz muitas responsabilidades
+2. **Transformações de Dados Inadequadas**: Lógica de transformação espalhada
+3. **Falta de Cache**: Consultas repetidas desnecessariamente
+4. **Ausência de Validação**: Dados não são validados antes da apresentação
+
+## 3. Requisitos Funcionais
+
+### RF01 - Filtros de Período Funcionais
+- Implementar filtros de data (início/fim) que sejam aplicados em todas as consultas às views
+- Adicionar filtros pré-definidos (hoje, últimos 7 dias, últimos 30 dias, último mês)
+- Permitir reset dos filtros para valores padrão
+- Validar que data de início não seja posterior à data de fim
+
+### RF02 - Funcionalidade do Botão "Aplicar Filtro"
+- Implementar lógica real para o botão "Aplicar Filtro" existente na interface
+- Recarregar dados quando filtros são aplicados
+- Feedback visual durante aplicação dos filtros
+- Manter estado dos filtros durante navegação na aba
+
+### RF03 - Métricas Dinâmicas nos Cards Principais (Aba Carregamento)
+- Calcular métricas em tempo real baseado nos dados filtrados da aba carregamento:
+  - Total de desvios (count de registros com desvio > 0)
+  - Desvio médio (média dos desvios absolutos em kg)
+  - Total de carregamentos (count unique de carregamentos no período)
+  - Total de distribuições pode ser removido (foco em carregamento)
+
+### RF04 - Otimização de Performance (Aba Carregamento)
+- Implementar consultas paralelas otimizadas apenas para dados da aba carregamento
+- Adicionar cache de consultas (React Query) específico para carregamento
+- Implementar loading states granulares por seção dentro da aba carregamento
+- Evitar recarregar dados quando usuário navega para aba distribuição
+
+### RF05 - Estados de Interface Melhorados (Aba Carregamento)
+- Loading states específicos para cada seção de dados da aba carregamento
+- Estados de erro diferenciados (erro de conexão, dados vazios, erro de validação)
+- Skeleton loading para melhor percepção de performance
+- Feedback visual quando filtros são aplicados na aba carregamento
+
+### RF06 - Responsividade da Aba Carregamento
+- Garantir que todos os gráficos da aba carregamento sejam totalmente responsivos
+- Implementar breakpoints apropriados para mobile/tablet/desktop
+- Otimizar layout dos gráficos para diferentes tamanhos de tela (foco nos 12 gráficos de carregamento)
+
+## 4. Requisitos Não Funcionais
+
+### RNF01 - Performance
+- Tempo de carregamento inicial < 3 segundos
+- Tempo de aplicação de filtros < 1 segundo
+- Suporte a pelo menos 10.000 registros por view sem degradação significativa
+
+### RNF02 - Usabilidade
+- Interface intuitiva com indicadores claros de estado
+- Feedback imediato para todas as ações do usuário
+- Navegação fluida entre abas sem perda de contexto
+
+### RNF03 - Confiabilidade (Aba Carregamento)
+- 100% dos dados da aba carregamento devem vir de fontes confiáveis (views do banco)
+- Tratamento robusto de erros com recuperação automática quando possível
+- Validação de dados antes da apresentação na aba carregamento
+
+### RNF04 - Manutenibilidade
+- Código modular e reutilizável
+- Separação clara de responsabilidades
+- Documentação técnica adequada
+
+## 5. Especificações Técnicas
+
+### Arquitetura de Dados (Foco: Aba Carregamento)
+```
+Components/
+├── Analytics.tsx (página principal - modificar apenas aba carregamento)
+├── CarregamentoFilters.tsx (novo - componente de filtros específico)
+├── CarregamentoMetrics.tsx (novo - cards de métricas para carregamento)
+├── CarregamentoCharts/ (novo - diretório de gráficos de carregamento)
+│   ├── QuantitativeCharts.tsx (gráficos de análises quantitativas)
+│   ├── QualitativeCharts.tsx (gráficos de análises qualitativas)
+│   └── TemporalCharts.tsx (gráficos de análise temporal)
+└── CarregamentoStates/ (novo - componentes de estado)
+    ├── LoadingState.tsx
+    ├── ErrorState.tsx
+    └── EmptyState.tsx
+
+Hooks/
+├── useDesviosData.tsx (refatorado - focar em carregamento)
+├── useCarregamentoFilters.tsx (novo)
+├── useCarregamentoMetrics.tsx (novo)
+└── useCarregamentoCache.tsx (novo)
+```
+
+### Estrutura de Dados Padronizada (Aba Carregamento)
+```typescript
+interface CarregamentoFilters {
+  startDate: Date | null;
+  endDate: Date | null;
+  preset: 'custom' | 'today' | '7days' | '30days' | 'lastMonth';
+}
+
+interface CarregamentoMetrics {
+  totalDesvios: number;
+  desvioMedio: number;
+  totalCarregamentos: number;
+  tendencia: 'up' | 'down' | 'stable';
+  periodoAnalisado: string;
+}
+
+interface ChartDataPoint {
+  [key: string]: string | number;
+}
+
+interface CarregamentoData {
+  metrics: CarregamentoMetrics;
+  charts: {
+    // Seção Análises Quantitativas
+    ingredientConsumption: ChartDataPoint[];
+    consumptionShare: ChartDataPoint[];
+    plannedVsActual: ChartDataPoint[];
+    efficiencyByLoad: ChartDataPoint[];
+    deviationByLoadAndWagon: ChartDataPoint[];
+
+    // Seção Análises Qualitativas
+    efficiencyDistribution: ChartDataPoint[];
+    ingredientsByVolume: ChartDataPoint[];
+    volumeByDiet: ChartDataPoint[];
+    avgDeviationByIngredient: ChartDataPoint[];
+    volumeByWagon: ChartDataPoint[];
+
+    // Seção Análise Temporal
+    efficiencyOverTime: ChartDataPoint[];
+    volumePerHour: ChartDataPoint[];
+  };
+  loading: {
+    metrics: boolean;
+    quantitative: boolean;
+    qualitative: boolean;
+    temporal: boolean;
+  };
+  errors: {
+    metrics: string | null;
+    quantitative: string | null;
+    qualitative: string | null;
+    temporal: string | null;
+  };
+}
+```
+
+### Consultas Otimizadas
+- Implementar WHERE clauses com filtros de data em todas as consultas
+- Usar prepared statements quando possível
+- Implementar paginação para datasets grandes
+- Adicionar índices apropriados nas views (se necessário)
+
+## 6. Plano de Implementação (Foco: Aba Carregamento)
+
+### Fase 1: Refatoração de Infraestrutura (Prioridade Alta)
+1. Criar novos hooks especializados (`useCarregamentoFilters`, `useCarregamentoMetrics`)
+2. Implementar sistema de cache com React Query para dados de carregamento
+3. Refatorar `useDesviosData` para aceitar filtros de data nas consultas de carregamento
+4. Criar componentes de estado específicos (CarregamentoLoadingState, CarregamentoErrorState)
+
+### Fase 2: Implementação de Filtros (Prioridade Alta)
+1. Criar componente `CarregamentoFilters`
+2. Implementar lógica de filtros por período aplicada às views de carregamento
+3. Conectar botão "Aplicar Filtro" existente com nova lógica
+4. Adicionar validação de filtros e feedback visual
+
+### Fase 3: Métricas Dinâmicas (Prioridade Média)
+1. Implementar cálculo de métricas em tempo real para carregamento
+2. Criar componente `CarregamentoMetrics`
+3. Integrar métricas com sistema de filtros
+4. Substituir valores hardcoded dos cards por dados reais
+
+### Fase 4: Loading States Granulares (Prioridade Alta)
+1. Implementar loading separado para cada seção (Quantitativa, Qualitativa, Temporal)
+2. Criar skeleton loading para os 12 gráficos da aba carregamento
+3. Adicionar estados de erro específicos por seção
+4. Implementar estados de dados vazios
+
+### Fase 5: Otimização e Polimento (Prioridade Baixa)
+1. Implementar lazy loading para gráficos da aba carregamento
+2. Otimizar responsividade dos 12 gráficos
+3. Adicionar animações suaves durante aplicação de filtros
+4. Realizar testes de performance específicos da aba carregamento
+
+## 7. Critérios de Aceitação
+
+### Funcionais (Aba Carregamento)
+- [ ] Todos os filtros de data funcionam corretamente nas 12 consultas da aba carregamento
+- [ ] Botão "Aplicar Filtro" funciona e recarrega dados filtrados
+- [ ] Métricas dos cards principais são calculadas dinamicamente baseadas nos filtros
+- [ ] Todos os 12 gráficos da aba carregamento apresentam dados reais das views
+- [ ] Estados de loading granulares por seção (Quantitativa, Qualitativa, Temporal)
+- [ ] Estados de erro específicos e dados vazios funcionam adequadamente
+
+### Técnicos
+- [ ] Performance: carregamento inicial < 3s, filtros < 1s
+- [ ] Zero erros no console do navegador
+- [ ] Cobertura de testes > 80% para novos componentes
+- [ ] Código segue padrões estabelecidos do projeto
+
+### UX/UI (Aba Carregamento)
+- [ ] Interface da aba carregamento responsiva em todos os dispositivos
+- [ ] Feedback visual adequado durante aplicação de filtros
+- [ ] Navegação fluida entre abas sem recarregar dados de carregamento desnecessariamente
+- [ ] Indicadores claros de estado em todas as 3 seções da aba carregamento
+
+## 8. Riscos e Mitigações
+
+### Riscos Técnicos
+- **Performance das Views**: Views podem ser lentas com grandes volumes de dados
+  - *Mitigação*: Implementar paginação e cache
+- **Complexidade das Consultas**: Algumas análises podem requerer consultas complexas
+  - *Mitigação*: Criar views especializadas se necessário
+
+### Riscos de Dados
+- **Dados Incompletos**: Views podem retornar dados vazios ou incompletos
+  - *Mitigação*: Implementar validação robusta e estados de fallback
+- **Inconsistência de Dados**: Dados entre views podem ser inconsistentes
+  - *Mitigação*: Validar dados cruzados e reportar inconsistências
+
+### Riscos de Cronograma
+- **Dependência de Views**: Algumas views podem precisar ser criadas/modificadas
+  - *Mitigação*: Identificar dependências cedo e trabalhar com equipe de backend
+
+## 9. Definição de Pronto
+
+Uma tarefa é considerada pronta quando:
+1. Código foi implementado seguindo os padrões do projeto
+2. Testes unitários foram escritos e passam
+3. Funcionalidade foi testada manualmente em diferentes cenários
+4. Não há regressões em funcionalidades existentes
+5. Performance atende aos requisitos especificados
+6. Documentação técnica foi atualizada
+7. Code review foi aprovado pela equipe
+
+## 10. Métricas de Sucesso
+
+### Métricas Quantitativas (Aba Carregamento)
+- Redução do tempo de carregamento da aba carregamento em 50%
+- 100% dos dados da aba carregamento vindos de fontes reais
+- Funcionalidade do botão "Aplicar Filtro" implementada e funcionando
+- Métricas dos cards principais calculadas dinamicamente
+
+### Métricas Qualitativas (Aba Carregamento)
+- Melhoria na confiabilidade dos dados de carregamento apresentados
+- Interface da aba carregamento mais profissional e consistente
+- Facilidade de manutenção e extensão do código da aba carregamento
+- Melhor experiência do usuário com filtros funcionais e loading granular

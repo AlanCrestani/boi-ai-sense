@@ -1,73 +1,202 @@
-# Welcome to your Lovable project
+# Conecta Boi - ETL Platform
 
-## Project info
+Sistema de gestão pecuária com pipeline ETL robusto para processamento de dados CSV.
 
-**URL**: https://lovable.dev/projects/6d49be83-23d0-4e29-a066-85251864c70f
+## 🏗️ Arquitetura
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/6d49be83-23d0-4e29-a066-85251864c70f) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### Monorepo Structure
+```
+├── apps/
+│   └── etl-dashboard/          # Dashboard ETL React App
+├── packages/
+│   ├── database/               # Drizzle ORM + Schemas
+│   ├── supabase-client/        # Supabase Client Manager
+│   ├── etl-validation/         # Validação de pipelines
+│   └── etl-ui/                # Componentes UI ETL
+├── src/                       # App principal (existente)
+└── supabase/                  # Edge Functions + Migrations
 ```
 
-**Edit a file directly in GitHub**
+### Tech Stack
+- **Frontend**: React 18 + TypeScript + Vite
+- **Backend**: Supabase (PostgreSQL + Edge Functions)
+- **ORM**: Drizzle ORM
+- **Monorepo**: pnpm workspaces
+- **Validation**: Zod schemas
+- **UI**: shadcn/ui + TailwindCSS
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🚀 Quick Start
 
-**Use GitHub Codespaces**
+### Prerequisites
+- Node.js >=18.0.0
+- pnpm (recommended) or npm
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Installation
+```bash
+# Install dependencies
+pnpm install
 
-## What technologies are used for this project?
+# Setup environment
+cp .env.example .env
+# Configure your Supabase credentials
 
-This project is built with:
+# Run development server
+pnpm dev
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Database Setup
+```bash
+# Generate database migrations
+pnpm run db:generate
 
-## How can I deploy this project?
+# Apply migrations
+pnpm run db:migrate
 
-Simply open [Lovable](https://lovable.dev/projects/6d49be83-23d0-4e29-a066-85251864c70f) and click on Share -> Publish.
+# Open Drizzle Studio
+pnpm run db:studio
+```
 
-## Can I connect a custom domain to my Lovable project?
+## 📦 Packages
 
-Yes, you can!
+### @conecta-boi/database
+Drizzle ORM schemas e connection management:
+- ETL control tables (`etl_run`, `etl_file`, `etl_run_log`)
+- Staging tables (`etl_staging_02_*`, `etl_staging_04_*`)
+- Dimension tables (`dim_curral`, `dim_dieta`, `dim_equipamento`)
+- Fact tables (`fato_desvio_carregamento`, `fato_trato_curral`)
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### @conecta-boi/supabase-client
+Gerenciador de conexão Supabase:
+- Singleton pattern
+- Auth management
+- Storage operations
+- Type-safe client
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### @conecta-boi/etl-validation
+Validação de pipelines ETL:
+- Pipeline 02: Desvio de Carregamento
+- Pipeline 04: Trato por Curral
+- CSV parsing and validation
+- Natural key generation
+
+### @conecta-boi/etl-ui
+Componentes React para ETL:
+- File management interface
+- Status indicators
+- Progress tracking
+- Validation reports
+
+## 🔄 ETL Pipelines
+
+### Pipeline 02 - Desvio de Carregamento
+Processa dados de carregamento de vagões (BAHMAN/SILOKING):
+- Validação de equipamentos específicos
+- Cálculo de desvios (kg e %)
+- Mapeamento dimensional
+
+### Pipeline 04 - Trato por Curral
+Processa dados de trato por curral:
+- Validação de horários
+- Mapeamento de currais
+- Detecção de duplicatas
+
+## 📝 Scripts Disponíveis
+
+```bash
+# Development
+pnpm dev              # Start dev server
+pnpm build           # Build all packages
+pnpm type-check      # TypeScript check
+
+# Code Quality
+pnpm lint            # ESLint
+pnpm lint:fix        # ESLint with auto-fix
+pnpm format          # Prettier format
+pnpm format:check    # Prettier check
+
+# Database
+pnpm db:generate     # Generate migrations
+pnpm db:migrate      # Apply migrations
+pnpm db:studio       # Open Drizzle Studio
+pnpm db:push         # Push schema changes
+```
+
+## 🔧 Environment Variables
+
+```bash
+# Supabase
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_PROJECT_REF=your_project_ref
+
+# Task Master AI (optional)
+ANTHROPIC_API_KEY=your_anthropic_key
+PERPLEXITY_API_KEY=your_perplexity_key
+
+# Database (optional - uses Supabase by default)
+DATABASE_URL=postgresql://...
+```
+
+## 🗂️ Project Structure
+
+### Database Schema
+- **Multi-tenant**: All tables include `organization_id`
+- **RLS enabled**: Row Level Security on all tables
+- **Idempotent**: Natural keys prevent duplicates
+- **Auditable**: Complete processing history
+
+### File Processing Flow
+1. **Upload** → Storage bucket
+2. **Discovery** → Register in `etl_file`
+3. **Parse** → Extract to staging tables
+4. **Validate** → Business rules validation
+5. **Map** → Dimensional mapping
+6. **Load** → Insert into fact tables
+
+## 🧪 Testing
+
+```bash
+# Test Supabase connection
+cd packages/supabase-client
+pnpm build && node dist/test-connection.js
+
+# Test database connection
+cd packages/database
+pnpm build && node -e "
+import { dbConnection } from './dist/connection.js';
+const db = dbConnection.connect({
+  connectionString: process.env.DATABASE_URL
+});
+console.log('✅ Database connected');
+"
+```
+
+## 📚 Development Guide
+
+### Adding New Pipeline
+1. Create schema in `packages/database/src/schema/`
+2. Add validation in `packages/etl-validation/src/`
+3. Create UI components in `packages/etl-ui/src/`
+4. Update edge function in `supabase/functions/`
+
+### Package Management
+```bash
+# Add dependency to specific package
+pnpm add <package> --filter @conecta-boi/database
+
+# Add workspace dependency
+pnpm add @conecta-boi/database --filter @conecta-boi/etl-ui
+
+# Build specific package
+pnpm build --filter @conecta-boi/database
+```
+
+## 🔗 Links
+
+- [Supabase Dashboard](https://supabase.com/dashboard)
+- [Task Master AI Docs](./.taskmaster/CLAUDE.md)
+- [Project Requirements](./RELATORIO_PROJETO.md)
+
+## 📄 License
+
+Private - Conecta Boi Project

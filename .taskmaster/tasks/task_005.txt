@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Implement Pipeline 02: Desvio de Carregamento ETL Logic and Validations
+# Status: pending
+# Dependencies: 4
+# Priority: high
+# Description: Create ETL logic for Pipeline 02, including staging, validation, and UPSERT into fato_desvio_carregamento.
+# Details:
+Create etl_staging_02_desvio_carregamento table. Implement validation: filter BAHMAN/SILOKING, check required fields (data, hora, vagão, kg), reject negative/impossible values, detect future dates, calculate deviations (kg, %). Use Zod (v3.x) for schema validation. Use natural key for idempotent UPSERT into fato_desvio_carregamento. Preserve source_file_id. Ensure ACID transactions and rollback on error.
+
+# Test Strategy:
+Run unit tests for all validation rules. Process real and synthetic files, verify correct records in staging and fact tables. Test idempotency by reprocessing same file.

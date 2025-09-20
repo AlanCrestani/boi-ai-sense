@@ -9,8 +9,8 @@
 				"task-master-ai"
 			],
 			"env": {
-				"ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
-				"PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
+				"ANTHROPIC_API_KEY": "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",
+				"PERPLEXITY_API_KEY": "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",
 				"OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
 				"GOOGLE_API_KEY": "YOUR_GOOGLE_KEY_HERE",
 				"XAI_API_KEY": "YOUR_XAI_KEY_HERE",
@@ -19,6 +19,53 @@
 				"AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
 				"OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
 			}
+		},
+		"context7": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@upstash/context7-mcp@latest"
+			]
+		},
+		"supabase": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"@supabase/mcp-server-supabase@latest",
+				"--project-ref=$SUPABASE_PROJECT_REF"
+			],
+			"env": {
+				"SUPABASE_ACCESS_TOKEN": "$SUPABASE_ACCESS_TOKEN"
+			}
+		},
+		"playwright": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"@playwright/mcp@latest"
+			]
+		},
+		"github": {
+			"type": "stdio",
+			"url": "https://api.githubcopilot.com/mcp/",
+			"headers": {
+				"Authorization": "Bearer $GITHUB_TOKEN"
+			}
+		},
+		"vercel": {
+			"type": "stdio",
+			"url": "https://mcp.vercel.com/"
+		},
+		"sentry": {
+			"type": "stdio",
+			"command": "npx",
+			"args": [
+				"-y",
+				"mcp-remote@latest",
+				"https://mcp.sentry.dev/mcp"
+			]
 		}
 	}
 }

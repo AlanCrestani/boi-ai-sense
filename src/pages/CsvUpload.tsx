@@ -19,6 +19,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { Upload, FileSpreadsheet, Trash2, CheckCircle, ArrowLeft } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { CsvProcessor } from '@/components/CsvProcessor';
+import { FatoDistribuicaoProcessor } from '@/components/FatoDistribuicaoProcessor';
+import { FatoCarregamentoProcessor } from '@/components/FatoCarregamentoProcessor';
 
 interface UploadFile {
   file: File;
@@ -28,42 +30,43 @@ interface UploadFile {
 }
 
 export default function CsvUpload() {
-  const { user } = useAuth();
+  const { user, organization } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [files, setFiles] = useState<UploadFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
 
+
   // Create csv-processed folder structure on component mount
   React.useEffect(() => {
     const createProcessedStructure = async () => {
-      if (!user) return;
-      
+      if (!user || !organization) return;
+
       try {
         const placeholderBlob = new Blob(['# Pasta para arquivos processados\n'], { type: 'text/plain' });
-        
+
         // Create placeholder files for each processed folder
         const folders = ['01', '02', '03', '04', '05'];
         for (const folder of folders) {
           const { error } = await supabase.storage
             .from('csv-uploads')
-            .upload(`csv-processed/${folder}/.placeholder`, placeholderBlob, {
+            .upload(`${organization.id}/csv-processed/${folder}/.placeholder`, placeholderBlob, {
               cacheControl: '3600',
               upsert: true
             });
-          
+
           if (error && !error.message.includes('already exists')) {
-            console.error(`Erro criando pasta processed/${folder}:`, error);
+            console.error(`Erro criando pasta ${organization.id}/csv-processed/${folder}:`, error);
           }
         }
-        console.log('✅ Estrutura csv-processed criada');
+        console.log('✅ Estrutura csv-processed criada para organização:', organization.id);
       } catch (error) {
         console.error('Erro criando estrutura processed:', error);
       }
     };
 
     createProcessedStructure();
-  }, [user]);
+  }, [user, organization]);
 
   const handleBackToDashboard = () => {
     navigate('/dashboard');
@@ -111,16 +114,18 @@ export default function CsvUpload() {
   };
 
   const processFile = async (fileName: string, folder: string) => {
+    if (!organization) return false;
+
     try {
       // 1. Download the file from original location
       const { data: fileData, error: downloadError } = await supabase.storage
         .from('csv-uploads')
-        .download(`${folder}/${fileName}`);
+        .download(`${organization.id}/${folder}/${fileName}`);
 
       if (downloadError) throw downloadError;
 
       // 2. Upload to csv-processed folder
-      const processedPath = `csv-processed/${folder}/${fileName}`;
+      const processedPath = `${organization.id}/csv-processed/${folder}/${fileName}`;
       const { error: uploadError } = await supabase.storage
         .from('csv-uploads')
         .upload(processedPath, fileData, {
@@ -133,11 +138,11 @@ export default function CsvUpload() {
       // 3. Delete from original location
       const { error: deleteError } = await supabase.storage
         .from('csv-uploads')
-        .remove([`${folder}/${fileName}`]);
+        .remove([`${organization.id}/${folder}/${fileName}`]);
 
       if (deleteError) throw deleteError;
 
-      console.log(`✅ Arquivo ${fileName} movido para processed/${folder}/`);
+      console.log(`✅ Arquivo ${fileName} movido para ${organization.id}/csv-processed/${folder}/`);
       return true;
     } catch (error) {
       console.error(`❌ Erro no pós-processamento de ${fileName}:`, error);
@@ -146,10 +151,10 @@ export default function CsvUpload() {
   };
 
   const uploadFiles = async () => {
-    if (!user) {
+    if (!user || !organization) {
       toast({
         title: "Erro de autenticação",
-        description: "Você precisa estar logado para fazer upload.",
+        description: "Você precisa estar logado e ter uma organização para fazer upload.",
         variant: "destructive"
       });
       return;
@@ -163,14 +168,14 @@ export default function CsvUpload() {
         if (uploadFile.status !== 'pending') continue;
 
         // Update status to uploading
-        setFiles(prev => prev.map((f, idx) => 
+        setFiles(prev => prev.map((f, idx) =>
           idx === i ? { ...f, status: 'uploading' as const } : f
         ));
 
         // Determine folder based on file name prefix
         let folder = "";
         const fileName = uploadFile.file.name;
-        
+
         if (fileName.startsWith("01")) folder = "01";
         else if (fileName.startsWith("02")) folder = "02";
         else if (fileName.startsWith("03")) folder = "03";
@@ -178,18 +183,19 @@ export default function CsvUpload() {
         else if (fileName.startsWith("05")) folder = "05";
         else {
           console.error(`Arquivo ${fileName} não segue padrão esperado`);
-          setFiles(prev => prev.map((f, idx) => 
-            idx === i ? { 
-              ...f, 
-              status: 'error' as const, 
+          setFiles(prev => prev.map((f, idx) =>
+            idx === i ? {
+              ...f,
+              status: 'error' as const,
               error: 'Nome do arquivo não segue padrão esperado (deve começar com 01, 02, 03, 04 ou 05)'
             } : f
           ));
           continue;
         }
 
-        const filePath = `${folder}/${fileName}`;
-        
+        // Use organization-based path structure: org_id/pipeline_folder/filename
+        const filePath = `${organization.id}/${folder}/${fileName}`;
+
         try {
           // 1. Upload to temporary location
           const { error } = await supabase.storage
@@ -201,14 +207,14 @@ export default function CsvUpload() {
 
           if (error) throw error;
 
-          console.log(`✅ ${fileName} enviado para ${folder}/`);
+          console.log(`✅ ${fileName} enviado para ${organization.id}/${folder}/`);
 
           // 2. Process file (move to csv-processed and clean original)
           const processed = await processFile(fileName, folder);
-          
+
           if (processed) {
             // Update status to completed
-            setFiles(prev => prev.map((f, idx) => 
+            setFiles(prev => prev.map((f, idx) =>
               idx === i ? { ...f, status: 'completed' as const, progress: 100 } : f
             ));
           } else {
@@ -217,10 +223,10 @@ export default function CsvUpload() {
 
         } catch (error) {
           console.error('Erro no upload:', error);
-          setFiles(prev => prev.map((f, idx) => 
-            idx === i ? { 
-              ...f, 
-              status: 'error' as const, 
+          setFiles(prev => prev.map((f, idx) =>
+            idx === i ? {
+              ...f,
+              status: 'error' as const,
               error: error instanceof Error ? error.message : 'Erro desconhecido'
             } : f
           ));
@@ -436,7 +442,7 @@ export default function CsvUpload() {
           <p className="text-text-secondary mb-6">
             Após o upload, processe os arquivos CSV usando os pipelines apropriados:
           </p>
-          
+
           <div className="grid gap-4 md:grid-cols-2">
             <CsvProcessor
               pipeline="02"
@@ -460,8 +466,21 @@ export default function CsvUpload() {
               pipeline="05"
               title="Trato por Curral"
               description="Processa dados de trato distribuído por curral"
-              filename="05_trato_curral.csv"
+              filename="05_trato_por_curral.csv"
             />
+          </div>
+        </div>
+
+        {/* Fato Tables Section */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-text-primary mb-4">Tabelas Fato</h2>
+          <p className="text-text-secondary mb-6">
+            Processe dados enriquecidos combinando informações das tabelas staging:
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+            <FatoDistribuicaoProcessor />
+            <FatoCarregamentoProcessor />
           </div>
         </div>
       </div>

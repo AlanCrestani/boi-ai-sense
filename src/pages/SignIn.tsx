@@ -15,10 +15,16 @@ export default function SignIn() {
   const { signIn, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberDevice, setRememberDevice] = useState(false);
+
   const [formData, setFormData] = useState({
     email: "",
     password: ""
   });
+
+  const handleRememberDeviceChange = (checked: boolean | string) => {
+    const booleanValue = checked === true || checked === 'true';
+    setRememberDevice(booleanValue);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -41,7 +47,18 @@ export default function SignIn() {
       toast.error(error.message || "Erro ao fazer login");
     } else {
       toast.success("Login realizado com sucesso!");
-      navigate("/user-profile");
+      // A navegação será feita pelo AuthProvider baseado no estado do perfil
+    }
+  };
+
+  const clearStorageData = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      toast.success("Dados da sessão limpos com sucesso");
+      window.location.reload();
+    } catch (error) {
+      toast.error("Erro ao limpar dados da sessão");
     }
   };
 
@@ -136,6 +153,7 @@ export default function SignIn() {
                     placeholder="Sua senha"
                     value={formData.password}
                     onChange={handleInputChange}
+                    autoComplete="current-password"
                     className="pl-10 pr-10 h-11"
                     required
                   />
@@ -152,10 +170,10 @@ export default function SignIn() {
               {/* Checkbox e Link Esqueceu Senha */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Checkbox 
+                  <Checkbox
                     id="remember"
                     checked={rememberDevice}
-                    onCheckedChange={(checked) => setRememberDevice(checked === true)}
+                    onCheckedChange={handleRememberDeviceChange}
                   />
                   <Label 
                     htmlFor="remember" 
@@ -188,6 +206,22 @@ export default function SignIn() {
                   Criar conta
                 </Link>
               </p>
+              
+              {/* Botão para limpar dados em caso de problemas */}
+              <div className="mt-4 pt-4 border-t border-border-subtle">
+                <p className="text-xs text-text-tertiary mb-2">
+                  Problemas com login?
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearStorageData}
+                  className="text-xs text-text-secondary hover:text-text-primary"
+                >
+                  Limpar dados da sessão
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

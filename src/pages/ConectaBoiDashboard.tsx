@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useLazyImage } from "@/hooks/useLazyImage";
 import { useEffect } from "react";
 import heroImage from "@/assets/hero-dashboard.jpg";
 
@@ -25,13 +26,10 @@ import {
 export default function ConectaBoiDashboard() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
+  const { ref: heroRef, src: heroSrc, isLoaded: heroLoaded } = useLazyImage(heroImage);
 
-  // Redirect authenticated users to dashboard
-  useEffect(() => {
-    if (!loading && user) {
-      navigate("/dashboard");
-    }
-  }, [loading, user, navigate]);
+  // Only redirect if user explicitly clicks "Get Started" or "Sign In"
+  // Remove automatic redirect for authenticated users
 
   const handleGetStarted = () => {
     if (user) {
@@ -73,10 +71,15 @@ export default function ConectaBoiDashboard() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
-          style={{ backgroundImage: `url(${heroImage})` }}
+      <section ref={heroRef} className="relative overflow-hidden">
+        <div
+          className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-500 ${
+            heroLoaded ? 'opacity-30' : 'opacity-0'
+          }`}
+          style={{
+            backgroundImage: heroSrc ? `url(${heroSrc})` : 'none',
+            backgroundColor: !heroSrc ? '#f3f4f6' : 'transparent'
+          }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/70" />
         
@@ -121,31 +124,31 @@ export default function ConectaBoiDashboard() {
           <h2 className="text-2xl font-bold text-foreground mb-6">
             Métricas em Tempo Real
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
-              title="Consumo Total"
-              value="1.247 ton"
+              title="Quantidade de Cabeças"
+              value="3.840"
               subtitle="↗ +3.2% vs ontem"
               trend="up"
               icon={<BarChart3 className="h-6 w-6" />}
             />
             <MetricCard
-              title="Eficiência Logística"
+              title="Eficiência de Carregamento"
               value="94.8%"
               subtitle="↗ +1.5% vs semana"
               trend="up"
               icon={<Truck className="h-6 w-6" />}
             />
             <MetricCard
-              title="Animais Monitorados"
-              value="3.840"
+              title="Eficiência de Distribuição"
+              value="92.3%"
               subtitle="→ Status estável"
               trend="stable"
               icon={<Users className="h-6 w-6" />}
             />
             <MetricCard
-              title="Tempo Médio Trato"
-              value="2h 15min"
+              title="Quantidade Fabricada"
+              value="1.247 ton"
               subtitle="↘ -8min vs ontem"
               trend="down"
               icon={<Clock className="h-6 w-6" />}

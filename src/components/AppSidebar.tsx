@@ -1,12 +1,14 @@
-import { 
-  Activity, 
-  Users, 
-  FileText, 
+import {
+  Activity,
+  Users,
+  FileText,
   Settings,
   BarChart3,
   User,
   Home,
-  Power
+  Power,
+  Database,
+  TrendingUp
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -41,6 +43,8 @@ const aiInsightsItems = [
 
 const managementItems = [
   { title: "Upload CSV", url: "/csv-upload", icon: FileText },
+  { title: "Operações ETL", url: "/etl-operations", icon: Database },
+  { title: "Dashboard Métricas", url: "/metrics-dashboard", icon: TrendingUp },
   { title: "Relatórios", url: "/reports", icon: FileText },
   { title: "Equipe", url: "/team", icon: Users },
   { title: "Configurações", url: "/settings", icon: Settings },

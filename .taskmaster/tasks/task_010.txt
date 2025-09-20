@@ -1,0 +1,11 @@
+# Task ID: 10
+# Title: Document ETL Pipelines, Mappings, and Operational Runbook
+# Status: pending
+# Dependencies: 9
+# Priority: medium
+# Description: Produce comprehensive documentation for pipeline logic, header mappings, maintenance scripts, and operational procedures.
+# Details:
+Use Typedoc for code documentation. Write Markdown docs for pipeline flows, header mapping tables, and validation rules. Provide SQL scripts for maintenance (archiving, compression). Prepare an operational runbook covering error handling, reprocessing, and manual interventions. Store docs in /docs and publish via GitHub Pages or Supabase Storage.
+
+# Test Strategy:
+Peer review documentation for completeness and clarity. Validate maintenance scripts in staging. Confirm runbook usability with simulated incidents.

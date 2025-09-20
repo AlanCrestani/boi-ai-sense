@@ -1,0 +1,43 @@
+# Task ID: 2
+# Title: Design and Implement ETL Control Tables with RLS Policies
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Create etl_run, etl_file, and etl_run_log tables with Row Level Security (RLS) and required indexes.
+# Details:
+Write SQL migrations for etl_run, etl_file, etl_run_log with fields for status, timestamps, organization_id, and audit trail. Implement RLS policies enforcing organization_id isolation. Add indexes on organization_id and data_ref. Use Supabase migration tooling (supabase db push/migrate). Document schema and RLS policies.
+
+# Test Strategy:
+Run migration in a test database. Validate RLS by attempting cross-tenant access. Check index usage with EXPLAIN.
+
+# Subtasks:
+## 1. Create ETL control table schemas with Drizzle ORM [pending]
+### Dependencies: None
+### Description: Define and implement the Drizzle ORM schemas for etl_run, etl_file, and etl_run_log tables with proper types, constraints, and relationships
+### Details:
+
+
+## 2. Generate and apply Drizzle migrations for ETL tables [pending]
+### Dependencies: None
+### Description: Use Drizzle Kit to generate SQL migrations for the ETL control tables and apply them to the Supabase database
+### Details:
+
+
+## 3. Implement Row Level Security (RLS) policies for multi-tenancy [pending]
+### Dependencies: None
+### Description: Create and apply RLS policies on ETL tables to ensure organization_id isolation and proper security definer functions
+### Details:
+
+
+## 4. Create database indexes for performance optimization [pending]
+### Dependencies: None
+### Description: Add optimized indexes on organization_id, status, timestamps, and foreign keys for efficient ETL queries and operations
+### Details:
+
+
+## 5. Test and validate ETL table creation and constraints [pending]
+### Dependencies: None
+### Description: Verify all ETL tables are created correctly, test RLS policies, validate constraints, and confirm proper multi-tenant isolation
+### Details:
+
+

@@ -1,0 +1,11 @@
+# Task ID: 4
+# Title: Develop Flexible CSV Parser with Header Mapping and Separator Detection
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Build a robust CSV parser supporting automatic separator detection, flexible header mapping, and streaming for large files.
+# Details:
+Use fast-csv (v5.x) or PapaParse (for browser) for streaming CSV parsing. Implement logic to detect separator (comma, semicolon, tab) by sampling first N lines. Map headers to canonical field names using a configurable mapping. Support batch processing (1000 rows per transaction). Store raw_data and normalized data in staging tables. Handle files >10,000 lines efficiently.
+
+# Test Strategy:
+Parse sample files with different separators and header variants. Validate streaming performance and memory usage. Confirm correct mapping and batch insertion.

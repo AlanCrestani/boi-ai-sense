@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Build ETL Operations Interface with Status, Actions, and Log Timeline
+# Status: pending
+# Dependencies: 7
+# Priority: medium
+# Description: Develop a web UI for ETL management: file list, status indicators, action buttons, log timeline, filters, and validation summaries.
+# Details:
+Use React (v18+) with TypeScript and Chakra UI or Material UI for rapid prototyping. Integrate with Supabase Auth for multi-tenant access. Display files with color-coded statuses, action buttons (Process, Validate, Approve, Load), and log timeline. Implement filters by log level and search. Show validation summaries and pending mappings. Ensure feedback <200ms and logs in Portuguese.
+
+# Test Strategy:
+E2E tests with Playwright or Cypress. Validate UI responsiveness, correct status display, and action flows. Test multi-tenant isolation.

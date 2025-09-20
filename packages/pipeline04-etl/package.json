@@ -1,0 +1,42 @@
+{
+  "name": "@conecta-boi/pipeline04-etl",
+  "version": "0.0.0",
+  "description": "Pipeline 04 ETL - Trato por Curral processing for Conecta Boi platform",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node dist/test/test-all.js",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.36.1",
+    "postgres": "^3.4.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "keywords": [
+    "etl",
+    "pipeline",
+    "trato-curral",
+    "livestock",
+    "agriculture",
+    "data-processing"
+  ],
+  "author": "Conecta Boi",
+  "license": "MIT"
+}

@@ -1,0 +1,241 @@
+# PRD - SISTEMA DE PROCESSAMENTO CSV PARA CONECTA BOI
+
+## VISÃO GERAL
+Sistema para processar arquivos CSV de controle de alimentação bovina, com upload para storage e processamento através de edge functions específicas para cada tipo de dado.
+
+## CONTEXTO TÉCNICO
+- Aplicação React com Supabase
+- Edge Functions em Deno
+- Storage bucket: csv-uploads
+- Processamento de 4 pipelines diferentes (02, 03, 04, 05)
+- Interface já existe em /csv-upload
+
+## PROBLEMA ATUAL
+- Edge function única está retornando erro 500
+- Processamento genérico não atende necessidades específicas
+- Falta de tabelas estruturadas para cada tipo de dado
+- Dificuldade de manutenção com código monolítico
+
+## REQUISITOS FUNCIONAIS
+
+### RF01 - UPLOAD DE ARQUIVOS CSV
+- Sistema deve permitir upload de até 5 arquivos CSV simultaneamente
+- Arquivos devem ser salvos no storage bucket csv-uploads
+- Nome do arquivo deve começar com 01, 02, 03, 04 ou 05 para identificar pipeline
+- Tamanho máximo: 20MB por arquivo
+
+### RF02 - PROCESSAMENTO PIPELINE 02 (DESVIO CARREGAMENTO)
+- Processar arquivo 02_desvio_carregamento.csv
+- Extrair campos: Data, Hora, Pazeiro, Vagão, Dieta, Nro Carregamento, Ingrediente, Tipo Ingrediente
+- Calcular: Carregado (kg), Previsto (kg), Desvio (kg), Desvio (%)
+- Identificar Status (VERDE, AMARELO, VERMELHO)
+- Gerar campo merge: data + hora + vagão
+- Filtrar apenas vagões BAHMAN e SILOKING
+
+### RF03 - PROCESSAMENTO PIPELINE 04 (ITENS DE TRATO)
+- Processar arquivo 04_itens_trato.csv
+- Extrair campos: Data de Inclusão, Id. Carregamento, Hora, Dieta, Carregamento, Ingrediente
+- Processar: Quantidade MN (kg), Motorista, Vagão, %MS Dieta Real
+- Gerar campo merge: data + hora + vagão
+- Filtrar apenas vagões BAHMAN e SILOKING
+
+### RF04 - INTERFACE DE PROCESSAMENTO
+- Botões separados para cada pipeline
+- Feedback visual de processamento (loading, sucesso, erro)
+- Exibir quantidade de linhas processadas
+- Permitir reprocessamento se necessário
+
+## REQUISITOS NÃO FUNCIONAIS
+
+### RNF01 - PERFORMANCE
+- Processamento de arquivo com 1000 linhas em menos de 10 segundos
+- Timeout máximo de 30 segundos por edge function
+
+### RNF02 - CONFIABILIDADE
+- Log de erros detalhado
+- Rollback em caso de falha
+- Validação de dados antes de inserir no banco
+
+### RNF03 - SEGURANÇA
+- Autenticação obrigatória para upload e processamento
+- RLS (Row Level Security) nas tabelas
+- Service role key apenas nas edge functions
+
+### RNF04 - MANUTENIBILIDADE
+- Edge functions separadas por pipeline
+- Código modular e reutilizável
+- Documentação inline clara
+
+## ESTRUTURA DE DADOS
+
+### TABELA: staging02_desvio_carregamento
+```
+id (uuid, primary key)
+organization_id (uuid, not null)
+file_id (uuid, not null)
+data (text)
+hora (text)
+pazeiro (text)
+vagao (text)
+dieta (text)
+nro_carregamento (text)
+ingrediente (text)
+tipo_ingrediente (text)
+realizado_kg (numeric)
+previsto_kg (numeric)
+desvio_kg (numeric)
+desvio_pc (numeric)
+status (text)
+merge (text)
+id_carregamento (uuid)
+created_at (timestamptz, default now())
+```
+
+### TABELA: staging04_itens_trato
+```
+id (uuid, primary key)
+organization_id (uuid, not null)
+file_id (uuid, not null)
+data (text)
+id_carregamento_original (text)
+hora (text)
+dieta (text)
+carregamento (text)
+ingrediente (text)
+realizado_kg (numeric)
+pazeiro (text)
+vagao (text)
+ms_dieta_pc (numeric)
+merge (text)
+created_at (timestamptz, default now())
+```
+
+## ARQUITETURA TÉCNICA
+
+### COMPONENTES FRONTEND
+1. **CsvUpload.tsx**: Página principal com upload e listagem de processadores
+2. **CsvProcessor.tsx**: Componente para cada pipeline com botão de processar
+3. **useCsvProcessor.tsx**: Hook para gerenciar processamento
+
+### EDGE FUNCTIONS
+1. **process-csv-02**: Processa desvio de carregamento
+2. **process-csv-04**: Processa itens de trato
+
+### FLUXO DE PROCESSAMENTO
+1. Usuário faz upload do CSV para storage
+2. Usuário clica no botão "Processar" do pipeline correspondente
+3. Frontend chama edge function específica
+4. Edge function baixa arquivo do storage
+5. Processa dados conforme regras do pipeline
+6. Insere dados na tabela staging correspondente
+7. Retorna resultado para frontend
+8. Frontend exibe feedback ao usuário
+
+## REGRAS DE NEGÓCIO
+
+### RN01 - IDENTIFICAÇÃO DE VAGÕES
+- Apenas processar linhas onde vagão = "BAHMAN" ou "SILOKING"
+- Converter nome do vagão para uppercase antes de comparar
+
+### RN02 - CÁLCULO DE DESVIO
+- desvio_kg = realizado_kg - previsto_kg
+- desvio_pc = (desvio_kg / previsto_kg) * 100
+
+### RN03 - STATUS DE DESVIO
+- VERDE: desvio_pc < 5%
+- AMARELO: desvio_pc >= 5% e < 10%
+- VERMELHO: desvio_pc >= 10%
+
+### RN04 - CAMPO MERGE
+- Formato: "data hora-vagão"
+- Exemplo: "14/09/2025 16:15:01-BAHMAN"
+
+### RN05 - TRATAMENTO DE ERROS
+- Campos numéricos vazios devem ser convertidos para 0
+- Campos de texto vazios devem ser mantidos como null
+- Caracteres especiais devem ser preservados (UTF-8)
+
+## CRITÉRIOS DE ACEITAÇÃO
+
+### CA01 - UPLOAD FUNCIONAL
+- [ ] Upload de múltiplos arquivos CSV funcionando
+- [ ] Validação de formato e tamanho
+- [ ] Arquivos salvos no storage na pasta correta
+
+### CA02 - PROCESSAMENTO PIPELINE 02
+- [ ] Edge function process-csv-02 criada e deployada
+- [ ] Dados inseridos corretamente em staging02_desvio_carregamento
+- [ ] Apenas vagões BAHMAN e SILOKING processados
+- [ ] Campo merge gerado corretamente
+
+### CA03 - PROCESSAMENTO PIPELINE 04
+- [ ] Edge function process-csv-04 criada e deployada
+- [ ] Dados inseridos corretamente em staging04_itens_trato
+- [ ] Apenas vagões BAHMAN e SILOKING processados
+- [ ] Campo merge gerado corretamente
+
+### CA04 - INTERFACE RESPONSIVA
+- [ ] Botões de processamento funcionais
+- [ ] Feedback visual durante processamento
+- [ ] Mensagens de sucesso/erro claras
+- [ ] Contador de linhas processadas
+
+### CA05 - TRATAMENTO DE ERROS
+- [ ] Logs de erro detalhados nas edge functions
+- [ ] Mensagens de erro amigáveis no frontend
+- [ ] Sistema não trava em caso de erro
+
+## PLANO DE IMPLEMENTAÇÃO
+
+### FASE 1 - PREPARAÇÃO DO BANCO (1 dia)
+1. Criar migration para tabela staging02_desvio_carregamento
+2. Criar migration para tabela staging04_itens_trato
+3. Aplicar RLS policies
+4. Testar estrutura com dados de exemplo
+
+### FASE 2 - EDGE FUNCTIONS (2 dias)
+1. Implementar process-csv-02
+2. Implementar process-csv-04
+3. Deploy no Supabase
+4. Testar com arquivos reais
+
+### FASE 3 - INTEGRAÇÃO FRONTEND (1 dia)
+1. Atualizar useCsvProcessor para escolher edge function
+2. Ajustar CsvProcessor para passar parâmetros corretos
+3. Adicionar feedback visual
+4. Testar fluxo completo
+
+### FASE 4 - VALIDAÇÃO E AJUSTES (1 dia)
+1. Testar com diferentes arquivos CSV
+2. Validar dados no banco
+3. Ajustar regras de negócio se necessário
+4. Documentar processo
+
+## RISCOS E MITIGAÇÕES
+
+### RISCO 1 - Timeout em arquivos grandes
+- Mitigação: Processar em lotes de 500 linhas
+- Implementar paginação se necessário
+
+### RISCO 2 - Caracteres especiais no CSV
+- Mitigação: Usar encoding UTF-8
+- Tratar acentos e caracteres latinos
+
+### RISCO 3 - Dados duplicados
+- Mitigação: Verificar se arquivo já foi processado
+- Adicionar índice único em merge + file_id
+
+## MÉTRICAS DE SUCESSO
+- 100% dos arquivos CSV processados sem erros
+- Tempo médio de processamento < 5 segundos
+- Zero perda de dados durante processamento
+- 95% de disponibilidade do sistema
+
+## DEPENDÊNCIAS
+- Supabase CLI instalado e configurado
+- Acesso ao projeto no Supabase Dashboard
+- Node.js 18+ para desenvolvimento local
+- Deno runtime para edge functions
+
+## OBSERVAÇÕES FINAIS
+Este PRD visa criar um sistema robusto e escalável para processamento de dados de alimentação bovina. A separação em edge functions específicas permite manutenção mais fácil e adição de novos pipelines no futuro. O foco está na confiabilidade e precisão dos dados processados.

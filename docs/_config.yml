@@ -1,0 +1,87 @@
+# GitHub Pages Configuration for Conecta Boi ETL Documentation
+
+title: "Conecta Boi ETL System"
+description: "Comprehensive documentation for the Conecta Boi ETL System - Advanced livestock data management platform"
+url: ""
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Include TypeDoc generated files
+include:
+  - api
+
+# Exclude files from processing
+exclude:
+  - node_modules
+  - package*.json
+  - *.log
+  - .git
+  - .gitignore
+
+# Collections for better organization
+collections:
+  pipeline-flows:
+    output: true
+    permalink: /:collection/:name/
+  mappings:
+    output: true
+    permalink: /:collection/:name/
+  operations:
+    output: true
+    permalink: /:collection/:name/
+  maintenance:
+    output: true
+    permalink: /:collection/:name/
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: "post"
+  - scope:
+      path: ""
+      type: "pipeline-flows"
+    values:
+      layout: "page"
+  - scope:
+      path: ""
+      type: "mappings"
+    values:
+      layout: "page"
+  - scope:
+      path: ""
+      type: "operations"
+    values:
+      layout: "page"
+  - scope:
+      path: ""
+      type: "maintenance"
+    values:
+      layout: "page"
+
+# Navigation
+header_pages:
+  - README.md
+  - pipeline-flows/overview.md
+  - mappings/header-mappings.md
+  - operations/runbook.md
+
+# Social links (optional)
+github_username: your-org
+twitter_username: your-twitter
+
+# SEO
+lang: pt-BR
+author: "Conecta Boi Development Team"

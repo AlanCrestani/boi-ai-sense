@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Implement Pipeline 04: Trato por Curral ETL Logic and Validations
+# Status: pending
+# Dependencies: 4
+# Priority: high
+# Description: Develop ETL logic for Pipeline 04, including staging, referential integrity, and UPSERT into fato_trato_curral.
+# Details:
+Create etl_staging_04_trato_curral table. Validate required fields (data, hora, curral, trateiro), check referential integrity with dim_curral, validate quantities and times, detect duplicate treatments. Use Zod for validation. Map curral_codigo to curral_id, dieta_nome to dieta_id. Create pending entries for unmapped codes. Fallback to manual registration via UI. UPSERT into fato_trato_curral using natural key.
+
+# Test Strategy:
+Unit tests for all validation and mapping logic. Integration tests with dim_curral/dim_dieta. Simulate unmapped codes and verify pending creation.

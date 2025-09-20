@@ -1,0 +1,24 @@
+{
+  "name": "drizzle-demo",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:push": "drizzle-kit push",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "drizzle-orm": "^0.44.5",
+    "express": "^5.1.0",
+    "postgres": "^3.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.16.5",
+    "drizzle-kit": "^0.31.4",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}

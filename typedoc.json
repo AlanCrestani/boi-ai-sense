@@ -1,0 +1,86 @@
+{
+  "name": "Conecta Boi ETL System",
+  "entryPoints": [
+    "./src/lib/utils.ts",
+    "./src/hooks",
+    "./src/components/ui",
+    "./src/components/dashboard"
+  ],
+  "entryPointStrategy": "expand",
+  "tsconfig": "./tsconfig.doc.json",
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/test/**",
+    "**/tests/**",
+    "src/pages/ETLOperations.tsx",
+    "src/pages/MetricsDashboard.tsx",
+    "src/lib/sentry.ts"
+  ],
+  "out": "./docs/api/typedoc",
+  "theme": "default",
+  "includeVersion": true,
+  "readme": "./README.md",
+  "excludePrivate": false,
+  "excludeProtected": false,
+  "excludeExternals": true,
+  "categorizeByGroup": true,
+  "categoryOrder": [
+    "ETL Pipelines",
+    "State Management",
+    "Data Validation",
+    "Metrics & Monitoring",
+    "User Interface",
+    "Utilities",
+    "*"
+  ],
+  "groupOrder": [
+    "Classes",
+    "Interfaces",
+    "Types",
+    "Functions",
+    "Variables"
+  ],
+  "sort": ["source-order"],
+  "kindSortOrder": [
+    "Project",
+    "Module",
+    "Namespace",
+    "Enum",
+    "EnumMember",
+    "Class",
+    "Interface",
+    "TypeAlias",
+    "Constructor",
+    "Property",
+    "Variable",
+    "Function",
+    "Accessor",
+    "Method",
+    "Parameter",
+    "TypeParameter",
+    "TypeLiteral",
+    "CallSignature",
+    "ConstructorSignature",
+    "IndexSignature",
+    "GetSignature",
+    "SetSignature"
+  ],
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  },
+  "searchInComments": true,
+  "treatWarningsAsErrors": false,
+  "skipErrorChecking": true,
+  "validation": {
+    "notExported": true,
+    "invalidLink": true,
+    "notDocumented": false
+  },
+  "sourceLinkTemplate": "https://github.com/your-org/conecta-boi/blob/{gitRevision}/{path}#L{line}",
+  "gitRevision": "main"
+}

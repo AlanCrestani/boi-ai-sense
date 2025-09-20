@@ -1,0 +1,300 @@
+/**
+ * Flexible header mapping for CSV files
+ * Supports variant header names, aliases, and missing field handling
+ */
+/**
+ * Header Mapper class for flexible CSV header mapping
+ */
+export class HeaderMapper {
+    config;
+    headerMap = new Map();
+    analysis = null;
+    constructor(config) {
+        this.config = {
+            caseSensitive: false,
+            strict: false,
+            removePrefix: '',
+            removeSuffix: '',
+            ...config,
+        };
+    }
+    /**
+     * Analyze headers and create mapping
+     */
+    analyzeHeaders(headers) {
+        const cleanHeaders = headers.map(h => this.cleanHeader(h));
+        const mappedHeaders = [];
+        const unmappedHeaders = [];
+        const missingRequired = [];
+        const suggestions = [];
+        this.headerMap.clear();
+        // Try to map each header
+        for (let i = 0; i < headers.length; i++) {
+            const originalHeader = headers[i];
+            const cleanHeader = cleanHeaders[i];
+            const mapped = this.findMapping(cleanHeader);
+            if (mapped) {
+                this.headerMap.set(originalHeader, mapped);
+                mappedHeaders.push(originalHeader);
+            }
+            else {
+                unmappedHeaders.push(originalHeader);
+                // Find suggestions
+                const suggestion = this.findBestSuggestion(cleanHeader);
+                if (suggestion) {
+                    suggestions.push({
+                        csvHeader: originalHeader,
+                        suggestedCanonical: suggestion.canonical,
+                        similarity: suggestion.similarity,
+                    });
+                }
+            }
+        }
+        // Check for missing required fields
+        for (const [canonical, mapping] of Object.entries(this.config.fields)) {
+            if (mapping.required && !Array.from(this.headerMap.values()).includes(canonical)) {
+                missingRequired.push(canonical);
+            }
+        }
+        // Calculate confidence
+        const mappedCount = mappedHeaders.length;
+        const totalRequired = Object.values(this.config.fields).filter(f => f.required).length;
+        const requiredMapped = totalRequired - missingRequired.length;
+        const confidence = totalRequired > 0 ? requiredMapped / totalRequired : mappedCount / headers.length;
+        this.analysis = {
+            detectedHeaders: headers,
+            mappedHeaders,
+            unmappedHeaders,
+            missingRequired,
+            confidence,
+            suggestions,
+        };
+        return this.analysis;
+    }
+    /**
+     * Map a row using the current header mapping
+     */
+    mapRow(rawData, headers, rowNumber) {
+        if (!this.analysis) {
+            this.analyzeHeaders(headers);
+        }
+        const mapped = {};
+        const missingFields = [];
+        const unmappedFields = [];
+        const errors = [];
+        // Map each field
+        for (const [canonical, fieldConfig] of Object.entries(this.config.fields)) {
+            let value = undefined;
+            let found = false;
+            // Find value in raw data
+            for (let i = 0; i < headers.length; i++) {
+                const mappedCanonical = this.headerMap.get(headers[i]);
+                if (mappedCanonical === canonical) {
+                    value = rawData[i] || '';
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (fieldConfig.required && fieldConfig.defaultValue === undefined) {
+                    missingFields.push(canonical);
+                    errors.push({
+                        field: canonical,
+                        message: `Required field '${canonical}' is missing`,
+                    });
+                }
+                else if (fieldConfig.defaultValue !== undefined) {
+                    value = fieldConfig.defaultValue;
+                }
+            }
+            // Transform value
+            if (value !== undefined && fieldConfig.transform) {
+                try {
+                    value = fieldConfig.transform(value);
+                }
+                catch (error) {
+                    errors.push({
+                        field: canonical,
+                        message: `Transformation error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                        value,
+                    });
+                }
+            }
+            // Type conversion
+            if (value !== undefined && fieldConfig.type) {
+                const converted = this.convertType(value, fieldConfig.type);
+                if (converted.error) {
+                    errors.push({
+                        field: canonical,
+                        message: converted.error,
+                        value,
+                    });
+                }
+                else {
+                    value = converted.value;
+                }
+            }
+            // Validation
+            if (value !== undefined && fieldConfig.validate) {
+                const validation = fieldConfig.validate(value);
+                if (validation !== true) {
+                    errors.push({
+                        field: canonical,
+                        message: typeof validation === 'string' ? validation : `Validation failed for field '${canonical}'`,
+                        value,
+                    });
+                }
+            }
+            mapped[canonical] = value;
+        }
+        // Track unmapped fields
+        for (let i = 0; i < headers.length; i++) {
+            if (!this.headerMap.has(headers[i])) {
+                unmappedFields.push(headers[i]);
+            }
+        }
+        return {
+            raw: rawData,
+            headers,
+            mapped,
+            missingFields,
+            unmappedFields,
+            errors,
+            rowNumber,
+        };
+    }
+    /**
+     * Get current mapping analysis
+     */
+    getAnalysis() {
+        return this.analysis;
+    }
+    /**
+     * Clean header name
+     */
+    cleanHeader(header) {
+        let cleaned = header.trim();
+        if (this.config.removePrefix && cleaned.startsWith(this.config.removePrefix)) {
+            cleaned = cleaned.substring(this.config.removePrefix.length);
+        }
+        if (this.config.removeSuffix && cleaned.endsWith(this.config.removeSuffix)) {
+            cleaned = cleaned.substring(0, cleaned.length - this.config.removeSuffix.length);
+        }
+        if (!this.config.caseSensitive) {
+            cleaned = cleaned.toLowerCase();
+        }
+        return cleaned.trim();
+    }
+    /**
+     * Find mapping for a header
+     */
+    findMapping(cleanHeader) {
+        // Direct canonical match
+        for (const [canonical, mapping] of Object.entries(this.config.fields)) {
+            const canonicalToMatch = this.config.caseSensitive ? canonical : canonical.toLowerCase();
+            if (cleanHeader === canonicalToMatch) {
+                return canonical;
+            }
+            // Check aliases
+            if (mapping.aliases) {
+                for (const alias of mapping.aliases) {
+                    const aliasToMatch = this.config.caseSensitive ? alias : alias.toLowerCase();
+                    if (cleanHeader === aliasToMatch) {
+                        return canonical;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    /**
+     * Find best suggestion for unmapped header
+     */
+    findBestSuggestion(cleanHeader) {
+        let bestMatch = null;
+        for (const [canonical, mapping] of Object.entries(this.config.fields)) {
+            // Check canonical name
+            const canonicalSimilarity = this.calculateSimilarity(cleanHeader, canonical.toLowerCase());
+            if (canonicalSimilarity > 0.6 && (!bestMatch || canonicalSimilarity > bestMatch.similarity)) {
+                bestMatch = { canonical, similarity: canonicalSimilarity };
+            }
+            // Check aliases
+            if (mapping.aliases) {
+                for (const alias of mapping.aliases) {
+                    const aliasSimilarity = this.calculateSimilarity(cleanHeader, alias.toLowerCase());
+                    if (aliasSimilarity > 0.6 && (!bestMatch || aliasSimilarity > bestMatch.similarity)) {
+                        bestMatch = { canonical, similarity: aliasSimilarity };
+                    }
+                }
+            }
+        }
+        return bestMatch;
+    }
+    /**
+     * Calculate string similarity using Levenshtein distance
+     */
+    calculateSimilarity(str1, str2) {
+        const matrix = Array.from({ length: str1.length + 1 }, () => Array.from({ length: str2.length + 1 }, () => 0));
+        for (let i = 0; i <= str1.length; i++)
+            matrix[i][0] = i;
+        for (let j = 0; j <= str2.length; j++)
+            matrix[0][j] = j;
+        for (let i = 1; i <= str1.length; i++) {
+            for (let j = 1; j <= str2.length; j++) {
+                const cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost);
+            }
+        }
+        const maxLength = Math.max(str1.length, str2.length);
+        const distance = matrix[str1.length][str2.length];
+        return maxLength === 0 ? 1 : (maxLength - distance) / maxLength;
+    }
+    /**
+     * Convert value to specified type
+     */
+    convertType(value, type) {
+        if (value === null || value === undefined || value === '') {
+            return { value: null };
+        }
+        try {
+            switch (type) {
+                case 'string':
+                    return { value: String(value) };
+                case 'number':
+                    // Handle Brazilian decimal format (comma as decimal separator)
+                    let numberString = String(value);
+                    if (typeof value === 'string') {
+                        // Replace comma with dot for decimal parsing
+                        numberString = value.replace(',', '.');
+                    }
+                    const num = Number(numberString);
+                    if (isNaN(num)) {
+                        return { value, error: `Cannot convert '${value}' to number` };
+                    }
+                    return { value: num };
+                case 'boolean':
+                    const str = String(value).toLowerCase().trim();
+                    if (['true', '1', 'yes', 'sim', 'verdadeiro'].includes(str)) {
+                        return { value: true };
+                    }
+                    else if (['false', '0', 'no', 'não', 'falso'].includes(str)) {
+                        return { value: false };
+                    }
+                    else {
+                        return { value, error: `Cannot convert '${value}' to boolean` };
+                    }
+                case 'date':
+                    const date = new Date(value);
+                    if (isNaN(date.getTime())) {
+                        return { value, error: `Cannot convert '${value}' to date` };
+                    }
+                    return { value: date };
+                default:
+                    return { value };
+            }
+        }
+        catch (error) {
+            return { value, error: `Type conversion error: ${error instanceof Error ? error.message : 'Unknown error'}` };
+        }
+    }
+}

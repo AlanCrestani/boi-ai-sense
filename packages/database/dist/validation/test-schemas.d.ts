@@ -1,0 +1,96 @@
+export declare function testSchemaValidation(): {
+    success: boolean;
+    validatedSchemas: {
+        etlRun: {
+            id: string;
+            fileId: string;
+            organizationId: string;
+            runNumber: number;
+            currentState?: "uploaded" | "parsed" | "validated" | "approved" | "loaded" | "failed" | undefined;
+            stateHistory?: import("drizzle-zod").Json | undefined;
+            startedAt?: Date | undefined;
+            completedAt?: Date | null | undefined;
+            processingBy?: string | null | undefined;
+            processingStartedAt?: Date | null | undefined;
+            recordsTotal?: number | null | undefined;
+            recordsProcessed?: number | null | undefined;
+            recordsFailed?: number | null | undefined;
+            errorMessage?: string | null | undefined;
+            errorDetails?: import("drizzle-zod").Json | undefined;
+            retryCount?: number | undefined;
+            nextRetryAt?: Date | null | undefined;
+            version?: number | undefined;
+            createdAt?: Date | undefined;
+            updatedAt?: Date | undefined;
+            lockedBy?: string | null | undefined;
+            lockedAt?: Date | null | undefined;
+            lockExpiresAt?: Date | null | undefined;
+        };
+        etlFile: {
+            id: string;
+            organizationId: string;
+            filename: string;
+            filepath: string;
+            fileSize: number;
+            mimeType: string;
+            checksum: string;
+            uploadedBy: string;
+            currentState?: "uploaded" | "parsed" | "validated" | "approved" | "loaded" | "failed" | undefined;
+            stateHistory?: import("drizzle-zod").Json | undefined;
+            uploadedAt?: Date | undefined;
+            parsedAt?: Date | null | undefined;
+            validatedAt?: Date | null | undefined;
+            approvedAt?: Date | null | undefined;
+            approvedBy?: string | null | undefined;
+            loadedAt?: Date | null | undefined;
+            failedAt?: Date | null | undefined;
+            errorMessage?: string | null | undefined;
+            metadata?: import("drizzle-zod").Json | undefined;
+            version?: number | undefined;
+            createdAt?: Date | undefined;
+            updatedAt?: Date | undefined;
+            lockedBy?: string | null | undefined;
+            lockedAt?: Date | null | undefined;
+            lockExpiresAt?: Date | null | undefined;
+        };
+        curral: {
+            organizationId: string;
+            codigo: string;
+            curralId?: string | undefined;
+            nome?: string | null | undefined;
+            capacidade?: string | null | undefined;
+            setor?: string | null | undefined;
+            isActive?: boolean | undefined;
+            createdAt?: Date | undefined;
+            updatedAt?: Date | undefined;
+        };
+        desvio: {
+            organizationId: string;
+            fileId: string;
+            id?: string | undefined;
+            data?: string | null | undefined;
+            hora?: string | null | undefined;
+            pazeiro?: string | null | undefined;
+            vagao?: string | null | undefined;
+            dieta?: string | null | undefined;
+            nroCarregamento?: string | null | undefined;
+            ingrediente?: string | null | undefined;
+            tipoIngrediente?: string | null | undefined;
+            realizadoKg?: string | null | undefined;
+            previstoKg?: string | null | undefined;
+            desvioKg?: string | null | undefined;
+            desvioPc?: string | null | undefined;
+            status?: string | null | undefined;
+            merge?: string | null | undefined;
+            idCarregamentoOriginal?: string | null | undefined;
+            createdAt?: Date | null | undefined;
+            updatedAt?: Date | null | undefined;
+        };
+    };
+    error?: undefined;
+} | {
+    success: boolean;
+    error: string;
+    validatedSchemas?: undefined;
+};
+//# sourceMappingURL=test-schemas.d.ts.map

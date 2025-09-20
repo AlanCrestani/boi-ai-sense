@@ -4,6 +4,22 @@
 
 /* ConectaBoi Insights Design System - Industrial Tech Theme */
 
+/* Recharts customizations - Disable hover effects on bars */
+.recharts-bar-rectangle {
+  transition: none !important;
+}
+
+.recharts-bar-rectangle:hover {
+  fill-opacity: 1 !important;
+  filter: none !important;
+  transition: none !important;
+}
+
+.recharts-active-bar .recharts-bar-rectangle {
+  fill-opacity: 1 !important;
+  filter: none !important;
+}
+
 @layer base {
   :root {
     /* Core Brand Colors - HSL Format */

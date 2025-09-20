@@ -19,17 +19,19 @@ import InvitePage from "./pages/InvitePage";
 import FeedReading from "./pages/FeedReading";
 import Logistics from "./pages/Logistics";
 import CsvUpload from "./pages/CsvUpload";
+import ETLOperations from "./pages/ETLOperations";
+import MetricsDashboard from "./pages/MetricsDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AuthProvider>
           <Routes>
             <Route path="/" element={<ConectaBoiDashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
@@ -46,13 +48,15 @@ const App = () => (
             <Route path="/user-profile" element={<UserProfile />} />
             <Route path="/feed-reading" element={<FeedReading />} />
             <Route path="/csv-upload" element={<CsvUpload />} />
+            <Route path="/etl-operations" element={<ETLOperations />} />
+            <Route path="/metrics-dashboard" element={<MetricsDashboard />} />
             <Route path="/invite/:token" element={<InvitePage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 

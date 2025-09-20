@@ -46,7 +46,7 @@ export default function SignUp() {
       toast.error(error.message || "Erro ao criar conta");
     } else {
       toast.success("Conta criada com sucesso! Verifique seu email para confirmar.");
-      navigate("/user-profile");
+      // A navegação será feita pelo AuthProvider baseado no estado do perfil
     }
   };
 
@@ -174,6 +174,7 @@ export default function SignUp() {
                     placeholder="Sua senha segura"
                     value={formData.password}
                     onChange={handleInputChange}
+                    autoComplete="new-password"
                     className="pl-10 pr-10 h-11"
                     required
                   />

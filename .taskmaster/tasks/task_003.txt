@@ -1,0 +1,11 @@
+# Task ID: 3
+# Title: Implement Webhook/Trigger for Automatic File Discovery and Manifest Registration
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Set up a Supabase Storage webhook or trigger to detect new CSV uploads, extract organization_id from path, compute checksum, and register in etl_file.
+# Details:
+Use Supabase Edge Functions (TypeScript) to listen for storage object.created events. Parse file path to extract organization_id. Compute SHA256 checksum of file (using crypto.subtle or Node.js crypto). Insert entry into etl_file with status 'uploaded'. Ensure idempotency for reuploads (check checksum).
+
+# Test Strategy:
+Upload test files and verify etl_file entries are created with correct metadata and checksum. Simulate reupload and check for correct deduplication.

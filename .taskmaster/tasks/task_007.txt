@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Develop ETL State Machine and Reprocessing Logic
+# Status: pending
+# Dependencies: 5, 6
+# Priority: medium
+# Description: Implement state transitions for files (uploaded → parsed → validated → approved → loaded), reprocessing with checksum detection, and staging cleanup.
+# Details:
+Model state machine in etl_file and etl_run. On reupload, detect via checksum and allow forced reprocessing. Clean staging tables before reprocessing. Maintain full audit trail in etl_run_log. Use optimistic locking to prevent concurrent processing. Implement retry with exponential backoff and dead letter queue for persistent failures.
+
+# Test Strategy:
+Simulate all state transitions and reprocessing scenarios. Test concurrent uploads and forced reprocessing. Verify audit trail and dead letter queue entries.
