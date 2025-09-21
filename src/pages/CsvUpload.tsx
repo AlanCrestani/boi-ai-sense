@@ -443,7 +443,13 @@ export default function CsvUpload() {
             Após o upload, processe os arquivos CSV usando os pipelines apropriados:
           </p>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <CsvProcessor
+              pipeline="01"
+              title="Histórico de Consumo"
+              description="Processa dados históricos de consumo dos animais"
+              filename="01_historico_consumo.csv"
+            />
             <CsvProcessor
               pipeline="02"
               title="Desvio Carregamento"

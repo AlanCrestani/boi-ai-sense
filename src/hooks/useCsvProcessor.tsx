@@ -14,10 +14,16 @@ interface ProcessCsvResponse {
   success: boolean;
   filename: string;
   fileId: string;
-  rowsProcessed: number;
-  rowsInserted: number;
+  rowsProcessed?: number;
+  rowsInserted?: number;
   errors?: any[];
   message: string;
+  summary?: {
+    totalRows: number;
+    successfulRows: number;
+    failedRows: number;
+    errors?: any[];
+  };
 }
 
 export const useCsvProcessor = () => {
@@ -76,9 +82,13 @@ export const useCsvProcessor = () => {
 
       console.log(`✅ Processamento concluído:`, data);
 
+      // Use summary format (pipeline 01) or legacy format (other pipelines)
+      const totalRows = data.summary?.totalRows || data.rowsProcessed || 0;
+      const successfulRows = data.summary?.successfulRows || data.rowsInserted || 0;
+
       toast({
         title: "Processamento concluído",
-        description: `${data.rowsProcessed} linhas processadas, ${data.rowsInserted} linhas inseridas no banco`,
+        description: `${totalRows} linhas processadas, ${successfulRows} linhas inseridas no banco`,
       });
 
       return data;
