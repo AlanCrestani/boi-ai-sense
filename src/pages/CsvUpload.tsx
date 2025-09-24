@@ -21,6 +21,7 @@ import { useNavigate } from "react-router-dom";
 import { CsvProcessor } from '@/components/CsvProcessor';
 import { FatoDistribuicaoProcessor } from '@/components/FatoDistribuicaoProcessor';
 import { FatoCarregamentoProcessor } from '@/components/FatoCarregamentoProcessor';
+import { FatoHistoricoConsumoProcessor } from '@/components/FatoHistoricoConsumoProcessor';
 
 interface UploadFile {
   file: File;
@@ -484,7 +485,8 @@ export default function CsvUpload() {
             Processe dados enriquecidos combinando informações das tabelas staging:
           </p>
 
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
+            <FatoHistoricoConsumoProcessor />
             <FatoDistribuicaoProcessor />
             <FatoCarregamentoProcessor />
           </div>

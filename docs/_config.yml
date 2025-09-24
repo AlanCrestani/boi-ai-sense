@@ -75,7 +75,7 @@ defaults:
 header_pages:
   - README.md
   - pipeline-flows/overview.md
-  - mappings/header-mappings.md
+  - validacao-tabelas-staging.md
   - operations/runbook.md
 
 # Social links (optional)

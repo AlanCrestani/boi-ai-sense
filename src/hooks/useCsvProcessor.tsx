@@ -174,9 +174,10 @@ export const useCsvProcessor = () => {
       console.log(`📋 Organization ID: ${organizationId}`);
 
       // Call the fato_distribuicao edge function
-      const { data, error } = await supabase.functions.invoke('process-fato-distribuicao', {
+      const { data, error } = await supabase.functions.invoke('process-fato-distribuicao-fix', {
         body: {
-          organizationId
+          organizationId,
+          forceOverwrite: true  // Sempre sobrescrever dados existentes
         }
       });
 
@@ -225,7 +226,7 @@ export const useCsvProcessor = () => {
       console.log(`📋 Organization ID: ${organizationId}`);
 
       // Call the fato_carregamento edge function
-      const { data, error } = await supabase.functions.invoke('process-fato-carregamento', {
+      const { data, error } = await supabase.functions.invoke('process-fato-carregamento-temp', {
         body: {
           organizationId,
           forceOverwrite: true
@@ -262,11 +263,63 @@ export const useCsvProcessor = () => {
     }
   };
 
+  const processFatoHistoricoConsumo = async () => {
+    setIsProcessing(true);
+
+    try {
+      console.log('🔄 Iniciando processamento da fato_historico_consumo...');
+
+      // Validate required data
+      if (!user || !organization) {
+        throw new Error('Usuário ou organização não encontrados');
+      }
+
+      const organizationId = organization.id;
+      console.log(`📋 Organization ID: ${organizationId}`);
+
+      // Call the fato_historico_consumo edge function
+      const { data, error } = await supabase.functions.invoke('process-fato-historico-consumo', {
+        body: {
+          organizationId
+        }
+      });
+
+      if (error) {
+        console.error('Erro na edge function:', error);
+        throw new Error(error.message);
+      }
+
+      if (!data.success) {
+        throw new Error(data.error || 'Erro desconhecido no processamento da fato_historico_consumo');
+      }
+
+      console.log(`✅ Fato histórico consumo processado:`, data);
+
+      toast({
+        title: "Fato Histórico Consumo Processado",
+        description: `${data.stats.totalProcessed} registros processados. Taxa de sucesso: ${data.stats.successRate}`,
+      });
+
+      return data;
+    } catch (error) {
+      console.error('Erro no processamento da fato_historico_consumo:', error);
+      toast({
+        title: "Erro no processamento da fato_historico_consumo",
+        description: error instanceof Error ? error.message : 'Erro desconhecido',
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   return {
     processCsv,
     cleanDuplicates,
     processFatoDistribuicao,
     processFatoCarregamento,
+    processFatoHistoricoConsumo,
     isProcessing,
     isCleaningDuplicates
   };

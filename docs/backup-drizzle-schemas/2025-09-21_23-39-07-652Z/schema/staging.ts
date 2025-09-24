@@ -49,47 +49,6 @@ export const stagingLivestockData = pgTable('staging_livestock_data', {
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 });
 
-// Staging 01 Histórico Consumo - dados de histórico de consumo
-export const staging01HistoricoConsumo = pgTable('staging_01_historico_consumo', {
-  id: serial('id').primaryKey(),
-  organizationId: uuid('organization_id').notNull(),
-  fileId: text('file_id').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-  data: date('data'),
-  curral: text('curral'),
-  lote: text('lote'),
-  raca: text('raca'),
-  sexo: text('sexo'),
-  codGrupoGenetico: text('cod_grupo_genetico'),
-  grupoGenetico: text('grupo_genetico'),
-  setor: text('setor'),
-  proprietarioPredominante: text('proprietario_predominante'),
-  origemPredominante: text('origem_predominante'),
-  tipoAquisicao: text('tipo_aquisicao'),
-  dieta: text('dieta'),
-  escore: numeric('escore'),
-  fatorCorrecaoKg: numeric('fator_correcao_kg'),
-  escoreNoturno: numeric('escore_noturno'),
-  dataEntrada: date('data_entrada'),
-  qtdAnimais: integer('qtd_animais'),
-  pesoEntradaKg: numeric('peso_entrada_kg'),
-  pesoEstimadoKg: numeric('peso_estimado_kg'),
-  diasConfinados: integer('dias_confinados'),
-  consumoTotalKgMn: numeric('consumo_total_kg_mn'),
-  consumoTotalMs: numeric('consumo_total_ms'),
-  msDietaMetaPc: numeric('ms_dieta_meta_pc'),
-  msDietaRealPc: numeric('ms_dieta_real_pc'),
-  cmsPrevistoKg: numeric('cms_previsto_kg'),
-  cmsRealizadoKg: numeric('cms_realizado_kg'),
-  cmnPrevistoKg: numeric('cmn_previsto_kg'),
-  cmnRealizadoKg: numeric('cmn_realizado_kg'),
-  gmdKg: numeric('gmd_kg'),
-  cmsReferenciaPcpv: numeric('cms_referencia_pcpv'),
-  cmsReferenciaKg: numeric('cms_referencia_kg'),
-  cmsRealizadoPcpv: numeric('cms_realizado_pcpv'),
-});
-
 // Staging 03 Desvio Distribuição - dados de desvio de distribuição
 export const staging03DesvioDistribuicao = pgTable('staging_03_desvio_distribuicao', {
   id: serial('id').primaryKey(),
@@ -112,27 +71,6 @@ export const staging03DesvioDistribuicao = pgTable('staging_03_desvio_distribuic
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
 });
 
-// Staging 05 Trato por Curral - dados de trato por curral
-export const staging05TratoPorCurral = pgTable('staging_05_trato_por_curral', {
-  id: serial('id').primaryKey(),
-  organizationId: uuid('organization_id').notNull(),
-  fileId: uuid('file_id'),
-  data: date('data').notNull(),
-  hora: time('hora').notNull(),
-  vagao: varchar('vagao', { length: 100 }),
-  curral: varchar('curral', { length: 100 }).notNull(),
-  idCarregamento: varchar('id_carregamento', { length: 100 }),
-  lote: varchar('lote', { length: 100 }),
-  trato: varchar('trato', { length: 100 }),
-  realizadoKg: numeric('realizado_kg'),
-  dieta: varchar('dieta', { length: 255 }),
-  tratador: varchar('tratador', { length: 255 }),
-  msDietaPc: numeric('ms_dieta_pc'),
-  merge: varchar('merge', { length: 255 }),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-});
-
 // Relations (vazias por enquanto)
 export const stagingCsvRawRelations = relations(stagingCsvRaw, ({}) => ({
   // Relations podem ser adicionadas futuramente
@@ -146,15 +84,7 @@ export const stagingLivestockDataRelations = relations(stagingLivestockData, ({}
   // Relations podem ser adicionadas futuramente
 }));
 
-export const staging01HistoricoConsumoRelations = relations(staging01HistoricoConsumo, ({}) => ({
-  // Relations podem ser adicionadas futuramente
-}));
-
 export const staging03DesvioDistribuicaoRelations = relations(staging03DesvioDistribuicao, ({}) => ({
-  // Relations podem ser adicionadas futuramente
-}));
-
-export const staging05TratoPorCurralRelations = relations(staging05TratoPorCurral, ({}) => ({
   // Relations podem ser adicionadas futuramente
 }));
 
@@ -168,11 +98,5 @@ export const selectStagingCsvProcessedSchema = createSelectSchema(stagingCsvProc
 export const insertStagingLivestockDataSchema = createInsertSchema(stagingLivestockData);
 export const selectStagingLivestockDataSchema = createSelectSchema(stagingLivestockData);
 
-export const insertStaging01HistoricoConsumoSchema = createInsertSchema(staging01HistoricoConsumo);
-export const selectStaging01HistoricoConsumoSchema = createSelectSchema(staging01HistoricoConsumo);
-
 export const insertStaging03DesvioDistribuicaoSchema = createInsertSchema(staging03DesvioDistribuicao);
 export const selectStaging03DesvioDistribuicaoSchema = createSelectSchema(staging03DesvioDistribuicao);
-
-export const insertStaging05TratoPorCurralSchema = createInsertSchema(staging05TratoPorCurral);
-export const selectStaging05TratoPorCurralSchema = createSelectSchema(staging05TratoPorCurral);

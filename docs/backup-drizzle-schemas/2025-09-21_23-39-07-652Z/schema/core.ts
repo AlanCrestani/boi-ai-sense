@@ -58,22 +58,11 @@ export const invitations = pgTable('invitations', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
-// User Organizations - relacionamento adicional usuario-organização
-export const userOrganizations = pgTable('user_organizations', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull(),
-  organizationId: uuid('organization_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
-  role: varchar('role').default('member'),
-  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-});
-
 // Relations
 export const organizationsRelations = relations(organizations, ({ many }) => ({
   profiles: many(profiles),
   userRoles: many(userRoles),
   invitations: many(invitations),
-  userOrganizations: many(userOrganizations),
 }));
 
 export const profilesRelations = relations(profiles, ({ one }) => ({
@@ -97,13 +86,6 @@ export const invitationsRelations = relations(invitations, ({ one }) => ({
   }),
 }));
 
-export const userOrganizationsRelations = relations(userOrganizations, ({ one }) => ({
-  organization: one(organizations, {
-    fields: [userOrganizations.organizationId],
-    references: [organizations.id],
-  }),
-}));
-
 // Zod schemas para validação
 export const insertOrganizationsSchema = createInsertSchema(organizations);
 export const selectOrganizationsSchema = createSelectSchema(organizations);
@@ -116,6 +98,3 @@ export const selectUserRolesSchema = createSelectSchema(userRoles);
 
 export const insertInvitationsSchema = createInsertSchema(invitations);
 export const selectInvitationsSchema = createSelectSchema(invitations);
-
-export const insertUserOrganizationsSchema = createInsertSchema(userOrganizations);
-export const selectUserOrganizationsSchema = createSelectSchema(userOrganizations);

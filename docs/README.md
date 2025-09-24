@@ -12,11 +12,9 @@ Bem-vindo à documentação completa do Sistema ETL Conecta Boi, uma plataforma 
 - **[Pipeline 03: Mapeamento de Headers](./pipeline-flows/pipeline03-mapping.md)** - Mapeamento inteligente de colunas
 - **[Pipeline 04: ETL Principal](./pipeline-flows/pipeline04-etl.md)** - Transformação e carregamento final
 
-### 🔄 Mapeamentos e Transformações
+### 🔄 Validação e Processamento
 
-- **[Mapeamento de Headers](./mappings/header-mappings.md)** - Regras de mapeamento de colunas
-- **[Regras de Validação](./mappings/validation-rules.md)** - Validações de negócio e dados
-- **[Lógica de Transformação](./mappings/transformation-logic.md)** - Enriquecimento e cálculos
+- **[Validação de Tabelas Staging](./validacao-tabelas-staging.md)** - Documentação completa das Edge Functions e validações
 
 ### 🛠️ Operações e Manutenção
 

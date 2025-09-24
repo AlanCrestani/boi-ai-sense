@@ -1,54 +1,27 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Papa from "https://esm.sh/papaparse@5.4.1";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
 };
 
 // Initialize Supabase client with service role
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL');
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// =============================
-// Pipeline 04 - Itens de Trato
-// =============================
-interface RawRow04 {
-  [key: string]: string;
-}
-
-interface ProcessedRow04 {
-  organization_id: string;
-  file_id: string;
-  data: string;
-  id_carregamento_original: string;
-  hora: string;
-  dieta: string;
-  carregamento: string;
-  ingrediente: string;
-  realizado_kg: number;
-  pazeiro: string;
-  vagao: string;
-  ms_dieta_pc: number;
-  ndt_dieta_pc: number;
-  merge: string;
-}
-
-function parseNumericValue(value: string | undefined): number {
+function parseNumericValue(value) {
   if (!value || value.trim() === '') return 0;
-
   // Remove percentage symbol and spaces
   let cleaned = value.replace(/%/g, '').trim();
-
   // Handle negative numbers
   const isNegative = cleaned.startsWith('-');
   if (isNegative) {
     cleaned = cleaned.substring(1);
   }
-
   // Handle Brazilian number format
   if (cleaned.includes('.') && cleaned.includes(',')) {
     // Format: 1.234.567,89 (Brazilian thousands and decimals)
@@ -62,45 +35,38 @@ function parseNumericValue(value: string | undefined): number {
     if (parts.length === 2 && parts[1].length <= 2) {
       // Likely decimal (e.g., 123.45)
       // Keep as is
-    } else if (parts.length > 2 || (parts.length === 2 && parts[1].length > 2)) {
+    } else if (parts.length > 2 || parts.length === 2 && parts[1].length > 2) {
       // Likely thousands (e.g., 1.234.567 or 1.234)
       cleaned = cleaned.replace(/\./g, '');
     }
   }
-
   const parsed = parseFloat(cleaned);
   const result = isNaN(parsed) ? 0 : parsed;
-
   return isNegative ? -result : result;
 }
 
-function parseDate(dateString: string | undefined): string {
+function parseDate(dateString) {
   if (!dateString || dateString.trim() === '') return '';
-
   const cleaned = dateString.trim();
-
   // Skip invalid dates (like aggregation rows)
-  if (cleaned.toLowerCase().includes('total') ||
-      cleaned.match(/^[a-zA-Z]{3}\/\d{2}$/)) {
+  if (cleaned.toLowerCase().includes('total') || cleaned.match(/^[a-zA-Z]{3}\/\d{2}$/)) {
     return '';
   }
-
   // Handle Brazilian date formats
   const patterns = [
-    /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, // dd/MM/yyyy
-    /^(\d{1,2})-(\d{1,2})-(\d{4})$/,   // dd-MM-yyyy
-    /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/, // dd.MM.yyyy
-    /^(\d{4})-(\d{1,2})-(\d{1,2})$/,   // yyyy-MM-dd (already correct)
-    /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/  // yyyy/MM/dd
+    /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/,
+    /^(\d{1,2})-(\d{1,2})-(\d{4})$/,
+    /^(\d{1,2})\.(\d{1,2})\.(\d{4})$/,
+    /^(\d{4})-(\d{1,2})-(\d{1,2})$/,
+    /^(\d{4})\/(\d{1,2})\/(\d{1,2})$/ // yyyy/MM/dd
   ];
 
   for (const pattern of patterns) {
     const match = cleaned.match(pattern);
     if (match) {
       let day, month, year;
-
       // Check if it's already in yyyy-MM-dd format or yyyy/MM/dd
-      if (pattern.source.startsWith('^\\(\\\\d\\{4\\}')) {
+      if (pattern.source.startsWith('^\\(\\\\\\d\\{4\\}')) {
         year = match[1];
         month = match[2].padStart(2, '0');
         day = match[3].padStart(2, '0');
@@ -110,30 +76,48 @@ function parseDate(dateString: string | undefined): string {
         month = match[2].padStart(2, '0');
         year = match[3];
       }
-
       // Validate date ranges
       const dayNum = parseInt(day);
       const monthNum = parseInt(month);
       const yearNum = parseInt(year);
-
-      if (dayNum >= 1 && dayNum <= 31 &&
-          monthNum >= 1 && monthNum <= 12 &&
-          yearNum >= 1900 && yearNum <= 2100) {
+      if (dayNum >= 1 && dayNum <= 31 && monthNum >= 1 && monthNum <= 12 && yearNum >= 1900 && yearNum <= 2100) {
         return `${year}-${month}-${day}`;
       }
     }
   }
-
   // If no pattern matches, return empty to avoid invalid dates
   console.warn(`⚠️ Data inválida encontrada: "${cleaned}"`);
   return '';
 }
 
-async function processar04(
-  csvText: string,
-  organizationId: string,
-  fileId: string
-): Promise<ProcessedRow04[]> {
+// Função para corrigir encoding UTF-8
+const fixUtf8 = (text) => {
+  if (!text) return text;
+  return text
+    // Correções muito específicas primeiro
+    .replace(/Pr�-Mistura/g, 'Pré-Mistura')
+    .replace(/Vag�o/g, 'Vagão')
+    .replace(/TERMINA��O/g, 'TERMINAÇÃO')
+    .replace(/Bic�lcico/g, 'Bicálcico')
+    .replace(/s�dio/g, 'sódio')
+    .replace(/gr�o �mido/g, 'grão úmido')
+    .replace(/gróo ómido/g, 'grão úmido')
+    .replace(/mo�do/g, 'moído')
+    .replace(/moódo/g, 'moído')
+    .replace(/n�3/g, 'nº3')
+    .replace(/nó3/g, 'nº3')
+    // Padrões gerais mais comuns
+    .replace(/��/g, 'ção')
+    .replace(/�/g, 'ã')
+    // Evitar correções que criam problemas
+    .replace(/TERMINAÇÃOO/g, 'TERMINAÇÃO')
+    .replace(/Vagóo/g, 'Vagão')
+    .replace(/Pró-Mistura/g, 'Pré-Mistura')
+    .replace(/óó/g, 'ó')
+    .replace(/ãã/g, 'ã');
+};
+
+async function processar04(csvText, organizationId, fileId) {
   console.log('🔄 Iniciando processamento Pipeline 04');
 
   // Parse CSV with semicolon delimiter
@@ -144,18 +128,15 @@ async function processar04(
   });
 
   // Skip the first line (usually title/description) and use second line as header
-  const lines = allLines as string[][];
+  const lines = allLines;
   if (lines.length < 2) {
     throw new Error('Arquivo CSV deve ter pelo menos 2 linhas (cabeçalho na 2ª linha)');
   }
 
   // Use second line as header and remaining lines as data
-  const headers = lines[1].map((header: string) => {
+  const headers = lines[1].map((header) => {
     // Fix encoding issues for common headers
-    return header
-      .replace('Inclus�o', 'Inclusão')
-      .replace('Vag�o', 'Vagão')
-      .trim();
+    return fixUtf8(header.trim());
   });
 
   let dataLines = lines.slice(2); // Skip first two lines (title + header)
@@ -165,13 +146,12 @@ async function processar04(
   while (dataLines.length > 0) {
     const lastLine = dataLines[dataLines.length - 1];
     const firstColumn = (lastLine[0] || '').trim().toLowerCase();
-
     // Check if last line is a total, date grouper, or empty
     if (
       firstColumn.includes('total') ||
       firstColumn.match(/^[a-zA-Z]{3}\/\d{2}$/) || // jan/25, fev/24, etc.
       firstColumn === '' ||
-      lastLine.every(cell => (cell || '').trim() === '') // All empty cells
+      lastLine.every((cell) => (cell || '').trim() === '') // All empty cells
     ) {
       console.log(`🗑️ Removendo linha de total/agrupamento: "${firstColumn}"`);
       dataLines.pop();
@@ -183,8 +163,8 @@ async function processar04(
   console.log(`📊 Linhas após remoção de totais: ${dataLines.length}`);
 
   // Convert to objects using headers
-  const rawRows: RawRow04[] = dataLines.map(line => {
-    const row: any = {};
+  const rawRows = dataLines.map((line) => {
+    const row = {};
     headers.forEach((header, index) => {
       row[header] = line[index] || '';
     });
@@ -193,7 +173,7 @@ async function processar04(
 
   console.log(`📊 Total de linhas no CSV: ${rawRows.length}`);
 
-  const processedRows: ProcessedRow04[] = [];
+  const processedRows = [];
 
   for (const row of rawRows) {
     // Skip empty rows or summary lines
@@ -202,16 +182,19 @@ async function processar04(
     const motorista = (row["Motorista"] || '').trim();
 
     // Filter out total lines or empty data
-    if (dataInclusao.toLowerCase().includes('total') ||
-        dataInclusao.match(/^[a-zA-Z]{3}\/\d{2}$/) ||  // jan/15, fev/22, etc.
-        !dataInclusao || !hora || !motorista) {
+    if (
+      dataInclusao.toLowerCase().includes('total') ||
+      dataInclusao.match(/^[a-zA-Z]{3}\/\d{2}$/) || // jan/15, fev/22, etc.
+      !dataInclusao ||
+      !hora ||
+      !motorista
+    ) {
       console.log(`⏭️ Pulando linha de total/agrupamento: Data="${dataInclusao}", Hora="${hora}", Motorista="${motorista}"`);
       continue;
     }
 
     // Get vagao with multiple possible header variations
-    const vagao = (row["Vagão"] || row["Vag�o"] || row["Vagao"] || '').toUpperCase().trim();
-
+    const vagao = fixUtf8((row["Vagão"] || row["Vag�o"] || row["Vagao"] || '').toUpperCase().trim());
     console.log(`🚛 Processando vagão: "${vagao}"`);
 
     // Filter only BAHMAN and SILOKING (more flexible matching)
@@ -223,20 +206,20 @@ async function processar04(
     // Parse and format date
     const dataFormatted = parseDate(dataInclusao);
 
-    // Generate merge field
-    const merge = `${dataFormatted} ${hora}-${vagao}`;
+    // Generate merge field - similar ao padrão dos outros pipelines
+    const merge = `${dataFormatted}|${hora}|${vagao}`;
 
-    const processedRow: ProcessedRow04 = {
+    const processedRow = {
       organization_id: organizationId,
-      file_id: fileId,
+      file_id: fileId, // Usar o parâmetro da função
       data: dataFormatted,
-      id_carregamento_original: row["Id. Carregamento"] || '',
+      id_carregamento: row["Id. Carregamento"] || '', // CORREÇÃO: era id_carregamento_original
       hora: hora,
-      dieta: (row["Dieta"] || '').toUpperCase().trim(),
-      carregamento: row["Carregamento"] || '',
-      ingrediente: (row["Ingrediente"] || '').toUpperCase().trim(),
+      dieta: fixUtf8((row["Dieta"] || '').toUpperCase().trim()),
+      carregamento: fixUtf8(row["Carregamento"] || ''),
+      ingrediente: fixUtf8((row["Ingrediente"] || '').toUpperCase().trim()),
       realizado_kg: parseNumericValue(row["Quantidade MN (kg)"]),
-      pazeiro: (row["Motorista"] || '').toUpperCase().trim(),
+      pazeiro: fixUtf8((row["Motorista"] || '').toUpperCase().trim()),
       vagao: vagao,
       ms_dieta_pc: parseNumericValue(row["%MS Dieta Real"]),
       ndt_dieta_pc: parseNumericValue(row["%NDT Dieta Real"]),
@@ -244,25 +227,22 @@ async function processar04(
     };
 
     console.log(`✅ Linha processada: ${vagao} - ${dataFormatted} ${hora}`);
-
     processedRows.push(processedRow);
   }
 
   console.log(`✅ Linhas processadas (BAHMAN/SILOKING): ${processedRows.length}`);
 
   // Sort by data + vagao + hora
-  processedRows.sort((a, b) =>
-    (a.data + a.vagao + a.hora).localeCompare(b.data + b.vagao + b.hora)
-  );
+  processedRows.sort((a, b) => (a.data + a.vagao + a.hora).localeCompare(b.data + b.vagao + b.hora));
 
   return processedRows;
 }
 
-async function insertInBatches(
-  rows: ProcessedRow04[],
-  batchSize: number = 500
-): Promise<{ success: number; errors: any[] }> {
-  const results = { success: 0, errors: [] as any[] };
+async function insertInBatches(rows, batchSize = 500) {
+  const results = {
+    success: 0,
+    errors: []
+  };
 
   for (let i = 0; i < rows.length; i += batchSize) {
     const batch = rows.slice(i, i + batchSize);
@@ -314,8 +294,8 @@ serve(async (req) => {
       throw new Error('Parâmetros obrigatórios ausentes: filename e organizationId');
     }
 
-    // Generate fileId if not provided
-    const actualFileId = fileId || crypto.randomUUID();
+    // Generate fileId if not provided (sempre gerar UUID válido)
+    const actualFileId = crypto.randomUUID();
 
     // Check if file was already processed
     console.log(`🔍 Verificando se arquivo já foi processado...`);
@@ -338,7 +318,7 @@ serve(async (req) => {
           fileId: actualFileId,
           existingRecordId: existingData[0].id
         }), {
-          status: 409, // Conflict
+          status: 409,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
       } else {
@@ -380,15 +360,14 @@ serve(async (req) => {
         rowsProcessed: 0,
         rowsInserted: 0
       }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     // Check for duplicate data based on merge keys (optional additional check)
     if (processedData.length > 0) {
       console.log(`🔍 Verificando dados duplicados por merge keys...`);
-      const sampleMergeKeys = processedData.slice(0, 10).map(row => row.merge);
-
+      const sampleMergeKeys = processedData.slice(0, 10).map((row) => row.merge);
       const { data: duplicateCheck, error: duplicateError } = await supabase
         .from('staging_04_itens_trato')
         .select('merge, file_id, created_at')
@@ -400,29 +379,26 @@ serve(async (req) => {
         if (!forceOverwrite) {
           console.warn(`⚠️ Encontradas ${duplicateCheck.length} linhas com dados similares`);
           const oldestDuplicate = duplicateCheck[0];
-
           return new Response(JSON.stringify({
             success: false,
             error: `Dados similares já existem na base (${duplicateCheck.length} linhas encontradas). Primeiro registro similar foi processado em ${new Date(oldestDuplicate.created_at).toLocaleString('pt-BR')}. Adicione "forceOverwrite": true para processar mesmo assim.`,
             fileId: actualFileId,
             duplicateFileId: oldestDuplicate.file_id,
             duplicateCount: duplicateCheck.length,
-            sampleDuplicateKeys: duplicateCheck.map(d => d.merge)
+            sampleDuplicateKeys: duplicateCheck.map((d) => d.merge)
           }), {
-            status: 409, // Conflict
+            status: 409,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
           });
         } else {
           console.log(`🔄 Forçando sobrescrita - removendo ${duplicateCheck.length} dados similares existentes por merge keys...`);
-
           // Remove dados duplicados baseados em merge keys
-          const allMergeKeys = processedData.map(row => row.merge);
+          const allMergeKeys = processedData.map((row) => row.merge);
           await supabase
             .from('staging_04_itens_trato')
             .delete()
             .eq('organization_id', organizationId)
             .in('merge', allMergeKeys);
-
           console.log(`✅ Dados similares removidos, processando com novos merge keys...`);
         }
       }
@@ -447,17 +423,17 @@ serve(async (req) => {
       errors: insertResults.errors.length > 0 ? insertResults.errors : undefined,
       message: `Pipeline 04 processado: ${insertResults.success} linhas inseridas em staging_04_itens_trato`
     }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
     console.error('❌ Erro no processamento:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error instanceof Error ? error.message : 'Erro desconhecido',
+      error: error instanceof Error ? error.message : 'Erro desconhecido'
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });

@@ -1,17 +1,14 @@
-# Schema Sync Report - 18/09/2025, 16:14:44
+# Schema Sync Report - 24/09/2025, 09:23:47
 
-## Status: ⚠️ DRIFT DETECTADO
+## Status: ✅ SINCRONIZADO
 
 ## Resumo Executivo
-- **Tabelas na BD**: 15
-- **Tabelas no Drizzle**: 16
+- **Tabelas na BD**: 21
+- **Tabelas no Drizzle**: 21
 - **ENUMs na BD**: 4
 - **ENUMs no Drizzle**: 4
-- **Issues Encontradas**: 1
+- **Issues Encontradas**: 0
 
-
-### Issues Detectadas:
-- 1 tabelas extras no Drizzle
 
 
 ## Detalhes da Comparação
@@ -22,12 +19,18 @@
 - `etl_run_log`
 - `etl_dead_letter_queue`
 - `etl_reprocessing_log`
+- `staging_01_historico_consumo`
 - `staging_02_desvio_carregamento`
+- `staging_03_desvio_distribuicao`
 - `staging_04_itens_trato`
+- `staging_05_trato_por_curral`
 - `staging_csv_raw`
 - `staging_csv_processed`
 - `staging_livestock_data`
 - `fato_carregamento`
+- `fato_distribuicao`
+- `fato_historico_consumo`
+- `user_organizations`
 - `organizations`
 - `profiles`
 - `user_roles`
@@ -38,6 +41,7 @@
 - `profiles` (core.ts)
 - `user_roles` (core.ts)
 - `invitations` (core.ts)
+- `user_organizations` (core.ts)
 - `etl_file` (etl.ts)
 - `etl_run` (etl.ts)
 - `etl_run_log` (etl.ts)
@@ -48,14 +52,15 @@
 - `staging_csv_raw` (staging.ts)
 - `staging_csv_processed` (staging.ts)
 - `staging_livestock_data` (staging.ts)
+- `staging_01_historico_consumo` (staging.ts)
 - `staging_03_desvio_distribuicao` (staging.ts)
+- `staging_05_trato_por_curral` (staging.ts)
 - `fato_carregamento` (facts.ts)
+- `fato_distribuicao` (facts.ts)
+- `fato_historico_consumo` (facts.ts)
 
 
 
-
-### ⚠️ Tabelas Extras no Drizzle
-- `staging_03_desvio_distribuicao`
 
 
 ### ENUMs na Base de Dados
@@ -75,26 +80,17 @@
 
 
 ## Arquivos Drizzle Analisados
-- ✅ `core.ts` (100 linhas, 4KB)
+- ✅ `core.ts` (121 linhas, 5KB)
 - ✅ `etl.ts` (177 linhas, 8KB)
-- ✅ `staging.ts` (102 linhas, 5KB)
-- ✅ `facts.ts` (36 linhas, 1KB)
+- ✅ `staging.ts` (178 linhas, 8KB)
+- ✅ `facts.ts` (114 linhas, 5KB)
 
 ## Próximos Passos Recomendados
 
 
-⚠️ **Correções necessárias:**
-
-
-
-
-
-
-3. **Revisar tabelas extras no Drizzle:**
-   - Verificar se `staging_03_desvio_distribuicao` ainda é necessária
-
+✅ **Schemas estão sincronizados!** Nenhuma ação necessária.
 
 
 ---
-*Relatório gerado automaticamente em 2025-09-18T19:14:44.349Z*
+*Relatório gerado automaticamente em 2025-09-24T12:23:47.808Z*
 *Comando: `npm run drizzle:sync-check`*

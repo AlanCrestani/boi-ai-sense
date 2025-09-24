@@ -1042,5 +1042,5 @@ WHERE resolved = false;
 
 ---
 
-**Documento Anterior**: [Lógica de Transformação](../mappings/transformation-logic.md)
+**Documento Anterior**: [Lógica de Transformação](../validacao-tabelas-staging.md)
 **Próximo Documento**: [Procedimentos de Arquivamento](archiving.md)

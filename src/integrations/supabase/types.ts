@@ -14,6 +14,89 @@ export type Database = {
   }
   public: {
     Tables: {
+      etl_alerts_config: {
+        Row: {
+          alert_cooldown_minutes: number | null
+          alert_message_template: string | null
+          alert_name: string
+          alert_title_template: string | null
+          alert_type: string | null
+          condition_operator: string | null
+          created_at: string | null
+          created_by: string | null
+          email_enabled: boolean | null
+          email_recipients: string[] | null
+          escalation_delay_minutes: number | null
+          escalation_enabled: boolean | null
+          evaluation_window_minutes: number | null
+          id: string
+          is_enabled: boolean | null
+          metric_type: string | null
+          organization_id: string
+          severity: string | null
+          slack_enabled: boolean | null
+          slack_webhook_url: string | null
+          threshold_value: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          alert_cooldown_minutes?: number | null
+          alert_message_template?: string | null
+          alert_name: string
+          alert_title_template?: string | null
+          alert_type?: string | null
+          condition_operator?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email_enabled?: boolean | null
+          email_recipients?: string[] | null
+          escalation_delay_minutes?: number | null
+          escalation_enabled?: boolean | null
+          evaluation_window_minutes?: number | null
+          id?: string
+          is_enabled?: boolean | null
+          metric_type?: string | null
+          organization_id: string
+          severity?: string | null
+          slack_enabled?: boolean | null
+          slack_webhook_url?: string | null
+          threshold_value?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          alert_cooldown_minutes?: number | null
+          alert_message_template?: string | null
+          alert_name?: string
+          alert_title_template?: string | null
+          alert_type?: string | null
+          condition_operator?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email_enabled?: boolean | null
+          email_recipients?: string[] | null
+          escalation_delay_minutes?: number | null
+          escalation_enabled?: boolean | null
+          evaluation_window_minutes?: number | null
+          id?: string
+          is_enabled?: boolean | null
+          metric_type?: string | null
+          organization_id?: string
+          severity?: string | null
+          slack_enabled?: boolean | null
+          slack_webhook_url?: string | null
+          threshold_value?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etl_alerts_config_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       etl_dead_letter_queue: {
         Row: {
           created_at: string
@@ -299,7 +382,7 @@ export type Database = {
             foreignKeyName: "etl_run_file_id_fkey"
             columns: ["file_id"]
             isOneToOne: false
-            referencedRelation: "etl_file"
+            referencedRelation: "etl_run"
             referencedColumns: ["id"]
           },
         ]
@@ -502,6 +585,126 @@ export type Database = {
         }
         Relationships: []
       }
+      fato_historico_consumo: {
+        Row: {
+          cmn_previsto_kg: number | null
+          cmn_realizado_kg: number | null
+          cms_previsto_kg: number | null
+          cms_realizado_kg: number | null
+          cms_realizado_pcpv: number | null
+          cms_referencia_kg: number | null
+          cms_referencia_pcpv: number | null
+          cod_grupo_genetico: string | null
+          consumo_total_kg_mn: number | null
+          consumo_total_ms: number | null
+          created_at: string | null
+          curral: string | null
+          data: string | null
+          data_entrada: string | null
+          dias_confinados: number | null
+          dieta: string | null
+          escore: number | null
+          escore_noturno: number | null
+          fator_correcao_kg: number | null
+          file_id: string
+          gmd_kg: number | null
+          grupo_genetico: string | null
+          id: string
+          lote: string | null
+          ms_dieta_meta_pc: number | null
+          ms_dieta_real_pc: number | null
+          organization_id: string
+          origem_predominante: string | null
+          peso_entrada_kg: number | null
+          peso_estimado_kg: number | null
+          proprietario_predominante: string | null
+          qtd_animais: number | null
+          raca: string | null
+          setor: string | null
+          sexo: string | null
+          tipo_aquisicao: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cmn_previsto_kg?: number | null
+          cmn_realizado_kg?: number | null
+          cms_previsto_kg?: number | null
+          cms_realizado_kg?: number | null
+          cms_realizado_pcpv?: number | null
+          cms_referencia_kg?: number | null
+          cms_referencia_pcpv?: number | null
+          cod_grupo_genetico?: string | null
+          consumo_total_kg_mn?: number | null
+          consumo_total_ms?: number | null
+          created_at?: string | null
+          curral?: string | null
+          data?: string | null
+          data_entrada?: string | null
+          dias_confinados?: number | null
+          dieta?: string | null
+          escore?: number | null
+          escore_noturno?: number | null
+          fator_correcao_kg?: number | null
+          file_id: string
+          gmd_kg?: number | null
+          grupo_genetico?: string | null
+          id?: string
+          lote?: string | null
+          ms_dieta_meta_pc?: number | null
+          ms_dieta_real_pc?: number | null
+          organization_id: string
+          origem_predominante?: string | null
+          peso_entrada_kg?: number | null
+          peso_estimado_kg?: number | null
+          proprietario_predominante?: string | null
+          qtd_animais?: number | null
+          raca?: string | null
+          setor?: string | null
+          sexo?: string | null
+          tipo_aquisicao?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cmn_previsto_kg?: number | null
+          cmn_realizado_kg?: number | null
+          cms_previsto_kg?: number | null
+          cms_realizado_kg?: number | null
+          cms_realizado_pcpv?: number | null
+          cms_referencia_kg?: number | null
+          cms_referencia_pcpv?: number | null
+          cod_grupo_genetico?: string | null
+          consumo_total_kg_mn?: number | null
+          consumo_total_ms?: number | null
+          created_at?: string | null
+          curral?: string | null
+          data?: string | null
+          data_entrada?: string | null
+          dias_confinados?: number | null
+          dieta?: string | null
+          escore?: number | null
+          escore_noturno?: number | null
+          fator_correcao_kg?: number | null
+          file_id?: string
+          gmd_kg?: number | null
+          grupo_genetico?: string | null
+          id?: string
+          lote?: string | null
+          ms_dieta_meta_pc?: number | null
+          ms_dieta_real_pc?: number | null
+          organization_id?: string
+          origem_predominante?: string | null
+          peso_entrada_kg?: number | null
+          peso_estimado_kg?: number | null
+          proprietario_predominante?: string | null
+          qtd_animais?: number | null
+          raca?: string | null
+          setor?: string | null
+          sexo?: string | null
+          tipo_aquisicao?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -628,6 +831,134 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      staging_01_historico_consumo: {
+        Row: {
+          cmn_previsto_kg: number | null
+          cmn_realizado_kg: number | null
+          cms_previsto_kg: number | null
+          cms_realizado_kg: number | null
+          cms_realizado_pcpv: number | null
+          cms_referencia_kg: number | null
+          cms_referencia_pcpv: number | null
+          cod_grupo_genetico: string | null
+          consumo_total_kg_mn: number | null
+          consumo_total_ms: number | null
+          created_at: string | null
+          curral: string | null
+          data: string | null
+          data_entrada: string | null
+          dias_confinados: number | null
+          dieta: string | null
+          escore: number | null
+          escore_noturno: number | null
+          fator_correcao_kg: number | null
+          file_id: string
+          gmd_kg: number | null
+          grupo_genetico: string | null
+          id: number
+          lote: string | null
+          ms_dieta_meta_pc: number | null
+          ms_dieta_real_pc: number | null
+          organization_id: string
+          origem_predominante: string | null
+          peso_entrada_kg: number | null
+          peso_estimado_kg: number | null
+          proprietario_predominante: string | null
+          qtd_animais: number | null
+          raca: string | null
+          setor: string | null
+          sexo: string | null
+          tipo_aquisicao: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          cmn_previsto_kg?: number | null
+          cmn_realizado_kg?: number | null
+          cms_previsto_kg?: number | null
+          cms_realizado_kg?: number | null
+          cms_realizado_pcpv?: number | null
+          cms_referencia_kg?: number | null
+          cms_referencia_pcpv?: number | null
+          cod_grupo_genetico?: string | null
+          consumo_total_kg_mn?: number | null
+          consumo_total_ms?: number | null
+          created_at?: string | null
+          curral?: string | null
+          data?: string | null
+          data_entrada?: string | null
+          dias_confinados?: number | null
+          dieta?: string | null
+          escore?: number | null
+          escore_noturno?: number | null
+          fator_correcao_kg?: number | null
+          file_id: string
+          gmd_kg?: number | null
+          grupo_genetico?: string | null
+          id?: number
+          lote?: string | null
+          ms_dieta_meta_pc?: number | null
+          ms_dieta_real_pc?: number | null
+          organization_id: string
+          origem_predominante?: string | null
+          peso_entrada_kg?: number | null
+          peso_estimado_kg?: number | null
+          proprietario_predominante?: string | null
+          qtd_animais?: number | null
+          raca?: string | null
+          setor?: string | null
+          sexo?: string | null
+          tipo_aquisicao?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          cmn_previsto_kg?: number | null
+          cmn_realizado_kg?: number | null
+          cms_previsto_kg?: number | null
+          cms_realizado_kg?: number | null
+          cms_realizado_pcpv?: number | null
+          cms_referencia_kg?: number | null
+          cms_referencia_pcpv?: number | null
+          cod_grupo_genetico?: string | null
+          consumo_total_kg_mn?: number | null
+          consumo_total_ms?: number | null
+          created_at?: string | null
+          curral?: string | null
+          data?: string | null
+          data_entrada?: string | null
+          dias_confinados?: number | null
+          dieta?: string | null
+          escore?: number | null
+          escore_noturno?: number | null
+          fator_correcao_kg?: number | null
+          file_id?: string
+          gmd_kg?: number | null
+          grupo_genetico?: string | null
+          id?: number
+          lote?: string | null
+          ms_dieta_meta_pc?: number | null
+          ms_dieta_real_pc?: number | null
+          organization_id?: string
+          origem_predominante?: string | null
+          peso_entrada_kg?: number | null
+          peso_estimado_kg?: number | null
+          proprietario_predominante?: string | null
+          qtd_animais?: number | null
+          raca?: string | null
+          setor?: string | null
+          sexo?: string | null
+          tipo_aquisicao?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staging_01_historico_consumo_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -773,7 +1104,7 @@ export type Database = {
           file_id: string
           hora: string | null
           id: string
-          id_carregamento_original: string | null
+          id_carregamento: string | null
           ingrediente: string | null
           merge: string | null
           ms_dieta_pc: number | null
@@ -792,7 +1123,7 @@ export type Database = {
           file_id: string
           hora?: string | null
           id?: string
-          id_carregamento_original?: string | null
+          id_carregamento?: string | null
           ingrediente?: string | null
           merge?: string | null
           ms_dieta_pc?: number | null
@@ -811,7 +1142,7 @@ export type Database = {
           file_id?: string
           hora?: string | null
           id?: string
-          id_carregamento_original?: string | null
+          id_carregamento?: string | null
           ingrediente?: string | null
           merge?: string | null
           ms_dieta_pc?: number | null
@@ -1100,6 +1431,59 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles_view: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          department: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          is_active: boolean | null
+          organization_id: string | null
+          phone: string | null
+          position: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          organization_id?: string | null
+          phone?: string | null
+          position?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          department?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          organization_id?: string | null
+          phone?: string | null
+          position?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       view_carregamento_dieta: {
         Row: {
           data: string | null
@@ -1304,6 +1688,48 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
+      get_all_staging_01: {
+        Args: { org_id: string }
+        Returns: {
+          cmn_previsto_kg: number
+          cmn_realizado_kg: number
+          cms_previsto_kg: number
+          cms_realizado_kg: number
+          cms_realizado_pcpv: number
+          cms_referencia_kg: number
+          cms_referencia_pcpv: number
+          cod_grupo_genetico: string
+          consumo_total_kg_mn: number
+          consumo_total_ms: number
+          created_at: string
+          curral: string
+          data: string
+          data_entrada: string
+          dias_confinados: number
+          dieta: string
+          escore: number
+          escore_noturno: number
+          fator_correcao_kg: number
+          file_id: string
+          gmd_kg: number
+          grupo_genetico: string
+          id: string
+          lote: string
+          ms_dieta_meta_pc: number
+          ms_dieta_real_pc: number
+          organization_id: string
+          origem_predominante: string
+          peso_entrada_kg: number
+          peso_estimado_kg: number
+          proprietario_predominante: string
+          qtd_animais: number
+          raca: string
+          setor: string
+          sexo: string
+          tipo_aquisicao: string
+          updated_at: string
+        }[]
+      }
       get_locking_stats: {
         Args: { p_table_name: string }
         Returns: Json
@@ -1311,6 +1737,23 @@ export type Database = {
       get_next_run_number: {
         Args: { p_file_id: string }
         Returns: number
+      }
+      get_profile_by_user_id: {
+        Args: { p_user_id: string }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          department: string
+          email: string
+          full_name: string
+          id: string
+          is_active: boolean
+          organization_id: string
+          phone: string
+          position: string
+          updated_at: string
+          user_id: string
+        }[]
       }
       get_user_organization: {
         Args: { _user_id: string }

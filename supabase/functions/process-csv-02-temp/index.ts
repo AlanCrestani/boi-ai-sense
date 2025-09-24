@@ -133,17 +133,15 @@ serve(async (req) => {
       'Hora': 'hora',
       'Dieta': 'dieta',
       'Ingrediente': 'ingrediente',
-      'Tipo Ingrediente': 'tipo_ingrediente', // ADICIONADO
       'Previsto': 'previsto_kg',
       'Previsto (kg)': 'previsto_kg',
       'Carregado': 'realizado_kg',
       'Carregado (kg)': 'realizado_kg',
       'Realizado': 'realizado_kg',
       'Realizado (kg)': 'realizado_kg',
-      'Desvio (kg)': 'desvio_kg', // ADICIONADO
-      'Desvio': 'desvio_kg',      // ALTERNATIVO
       'Desvio (%)': 'desvio_pc',
-      'Desvio %': 'desvio_pc'
+      'Desvio %': 'desvio_pc',
+      'Desvio': 'desvio_pc'
     };
 
     // Mapear índices das colunas
@@ -237,66 +235,23 @@ serve(async (req) => {
             continue;
           }
 
-          // Função para converter valores numéricos com vírgula para ponto
-          const parseNumber = (value) => {
-            if (!value) return null;
-            const cleanValue = value.toString().replace(',', '.').replace(/[^\d.-]/g, '');
-            const parsed = parseFloat(cleanValue);
-            return isNaN(parsed) ? null : parsed;
-          };
-
-          // Função para corrigir encoding UTF-8
-          const fixUtf8 = (text) => {
-            if (!text) return text;
-            return text
-              // Correções muito específicas primeiro
-              .replace(/Pr�-Mistura/g, 'Pré-Mistura')
-              .replace(/Vag�o/g, 'Vagão')
-              .replace(/TERMINA��O/g, 'TERMINAÇÃO')
-              .replace(/Bic�lcico/g, 'Bicálcico')
-              .replace(/s�dio/g, 'sódio')
-              .replace(/gr�o �mido/g, 'grão úmido')
-              .replace(/gróo ómido/g, 'grão úmido')
-              .replace(/mo�do/g, 'moído')
-              .replace(/moódo/g, 'moído')
-              .replace(/n�3/g, 'nº3')
-              .replace(/nó3/g, 'nº3')
-              // Padrões gerais mais comuns
-              .replace(/��/g, 'ção')
-              .replace(/�/g, 'ã')
-              // Evitar correções que criam problemas
-              .replace(/TERMINAÇÃOO/g, 'TERMINAÇÃO')
-              .replace(/Vagóo/g, 'Vagão')
-              .replace(/Pró-Mistura/g, 'Pré-Mistura')
-              .replace(/óó/g, 'ó')
-              .replace(/ãã/g, 'ã');
-          };
-
-          const vagao = values[columnIndices.vagao] || null;
-
-          // Calcular coluna merge: data + hora + vagao
-          let mergeValue = null;
-          if (data && hora && vagao) {
-            mergeValue = `${data}|${hora}|${vagao}`;
-          }
-
           const record = {
             organization_id: organizationId,
             file_id: crypto.randomUUID(), // Gerar UUID válido
-            pazeiro: fixUtf8(values[columnIndices.pazeiro]) || null,
+            pazeiro: values[columnIndices.pazeiro] || null,
             nro_carregamento: values[columnIndices.nro_carregamento] || null,
-            vagao: fixUtf8(vagao),
+            vagao: values[columnIndices.vagao] || null,
             data: data,
             hora: hora,
-            dieta: fixUtf8(values[columnIndices.dieta]) || null,
-            ingrediente: fixUtf8(ingrediente),
-            tipo_ingrediente: fixUtf8(values[columnIndices.tipo_ingrediente]) || null, // CORRIGIDO + UTF-8
-            previsto_kg: parseNumber(values[columnIndices.previsto_kg]),
-            realizado_kg: parseNumber(values[columnIndices.realizado_kg]),
-            desvio_kg: parseNumber(values[columnIndices.desvio_kg]), // CORRIGIDO
-            desvio_pc: parseNumber(values[columnIndices.desvio_pc]),
+            dieta: values[columnIndices.dieta] || null,
+            ingrediente: ingrediente,
+            tipo_ingrediente: null,
+            previsto_kg: values[columnIndices.previsto_kg] ? parseFloat(values[columnIndices.previsto_kg]) : null,
+            realizado_kg: values[columnIndices.realizado_kg] ? parseFloat(values[columnIndices.realizado_kg]) : null,
+            desvio_kg: null, // Será calculado se necessário
+            desvio_pc: values[columnIndices.desvio_pc] ? parseFloat(values[columnIndices.desvio_pc]) : null,
             status: 'VERDE',
-            merge: mergeValue // CORRIGIDO: data + hora + vagao
+            merge: null
           };
 
           batchData.push(record);

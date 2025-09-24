@@ -18,12 +18,12 @@ serve(async (req) => {
 
     const { filename, organizationId, fileId, forceOverwrite } = await req.json();
 
-    console.log(`🔄 Processando CSV 02: ${filename} para organização: ${organizationId}`);
+    console.log(`🔄 Processando CSV 05: ${filename} para organização: ${organizationId}`);
 
     // Verificar se já existe processamento para este arquivo
     if (!forceOverwrite) {
       const { count: existingCount } = await supabase
-        .from('staging_02_desvio_carregamento')
+        .from('staging_05_trato_por_curral')
         .select('*', { count: 'exact', head: true })
         .eq('organization_id', organizationId)
         .eq('file_id', fileId);
@@ -42,21 +42,21 @@ serve(async (req) => {
     // Limpar dados existentes se forceOverwrite
     if (forceOverwrite) {
       await supabase
-        .from('staging_02_desvio_carregamento')
+        .from('staging_05_trato_por_curral')
         .delete()
         .eq('organization_id', organizationId)
         .eq('file_id', fileId);
     }
 
     // Buscar o arquivo CSV do storage (tentar ambos os locais)
-    let filePath = `${organizationId}/02/${filename}`;
+    let filePath = `${organizationId}/05/${filename}`;
     let { data: fileData, error: downloadError } = await supabase.storage
       .from('csv-uploads')
       .download(filePath);
 
     // Se não encontrar, tentar na pasta csv-processed
     if (downloadError) {
-      filePath = `${organizationId}/csv-processed/02/${filename}`;
+      filePath = `${organizationId}/csv-processed/05/${filename}`;
       const result = await supabase.storage
         .from('csv-uploads')
         .download(filePath);
@@ -88,7 +88,9 @@ serve(async (req) => {
     let header = [];
     for (let i = 0; i < Math.min(5, lines.length); i++) {
       const testHeader = lines[i].split(separator).map(col => col.trim().replace(/"/g, ''));
-      if (testHeader.some(col => col.toLowerCase().includes('data') || col.toLowerCase().includes('ingrediente'))) {
+      if (testHeader.some(col => col.toLowerCase().includes('data') ||
+                               col.toLowerCase().includes('curral') ||
+                               col.toLowerCase().includes('trato'))) {
         header = testHeader;
         headerLineIndex = i;
         break;
@@ -122,26 +124,21 @@ serve(async (req) => {
 
     console.log(`📊 Após filtros: ${dataLines.length} linhas válidas`);
 
-    // Mapear colunas esperadas para staging_02_desvio_carregamento (baseado no CSV real)
+    // Mapear colunas esperadas para staging_05_trato_por_curral
     const expectedColumns = {
-      'Pazeiro': 'pazeiro',
-      'Nro Carregamento': 'nro_carregamento',
-      'Vag': 'vagao', // Vagão pode estar abreviado
-      'Vagão': 'vagao',
-      'Vagao': 'vagao',
       'Data': 'data',
       'Hora': 'hora',
+      'Curral': 'curral',
+      'Trato': 'trato',
+      'Tratador': 'tratador',
       'Dieta': 'dieta',
-      'Ingrediente': 'ingrediente',
-      'Tipo Ingrediente': 'tipo_ingrediente', // ADICIONADO
-      'Previsto': 'previsto_kg',
-      'Previsto (kg)': 'previsto_kg',
-      'Carregado': 'realizado_kg',
-      'Carregado (kg)': 'realizado_kg',
       'Realizado': 'realizado_kg',
       'Realizado (kg)': 'realizado_kg',
-      'Desvio (kg)': 'desvio_kg', // ADICIONADO
-      'Desvio': 'desvio_kg',      // ALTERNATIVO
+      'Previsto': 'previsto_kg',
+      'Previsto (kg)': 'previsto_kg',
+      'Diferença': 'diferenca_kg',
+      'Diferença (kg)': 'diferenca_kg',
+      'Desvio': 'desvio_pc',
       'Desvio (%)': 'desvio_pc',
       'Desvio %': 'desvio_pc'
     };
@@ -217,86 +214,40 @@ serve(async (req) => {
           // Validar se a linha tem dados válidos
           const rawData = values[columnIndices.data] || null;
           const data = convertDate(rawData);
-          const hora = values[columnIndices.hora] || null;
-          const ingrediente = values[columnIndices.ingrediente] || null;
+          const curral = values[columnIndices.curral] || null;
+          const trato = values[columnIndices.trato] || null;
 
           // Debug primeiras linhas
           if (i === 0 && batchData.length < 3) {
-            console.log(`🔍 Linha ${batchData.length + 1}: rawData=${rawData}, data=${data}, ingrediente=${ingrediente}`);
+            console.log(`🔍 Linha ${batchData.length + 1}: rawData=${rawData}, data=${data}, curral=${curral}, trato=${trato}`);
             console.log(`🔍 Valores extraídos:`, {
-              pazeiro: values[columnIndices.pazeiro],
-              nro_carregamento: values[columnIndices.nro_carregamento],
-              vagao: values[columnIndices.vagao],
+              hora: values[columnIndices.hora],
+              tratador: values[columnIndices.tratador],
               dieta: values[columnIndices.dieta]
             });
           }
 
           // Pular linhas sem dados essenciais
-          if (!data || !ingrediente) {
-            console.log(`⚠️ Linha ignorada - dados inválidos: data=${rawData}→${data}, ingrediente=${ingrediente}`);
+          if (!data || !curral) {
+            console.log(`⚠️ Linha ignorada - dados inválidos: data=${rawData}→${data}, curral=${curral}`);
             continue;
-          }
-
-          // Função para converter valores numéricos com vírgula para ponto
-          const parseNumber = (value) => {
-            if (!value) return null;
-            const cleanValue = value.toString().replace(',', '.').replace(/[^\d.-]/g, '');
-            const parsed = parseFloat(cleanValue);
-            return isNaN(parsed) ? null : parsed;
-          };
-
-          // Função para corrigir encoding UTF-8
-          const fixUtf8 = (text) => {
-            if (!text) return text;
-            return text
-              // Correções muito específicas primeiro
-              .replace(/Pr�-Mistura/g, 'Pré-Mistura')
-              .replace(/Vag�o/g, 'Vagão')
-              .replace(/TERMINA��O/g, 'TERMINAÇÃO')
-              .replace(/Bic�lcico/g, 'Bicálcico')
-              .replace(/s�dio/g, 'sódio')
-              .replace(/gr�o �mido/g, 'grão úmido')
-              .replace(/gróo ómido/g, 'grão úmido')
-              .replace(/mo�do/g, 'moído')
-              .replace(/moódo/g, 'moído')
-              .replace(/n�3/g, 'nº3')
-              .replace(/nó3/g, 'nº3')
-              // Padrões gerais mais comuns
-              .replace(/��/g, 'ção')
-              .replace(/�/g, 'ã')
-              // Evitar correções que criam problemas
-              .replace(/TERMINAÇÃOO/g, 'TERMINAÇÃO')
-              .replace(/Vagóo/g, 'Vagão')
-              .replace(/Pró-Mistura/g, 'Pré-Mistura')
-              .replace(/óó/g, 'ó')
-              .replace(/ãã/g, 'ã');
-          };
-
-          const vagao = values[columnIndices.vagao] || null;
-
-          // Calcular coluna merge: data + hora + vagao
-          let mergeValue = null;
-          if (data && hora && vagao) {
-            mergeValue = `${data}|${hora}|${vagao}`;
           }
 
           const record = {
             organization_id: organizationId,
             file_id: crypto.randomUUID(), // Gerar UUID válido
-            pazeiro: fixUtf8(values[columnIndices.pazeiro]) || null,
-            nro_carregamento: values[columnIndices.nro_carregamento] || null,
-            vagao: fixUtf8(vagao),
             data: data,
-            hora: hora,
-            dieta: fixUtf8(values[columnIndices.dieta]) || null,
-            ingrediente: fixUtf8(ingrediente),
-            tipo_ingrediente: fixUtf8(values[columnIndices.tipo_ingrediente]) || null, // CORRIGIDO + UTF-8
-            previsto_kg: parseNumber(values[columnIndices.previsto_kg]),
-            realizado_kg: parseNumber(values[columnIndices.realizado_kg]),
-            desvio_kg: parseNumber(values[columnIndices.desvio_kg]), // CORRIGIDO
-            desvio_pc: parseNumber(values[columnIndices.desvio_pc]),
+            hora: values[columnIndices.hora] || null,
+            curral: curral,
+            trato: trato,
+            tratador: values[columnIndices.tratador] || null,
+            dieta: values[columnIndices.dieta] || null,
+            realizado_kg: values[columnIndices.realizado_kg] ? parseFloat(values[columnIndices.realizado_kg]) : null,
+            previsto_kg: values[columnIndices.previsto_kg] ? parseFloat(values[columnIndices.previsto_kg]) : null,
+            diferenca_kg: values[columnIndices.diferenca_kg] ? parseFloat(values[columnIndices.diferenca_kg]) : null,
+            desvio_pc: values[columnIndices.desvio_pc] ? parseFloat(values[columnIndices.desvio_pc]) : null,
             status: 'VERDE',
-            merge: mergeValue // CORRIGIDO: data + hora + vagao
+            merge: null
           };
 
           batchData.push(record);
@@ -307,7 +258,7 @@ serve(async (req) => {
 
       if (batchData.length > 0) {
         const { error: insertError } = await supabase
-          .from('staging_02_desvio_carregamento')
+          .from('staging_05_trato_por_curral')
           .insert(batchData);
 
         if (insertError) {
