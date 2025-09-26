@@ -157,6 +157,8 @@ export const MateriaSecaChart = () => {
                 angle: -90,
                 position: 'insideLeft'
               }}
+              domain={[0, 10]}
+              ticks={[0, 2, 4, 6, 8, 10]}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend />

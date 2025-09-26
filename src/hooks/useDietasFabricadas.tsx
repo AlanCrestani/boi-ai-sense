@@ -9,7 +9,42 @@ interface DietaFabricada {
   color: string;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658', '#ff7c7c'];
+// Mapeamento de cores por tipo de dieta
+const dietaColors: Record<string, string> = {
+  'adaptação': '#4CC9A7',
+  'adaptacao': '#4CC9A7',
+  'crescimento': '#F4C542',
+  'terminação': '#E74C3C',
+  'terminacao': '#E74C3C',
+  'recria': '#3A7DFF',
+  'pré-mistura': '#F28C3C',
+  'pre-mistura': '#F28C3C',
+  'premistura': '#F28C3C',
+  'proteinado': '#2E7D6A',
+  'proteinado 0.3%': '#2E7D6A'
+};
+
+const FALLBACK_COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7c7c', '#8dd1e1', '#d084d0'];
+
+// Função para obter cor da dieta
+const getDietaColor = (dieta: string, fallbackIndex: number = 0): string => {
+  if (!dieta) return FALLBACK_COLORS[fallbackIndex % FALLBACK_COLORS.length];
+
+  // Normalizar nome da dieta (remover números e espaços extras)
+  const dietaNormalizada = dieta.toLowerCase()
+    .replace(/\s+\d{6}$/, '') // Remove códigos numéricos do final
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Procurar por palavras-chave na dieta
+  for (const [key, color] of Object.entries(dietaColors)) {
+    if (dietaNormalizada.includes(key)) {
+      return color;
+    }
+  }
+
+  return FALLBACK_COLORS[fallbackIndex % FALLBACK_COLORS.length]; // Cor de fallback se não encontrar match
+};
 
 export const useDietasFabricadas = () => {
   const { organization } = useAuth();
@@ -66,12 +101,15 @@ export const useDietasFabricadas = () => {
 
       // Converter para o formato final
       const processedData: DietaFabricada[] = Object.entries(groupedData)
-        .map(([dieta, values]: [string, any], index) => ({
-          dieta: dieta.replace(/\s+\d{6}$/, ''), // Remove códigos numéricos do final
-          totalRealizado: parseFloat(values.totalRealizado.toFixed(2)),
-          numCarregamentos: values.carregamentos.size,
-          color: COLORS[index % COLORS.length]
-        }))
+        .map(([dieta, values]: [string, any], index) => {
+          const dietaSemCodigo = dieta.replace(/\s+\d{6}$/, ''); // Remove códigos numéricos do final
+          return {
+            dieta: dietaSemCodigo,
+            totalRealizado: parseFloat(values.totalRealizado.toFixed(2)),
+            numCarregamentos: values.carregamentos.size,
+            color: getDietaColor(dietaSemCodigo, index)
+          };
+        })
         .sort((a, b) => b.totalRealizado - a.totalRealizado) // Ordenar por quantidade decrescente
         .slice(0, 8); // Limitar a 8 dietas principais
 

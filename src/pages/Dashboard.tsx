@@ -4,6 +4,7 @@ import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
 import { MateriaSecaChart } from "@/components/dashboard/MateriaSecaChart";
 import { DietaFabricadaChart } from "@/components/dashboard/DietaFabricadaChart";
 import { EficienciaCarregamentoChart } from "@/components/dashboard/EficienciaCarregamentoChart";
+import { EficienciaIngredienteChart } from "@/components/dashboard/EficienciaIngredienteChart";
 import { LoadingAgentChat } from "@/components/LoadingAgentChat";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useAnimalCount } from "@/hooks/useAnimalCount";
 import { useEficienciaConsumo } from "@/hooks/useEficienciaConsumo";
 import { useDiasConfinamento } from "@/hooks/useDiasConfinamento";
-import { useLotesAtivos } from "@/hooks/useLotesAtivos";
+import { useConsumoMateriaSecaCard } from "@/hooks/useConsumoMateriaSecaCard";
+import { usePesoMedioPonderado } from "@/hooks/usePesoMedioPonderado";
+import { useCmsPerceitoCard } from "@/hooks/useCmsPerceitoCard";
+import { usePesoEntradaCard } from "@/hooks/usePesoEntradaCard";
+import { useCmnRealizadoCard } from "@/hooks/useCmnRealizadoCard";
 import { useState } from "react";
 
 import { 
@@ -35,7 +40,11 @@ export default function Dashboard() {
   const { data: animalData, isLoading: animalLoading } = useAnimalCount();
   const { data: eficienciaData, isLoading: eficienciaLoading } = useEficienciaConsumo();
   const { data: diasData, isLoading: diasLoading } = useDiasConfinamento();
-  const { data: lotesData, isLoading: lotesLoading } = useLotesAtivos();
+  const { data: consumoData, isLoading: consumoLoading } = useConsumoMateriaSecaCard();
+  const { data: pesoData, isLoading: pesoLoading } = usePesoMedioPonderado();
+  const { data: cmsPerceitoData, isLoading: cmsPerceitoLoading } = useCmsPerceitoCard();
+  const { data: pesoEntradaData, isLoading: pesoEntradaLoading } = usePesoEntradaCard();
+  const { data: cmnRealizadoData, isLoading: cmnRealizadoLoading } = useCmnRealizadoCard();
 
   console.log('Dashboard - animalData:', animalData);
   console.log('Dashboard - animalLoading:', animalLoading);
@@ -43,8 +52,10 @@ export default function Dashboard() {
   console.log('Dashboard - eficienciaLoading:', eficienciaLoading);
   console.log('Dashboard - diasData:', diasData);
   console.log('Dashboard - diasLoading:', diasLoading);
-  console.log('Dashboard - lotesData:', lotesData);
-  console.log('Dashboard - lotesLoading:', lotesLoading);
+  console.log('Dashboard - consumoData:', consumoData);
+  console.log('Dashboard - consumoLoading:', consumoLoading);
+  console.log('Dashboard - pesoData:', pesoData);
+  console.log('Dashboard - pesoLoading:', pesoLoading);
   
   // Mock data for demonstration
   const mockAlerts = [
@@ -102,9 +113,10 @@ export default function Dashboard() {
         {/* Real-time Metrics */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-text-primary mb-6">
-            Métricas em Tempo Real
+            Métricas Principais
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Primeira linha de cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             <MetricCard
               title="Quantidade de Cabeças"
               value={animalLoading ? "..." : animalData?.totalAnimais.toLocaleString('pt-BR') || "0"}
@@ -125,23 +137,42 @@ export default function Dashboard() {
               icon={<BarChart3 className="h-6 w-6" />}
             />
             <MetricCard
-              title="Eficiência de Consumo"
-              value={eficienciaLoading ? "..." : eficienciaData?.eficienciaConsumo ? `${eficienciaData.eficienciaConsumo}%` : "0%"}
+              title="Peso Médio de Entrada"
+              value={pesoEntradaLoading ? "..." : pesoEntradaData?.pesoEntradaMedio ? `${pesoEntradaData.pesoEntradaMedio} kg` : "0 kg"}
               subtitle={
-                eficienciaLoading
+                pesoEntradaLoading
                   ? "Carregando..."
-                  : eficienciaData?.variacaoOntem
-                    ? `${eficienciaData.variacaoOntem > 0 ? '↗' : '↘'} ${eficienciaData.variacaoOntem > 0 ? '+' : ''}${eficienciaData.percentualVariacao}% vs ontem`
+                  : pesoEntradaData?.variacaoOntem
+                    ? `${pesoEntradaData.variacaoOntem > 0 ? '↗' : '↘'} ${pesoEntradaData.variacaoOntem > 0 ? '+' : ''}${pesoEntradaData.percentualVariacao}% vs ontem`
                     : "→ Status estável"
               }
               trend={
-                eficienciaLoading
+                pesoEntradaLoading
                   ? "stable"
-                  : eficienciaData?.variacaoOntem
-                    ? eficienciaData.variacaoOntem > 0 ? "up" : "down"
+                  : pesoEntradaData?.variacaoOntem
+                    ? pesoEntradaData.variacaoOntem > 0 ? "up" : "down"
                     : "stable"
               }
-              icon={<Target className="h-6 w-6" />}
+              icon={<Truck className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Peso Médio Estimado"
+              value={pesoLoading ? "..." : pesoData?.pesoMedio ? `${pesoData.pesoMedio} kg` : "0 kg"}
+              subtitle={
+                pesoLoading
+                  ? "Carregando..."
+                  : pesoData?.variacaoOntem
+                    ? `${pesoData.variacaoOntem > 0 ? '↗' : '↘'} ${pesoData.variacaoOntem > 0 ? '+' : ''}${pesoData.percentualVariacao}% vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                pesoLoading
+                  ? "stable"
+                  : pesoData?.variacaoOntem
+                    ? pesoData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
+              icon={<Gauge className="h-6 w-6" />}
             />
             <MetricCard
               title="Dias de Confinamento"
@@ -162,24 +193,85 @@ export default function Dashboard() {
               }
               icon={<Clock className="h-6 w-6" />}
             />
+          </div>
+
+          {/* Segunda linha de cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
-              title="Lotes Ativos"
-              value={lotesLoading ? "..." : lotesData?.totalLotes || "0"}
+              title="CMS Médio Realizado"
+              value={consumoLoading ? "..." : consumoData?.consumoMedio ? `${consumoData.consumoMedio} kg` : "0 kg"}
               subtitle={
-                lotesLoading
+                consumoLoading
                   ? "Carregando..."
-                  : lotesData?.variacaoOntem
-                    ? `${lotesData.variacaoOntem > 0 ? '↗' : '↘'} ${lotesData.variacaoOntem > 0 ? '+' : ''}${lotesData.variacaoOntem} lotes vs ontem`
+                  : consumoData?.variacaoOntem
+                    ? `${consumoData.variacaoOntem > 0 ? '↗' : '↘'} ${consumoData.variacaoOntem > 0 ? '+' : ''}${consumoData.percentualVariacao}% vs ontem`
                     : "→ Status estável"
               }
               trend={
-                lotesLoading
+                consumoLoading
                   ? "stable"
-                  : lotesData?.variacaoOntem
-                    ? lotesData.variacaoOntem > 0 ? "up" : "down"
+                  : consumoData?.variacaoOntem
+                    ? consumoData.variacaoOntem > 0 ? "up" : "down"
                     : "stable"
               }
-              icon={<Users className="h-6 w-6" />}
+              icon={<BarChart3 className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="CMN Médio Realizado"
+              value={cmnRealizadoLoading ? "..." : cmnRealizadoData?.cmnRealizadoMedio ? `${cmnRealizadoData.cmnRealizadoMedio} kg` : "0 kg"}
+              subtitle={
+                cmnRealizadoLoading
+                  ? "Carregando..."
+                  : cmnRealizadoData?.variacaoOntem
+                    ? `${cmnRealizadoData.variacaoOntem > 0 ? '↗' : '↘'} ${cmnRealizadoData.variacaoOntem > 0 ? '+' : ''}${cmnRealizadoData.percentualVariacao}% vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                cmnRealizadoLoading
+                  ? "stable"
+                  : cmnRealizadoData?.variacaoOntem
+                    ? cmnRealizadoData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
+              icon={<TrendingUp className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="CMS Médio % Peso Vivo"
+              value={cmsPerceitoLoading ? "..." : cmsPerceitoData?.cmsPerceitoMedio ? `${cmsPerceitoData.cmsPerceitoMedio}%` : "0%"}
+              subtitle={
+                cmsPerceitoLoading
+                  ? "Carregando..."
+                  : cmsPerceitoData?.variacaoOntem
+                    ? `${cmsPerceitoData.variacaoOntem > 0 ? '↗' : '↘'} ${cmsPerceitoData.variacaoOntem > 0 ? '+' : ''}${cmsPerceitoData.percentualVariacao}% vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                cmsPerceitoLoading
+                  ? "stable"
+                  : cmsPerceitoData?.variacaoOntem
+                    ? cmsPerceitoData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
+              icon={<Target className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Eficiência de Consumo"
+              value={eficienciaLoading ? "..." : eficienciaData?.eficienciaConsumo ? `${eficienciaData.eficienciaConsumo}%` : "0%"}
+              subtitle={
+                eficienciaLoading
+                  ? "Carregando..."
+                  : eficienciaData?.variacaoOntem
+                    ? `${eficienciaData.variacaoOntem > 0 ? '↗' : '↘'} ${eficienciaData.variacaoOntem > 0 ? '+' : ''}${eficienciaData.percentualVariacao}% vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                eficienciaLoading
+                  ? "stable"
+                  : eficienciaData?.variacaoOntem
+                    ? eficienciaData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
+              icon={<Target className="h-6 w-6" />}
             />
           </div>
         </div>
@@ -199,41 +291,8 @@ export default function Dashboard() {
             {/* Eficiência por Carregamento */}
             <EficienciaCarregamentoChart />
 
-            {/* Desvio por Trato */}
-            <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Desvio Absoluto por Trato</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart 
-                      data={[
-                        { trato: 'Trato 1', desvio: 3.2 },
-                        { trato: 'Trato 2', desvio: 2.1 },
-                        { trato: 'Trato 3', desvio: 1.8 },
-                        { trato: 'Trato 4', desvio: 1.2 }
-                      ]} 
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="trato" stroke="white" fontSize={12} />
-                      <YAxis stroke="white" fontSize={12} />
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: 'hsl(var(--card))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                          color: 'hsl(var(--text-primary))'
-                        }}
-                        formatter={(value) => [`${value} kg`, 'Desvio']}
-                      />
-                      <Bar dataKey="desvio" fill="#FFBB28" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+            {/* Eficiência por Ingrediente */}
+            <EficienciaIngredienteChart />
           </div>
         </div>
 

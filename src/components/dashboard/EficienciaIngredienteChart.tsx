@@ -10,7 +10,7 @@ import {
   Cell,
 } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEficienciaCarregamento } from '@/hooks/useEficienciaCarregamento';
+import { useEficienciaIngrediente } from '@/hooks/useEficienciaIngrediente';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -22,17 +22,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="bg-white p-4 border-2 border-gray-200 rounded-lg shadow-xl min-w-[250px]">
         <p className="font-bold mb-3 text-gray-900 text-base border-b pb-2">
-          Carregamento #{label}
+          {label}
         </p>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Dieta:</span>
-            <span className="font-bold" style={{ color: data.color }}>
-              {data.dieta ? data.dieta.replace(/\s+\d{6}$/, '') : 'N/A'}
-            </span>
-          </div>
-
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-700">Previsto:</span>
             <span className="font-bold text-blue-600">
@@ -44,6 +37,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
             <span className="text-sm font-medium text-gray-700">Realizado:</span>
             <span className="font-bold text-green-600">
               {data.realizado.toLocaleString('pt-BR')} kg
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-gray-700">Diferença:</span>
+            <span className={`font-bold ${
+              data.realizado - data.previsto >= 0 ? 'text-green-600' : 'text-red-600'
+            }`}>
+              {(data.realizado - data.previsto) > 0 ? '+' : ''}{(data.realizado - data.previsto).toFixed(2)} kg
             </span>
           </div>
 
@@ -68,14 +70,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-export const EficienciaCarregamentoChart = () => {
-  const { data: result, isLoading, error } = useEficienciaCarregamento();
+export const EficienciaIngredienteChart = () => {
+  const { data: result, isLoading, error } = useEficienciaIngrediente();
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Eficiência por Carregamento</CardTitle>
+          <CardTitle>Eficiência por Ingrediente</CardTitle>
           <CardDescription>Carregando dados...</CardDescription>
         </CardHeader>
         <CardContent>
@@ -89,15 +91,15 @@ export const EficienciaCarregamentoChart = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Eficiência por Carregamento</CardTitle>
+          <CardTitle>Eficiência por Ingrediente</CardTitle>
           <CardDescription>Erro ao carregar dados</CardDescription>
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Não foi possível carregar os dados de eficiência. Por favor, tente novamente mais
-              tarde.
+              Não foi possível carregar os dados de eficiência por ingrediente.
+              Por favor, tente novamente mais tarde.
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -109,13 +111,13 @@ export const EficienciaCarregamentoChart = () => {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Eficiência por Carregamento</CardTitle>
+          <CardTitle>Eficiência por Ingrediente</CardTitle>
           <CardDescription>Nenhum dado disponível</CardDescription>
         </CardHeader>
         <CardContent>
           <Alert>
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>Não há dados de eficiência disponíveis.</AlertDescription>
+            <AlertDescription>Não há dados de eficiência por ingrediente disponíveis.</AlertDescription>
           </Alert>
         </CardContent>
       </Card>
@@ -137,21 +139,28 @@ export const EficienciaCarregamentoChart = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Eficiência por Carregamento</CardTitle>
+        <CardTitle>Eficiência por Ingrediente</CardTitle>
         <CardDescription>Realizado vs Previsto (%) - {formatDate(dataReferencia)}</CardDescription>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+          <BarChart
+            data={data}
+            margin={{ top: 5, right: 30, left: 20, bottom: 60 }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
-              dataKey="nroCarregamento"
-              label={{ value: 'Nº Carregamento', position: 'insideBottom', offset: -5 }}
+              dataKey="ingrediente"
+              angle={-45}
+              textAnchor="end"
+              height={100}
+              interval={0}
+              fontSize={11}
             />
             <YAxis
               label={{ value: 'Eficiência (%)', angle: -90, position: 'insideLeft' }}
-              domain={[95, 105]}
-              ticks={[95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105]}
+              domain={[85, 115]}
+              ticks={[85, 90, 95, 100, 105, 110, 115]}
             />
             <Tooltip content={<CustomTooltip />} />
 
@@ -179,31 +188,27 @@ export const EficienciaCarregamentoChart = () => {
           </BarChart>
         </ResponsiveContainer>
 
-        {/* Legenda de cores das dietas */}
-        <div className="mt-4 flex flex-wrap gap-4 justify-center text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CC9A7' }} />
-            <span className="text-gray-600">Adaptação</span>
+        {/* Legenda simplificada */}
+        <div className="mt-4 flex flex-wrap gap-3 justify-center text-xs">
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FFBB28' }} />
+            <span className="text-gray-600">Milho</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F4C542' }} />
-            <span className="text-gray-600">Crescimento</span>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#14B981' }} />
+            <span className="text-gray-600">Soja</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#E74C3C' }} />
-            <span className="text-gray-600">Terminação</span>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#FF8042' }} />
+            <span className="text-gray-600">Farelo</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#3A7DFF' }} />
-            <span className="text-gray-600">Recria</span>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#0088FE' }} />
+            <span className="text-gray-600">Silagem</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F28C3C' }} />
-            <span className="text-gray-600">Pré-mistura</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#2E7D6A' }} />
-            <span className="text-gray-600">Proteinado 0.3%</span>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#8884d8' }} />
+            <span className="text-gray-600">Outros</span>
           </div>
         </div>
       </CardContent>

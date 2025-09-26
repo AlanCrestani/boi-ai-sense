@@ -54,12 +54,17 @@ export const useEficienciaCarregamento = () => {
 
       // Mapeamento de cores por tipo de dieta
       const dietaColors: Record<string, string> = {
-        'adaptação': '#14B981',
-        'adaptacao': '#14B981',
-        'crescimento': '#FFBB28',
-        'terminação': '#FF8042',
-        'terminacao': '#FF8042',
-        'recria': '#0488FE'
+        'adaptação': '#4CC9A7',
+        'adaptacao': '#4CC9A7',
+        'crescimento': '#F4C542',
+        'terminação': '#E74C3C',
+        'terminacao': '#E74C3C',
+        'recria': '#3A7DFF',
+        'pré-mistura': '#F28C3C',
+        'pre-mistura': '#F28C3C',
+        'premistura': '#F28C3C',
+        'proteinado': '#2E7D6A',
+        'proteinado 0.3%': '#2E7D6A'
       };
 
       // Função para obter cor da dieta
@@ -92,8 +97,8 @@ export const useEficienciaCarregamento = () => {
             totalRealizado: 0
           };
         }
-        acc[nroCarregamento].totalPrevisto += parseFloat(curr.previsto_kg || 0);
-        acc[nroCarregamento].totalRealizado += parseFloat(curr.realizado_kg || 0);
+        acc[nroCarregamento].totalPrevisto += parseFloat(String(curr.previsto_kg || 0));
+        acc[nroCarregamento].totalRealizado += parseFloat(String(curr.realizado_kg || 0));
         return acc;
       }, {});
 
