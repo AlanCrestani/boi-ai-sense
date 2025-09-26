@@ -237,10 +237,13 @@ serve(async (req) => {
             continue;
           }
 
-          // Função para converter valores numéricos com vírgula para ponto
+          // Função para converter valores numéricos do formato brasileiro para decimal
           const parseNumber = (value) => {
             if (!value) return null;
-            const cleanValue = value.toString().replace(',', '.').replace(/[^\d.-]/g, '');
+            // Formato brasileiro: 1.234,56 -> 1234.56
+            // 1. Remover pontos (separadores de milhares)
+            // 2. Trocar vírgula por ponto (separador decimal)
+            const cleanValue = value.toString().replace(/\./g, '').replace(',', '.');
             const parsed = parseFloat(cleanValue);
             return isNaN(parsed) ? null : parsed;
           };

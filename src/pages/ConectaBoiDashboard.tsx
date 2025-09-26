@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useLazyImage } from "@/hooks/useLazyImage";
+import { useAnimalCount } from "@/hooks/useAnimalCount";
 import { useEffect } from "react";
 import heroImage from "@/assets/hero-dashboard.jpg";
 
@@ -27,6 +28,10 @@ export default function ConectaBoiDashboard() {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const { ref: heroRef, src: heroSrc, isLoaded: heroLoaded } = useLazyImage(heroImage);
+  const { data: animalData, isLoading: animalLoading } = useAnimalCount();
+
+  console.log('ConectaBoiDashboard - animalData:', animalData);
+  console.log('ConectaBoiDashboard - animalLoading:', animalLoading);
 
   // Only redirect if user explicitly clicks "Get Started" or "Sign In"
   // Remove automatic redirect for authenticated users
@@ -127,9 +132,21 @@ export default function ConectaBoiDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
               title="Quantidade de Cabeças"
-              value="3.840"
-              subtitle="↗ +3.2% vs ontem"
-              trend="up"
+              value={animalLoading ? "..." : animalData?.totalAnimais.toLocaleString('pt-BR') || "0"}
+              subtitle={
+                animalLoading
+                  ? "Carregando..."
+                  : animalData?.variacaoOntem
+                    ? `${animalData.variacaoOntem > 0 ? '↗' : '↘'} ${animalData.variacaoOntem > 0 ? '+' : ''}${animalData.percentualVariacao}% vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                animalLoading
+                  ? "stable"
+                  : animalData?.variacaoOntem
+                    ? animalData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
               icon={<BarChart3 className="h-6 w-6" />}
             />
             <MetricCard

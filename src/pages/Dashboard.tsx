@@ -3,12 +3,17 @@ import { AIAgentCard } from "@/components/dashboard/AIAgentCard";
 import { AlertsPanel } from "@/components/dashboard/AlertsPanel";
 import { MateriaSecaChart } from "@/components/dashboard/MateriaSecaChart";
 import { DietaFabricadaChart } from "@/components/dashboard/DietaFabricadaChart";
+import { EficienciaCarregamentoChart } from "@/components/dashboard/EficienciaCarregamentoChart";
 import { LoadingAgentChat } from "@/components/LoadingAgentChat";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Layout } from "@/components/Layout";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useAnimalCount } from "@/hooks/useAnimalCount";
+import { useEficienciaConsumo } from "@/hooks/useEficienciaConsumo";
+import { useDiasConfinamento } from "@/hooks/useDiasConfinamento";
+import { useLotesAtivos } from "@/hooks/useLotesAtivos";
 import { useState } from "react";
 
 import { 
@@ -27,6 +32,19 @@ import {
 
 export default function Dashboard() {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const { data: animalData, isLoading: animalLoading } = useAnimalCount();
+  const { data: eficienciaData, isLoading: eficienciaLoading } = useEficienciaConsumo();
+  const { data: diasData, isLoading: diasLoading } = useDiasConfinamento();
+  const { data: lotesData, isLoading: lotesLoading } = useLotesAtivos();
+
+  console.log('Dashboard - animalData:', animalData);
+  console.log('Dashboard - animalLoading:', animalLoading);
+  console.log('Dashboard - eficienciaData:', eficienciaData);
+  console.log('Dashboard - eficienciaLoading:', eficienciaLoading);
+  console.log('Dashboard - diasData:', diasData);
+  console.log('Dashboard - diasLoading:', diasLoading);
+  console.log('Dashboard - lotesData:', lotesData);
+  console.log('Dashboard - lotesLoading:', lotesLoading);
   
   // Mock data for demonstration
   const mockAlerts = [
@@ -89,31 +107,79 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <MetricCard
               title="Quantidade de Cabeças"
-              value="3.840"
-              subtitle="↗ +3.2% vs ontem"
-              trend="up"
+              value={animalLoading ? "..." : animalData?.totalAnimais.toLocaleString('pt-BR') || "0"}
+              subtitle={
+                animalLoading
+                  ? "Carregando..."
+                  : animalData?.variacaoOntem
+                    ? `${animalData.variacaoOntem > 0 ? '↗' : '↘'} ${animalData.variacaoOntem > 0 ? '+' : ''}${animalData.percentualVariacao}% vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                animalLoading
+                  ? "stable"
+                  : animalData?.variacaoOntem
+                    ? animalData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
               icon={<BarChart3 className="h-6 w-6" />}
             />
             <MetricCard
-              title="Eficiência de Carregamento"
-              value="94.8%"
-              subtitle="↗ +1.5% vs semana"
-              trend="up"
-              icon={<Truck className="h-6 w-6" />}
+              title="Eficiência de Consumo"
+              value={eficienciaLoading ? "..." : eficienciaData?.eficienciaConsumo ? `${eficienciaData.eficienciaConsumo}%` : "0%"}
+              subtitle={
+                eficienciaLoading
+                  ? "Carregando..."
+                  : eficienciaData?.variacaoOntem
+                    ? `${eficienciaData.variacaoOntem > 0 ? '↗' : '↘'} ${eficienciaData.variacaoOntem > 0 ? '+' : ''}${eficienciaData.percentualVariacao}% vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                eficienciaLoading
+                  ? "stable"
+                  : eficienciaData?.variacaoOntem
+                    ? eficienciaData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
+              icon={<Target className="h-6 w-6" />}
             />
             <MetricCard
-              title="Eficiência de Distribuição"
-              value="92.3%"
-              subtitle="→ Status estável"
-              trend="stable"
-              icon={<Users className="h-6 w-6" />}
-            />
-            <MetricCard
-              title="Quantidade Fabricada"
-              value="1.247 ton"
-              subtitle="↘ -8min vs ontem"
-              trend="down"
+              title="Dias de Confinamento"
+              value={diasLoading ? "..." : diasData?.mediaDias ? `${diasData.mediaDias} dias` : "0 dias"}
+              subtitle={
+                diasLoading
+                  ? "Carregando..."
+                  : diasData?.variacaoOntem
+                    ? `${diasData.variacaoOntem > 0 ? '↗' : '↘'} ${diasData.variacaoOntem > 0 ? '+' : ''}${diasData.variacaoOntem} dias vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                diasLoading
+                  ? "stable"
+                  : diasData?.variacaoOntem
+                    ? diasData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
               icon={<Clock className="h-6 w-6" />}
+            />
+            <MetricCard
+              title="Lotes Ativos"
+              value={lotesLoading ? "..." : lotesData?.totalLotes || "0"}
+              subtitle={
+                lotesLoading
+                  ? "Carregando..."
+                  : lotesData?.variacaoOntem
+                    ? `${lotesData.variacaoOntem > 0 ? '↗' : '↘'} ${lotesData.variacaoOntem > 0 ? '+' : ''}${lotesData.variacaoOntem} lotes vs ontem`
+                    : "→ Status estável"
+              }
+              trend={
+                lotesLoading
+                  ? "stable"
+                  : lotesData?.variacaoOntem
+                    ? lotesData.variacaoOntem > 0 ? "up" : "down"
+                    : "stable"
+              }
+              icon={<Users className="h-6 w-6" />}
             />
           </div>
         </div>
@@ -131,41 +197,7 @@ export default function Dashboard() {
             <DietaFabricadaChart />
             
             {/* Eficiência por Carregamento */}
-            <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Eficiência por Carregamento</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-80">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart 
-                      data={[
-                        { carregamento: 'Carga 1', eficiencia: 95.2 },
-                        { carregamento: 'Carga 2', eficiencia: 88.7 },
-                        { carregamento: 'Carga 3', eficiencia: 102.3 },
-                        { carregamento: 'Carga 4', eficiencia: 91.8 },
-                        { carregamento: 'Carga 5', eficiencia: 97.1 }
-                      ]} 
-                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                      <XAxis dataKey="carregamento" stroke="white" fontSize={12} />
-                      <YAxis stroke="white" fontSize={12} />
-                      <Tooltip 
-                        contentStyle={{
-                          backgroundColor: 'hsl(var(--card))',
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px',
-                          color: 'hsl(var(--text-primary))'
-                        }}
-                        formatter={(value) => [`${value}%`, 'Eficiência']}
-                      />
-                      <Bar dataKey="eficiencia" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
+            <EficienciaCarregamentoChart />
 
             {/* Desvio por Trato */}
             <Card className="border-border-subtle bg-card-secondary/50 backdrop-blur-sm">
