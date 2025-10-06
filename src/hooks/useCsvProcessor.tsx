@@ -48,6 +48,7 @@ export const useCsvProcessor = () => {
       const organizationId = organization.id;
 
       console.log(`📋 IDs: File=${actualFileId}, Organization=${organizationId}`);
+      console.log(`🔧 ForceOverwrite: ${forceOverwrite}`);
 
       // Choose the appropriate edge function based on pipeline
       const edgeFunctionName = `process-csv-${pipeline.padStart(2, '0')}`;
@@ -64,16 +65,27 @@ export const useCsvProcessor = () => {
 
       if (error) {
         console.error('Erro na edge function:', error);
+
+        // Check if it's a 409 Conflict error (duplicate data)
+        if (error.message.includes('409') || error.message.includes('Conflict')) {
+          toast({
+            title: "Dados já processados",
+            description: "Os dados deste arquivo já foram processados anteriormente. Marque o checkbox 'Forçar sobrescrita' para reprocessar.",
+            variant: "default",
+          });
+          return null;
+        }
+
         throw new Error(error.message);
       }
 
       if (!data.success) {
         // Check if it's a duplicate data error (409 conflict)
-        if (data.error && data.error.includes('já existem na base')) {
+        if (data.error && (data.error.includes('já existem na base') || data.error.includes('já foi processado'))) {
           toast({
             title: "Dados já processados",
-            description: `${data.error} Use "Forçar sobrescrita" se quiser reprocessar.`,
-            variant: "destructive",
+            description: "Os dados deste arquivo já foram processados anteriormente. Marque o checkbox 'Forçar sobrescrita' para reprocessar.",
+            variant: "default",
           });
           return data; // Return the error data with details
         }

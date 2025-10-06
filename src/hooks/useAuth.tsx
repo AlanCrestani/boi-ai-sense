@@ -30,14 +30,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const location = useLocation();
 
   useEffect(() => {
+    // Verificar e limpar sessão corrompida no início
+    const checkAndCleanSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        // Se não tem sessão ou deu erro, tentar pegar o usuário
+        if (!session || error) {
+          console.log('⚠️ Nenhuma sessão encontrada ou erro ao buscar sessão');
+          return;
+        }
+
+        // Verificar se a sessão é válida tentando pegar dados do usuário
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+        if (userError || !user) {
+          console.log('⚠️ Sessão inválida detectada no início, limpando...');
+          await supabase.auth.signOut();
+          localStorage.removeItem('sb-zirowpnlxjenkxiqcuwz-auth-token');
+        }
+      } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
+      }
+    };
+
+    checkAndCleanSession();
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        
+
         // Handle auth errors
         if (event === 'TOKEN_REFRESHED' && !session) {
           console.log('Token refresh failed, signing out');
           await supabase.auth.signOut();
+          localStorage.removeItem('sb-zirowpnlxjenkxiqcuwz-auth-token');
           setSession(null);
           setUser(null);
           setProfile(null);
@@ -99,23 +126,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (userError || !user) {
         console.error('Error fetching user:', userError);
+
+        // Se não conseguir pegar o usuário, a sessão está inválida
+        // Fazer logout forçado
+        console.log('⚠️ Sessão inválida detectada, fazendo logout...');
+        await supabase.auth.signOut();
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setOrganization(null);
+        setUserRole(null);
+        setCanManageOrganization(false);
         return;
       }
 
-      // Build profile data from user metadata
+      // Buscar profile real do banco de dados
+      const { data: realProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      }
+
+      // Build profile data from user metadata or real profile
       const profileData = {
-        id: user.id,
+        id: realProfile?.id || user.id, // Usar profile.id se existir, senão usar user.id
         user_id: user.id,
-        organization_id: 'b7a05c98-9fc5-4aef-b92f-bfa0586bf495', // Default organization for now
-        full_name: user.user_metadata?.full_name || user.email,
+        organization_id: realProfile?.organization_id || 'b7a05c98-9fc5-4aef-b92f-bfa0586bf495',
+        full_name: realProfile?.full_name || user.user_metadata?.full_name || user.email,
         email: user.email,
-        avatar_url: user.user_metadata?.avatar_url || null,
-        phone: user.user_metadata?.phone || null,
-        position: user.user_metadata?.position || null,
-        department: user.user_metadata?.department || null,
+        avatar_url: realProfile?.avatar_url || user.user_metadata?.avatar_url || null,
+        phone: realProfile?.phone || user.user_metadata?.phone || null,
+        position: realProfile?.position || user.user_metadata?.position || null,
+        department: realProfile?.department || user.user_metadata?.department || null,
         is_active: true,
-        created_at: user.created_at,
-        updated_at: user.updated_at || user.created_at
+        created_at: realProfile?.created_at || user.created_at,
+        updated_at: realProfile?.updated_at || user.updated_at || user.created_at
       };
 
       // Fetch organization separately if profile has organization_id
@@ -190,6 +239,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    // Limpar completamente o localStorage para garantir sessão limpa
+    localStorage.removeItem('sb-zirowpnlxjenkxiqcuwz-auth-token');
   };
 
   return (

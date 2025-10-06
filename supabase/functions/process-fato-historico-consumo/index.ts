@@ -6,6 +6,33 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+/**
+ * Normaliza texto removendo caracteres corrompidos de encoding e padronizando
+ */
+function normalizeText(text: string | null | undefined): string | null {
+  if (!text) return null;
+
+  try {
+    // Remove caracteres de replacement (�) que indicam encoding corrompido
+    let normalized = text.replace(/�/g, '');
+
+    // Normaliza para NFD (Canonical Decomposition) e depois remove marcas diacríticas
+    // Isso converte "ã" -> "a~" -> "a", "ç" -> "c," -> "c"
+    normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    // Remove múltiplos espaços
+    normalized = normalized.replace(/\s+/g, ' ').trim();
+
+    // Converte para uppercase para padronização
+    normalized = normalized.toUpperCase();
+
+    return normalized;
+  } catch (error) {
+    console.error(`Erro ao normalizar texto: ${text}`, error);
+    return text;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -86,7 +113,7 @@ serve(async (req) => {
       proprietario_predominante: record.proprietario_predominante,
       origem_predominante: record.origem_predominante,
       tipo_aquisicao: record.tipo_aquisicao,
-      dieta: record.dieta,
+      dieta: normalizeText(record.dieta),
       escore: record.escore,
       fator_correcao_kg: record.fator_correcao_kg,
       escore_noturno: record.escore_noturno,

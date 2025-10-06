@@ -6,6 +6,33 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+/**
+ * Normaliza texto removendo caracteres corrompidos de encoding e padronizando
+ */
+function normalizeText(text: string | null | undefined): string | null {
+  if (!text) return null;
+
+  try {
+    // Remove caracteres de replacement (�) que indicam encoding corrompido
+    let normalized = text.replace(/�/g, '');
+
+    // Normaliza para NFD (Canonical Decomposition) e depois remove marcas diacríticas
+    // Isso converte "ã" -> "a~" -> "a", "ç" -> "c," -> "c"
+    normalized = normalized.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    // Remove múltiplos espaços
+    normalized = normalized.replace(/\s+/g, ' ').trim();
+
+    // Converte para uppercase para padronização
+    normalized = normalized.toUpperCase();
+
+    return normalized;
+  } catch (error) {
+    console.error(`Erro ao normalizar texto: ${text}`, error);
+    return text;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -33,7 +60,7 @@ serve(async (req) => {
     // Buscar TODOS os dados do staging_02 usando paginação (base principal)
     let allStagingData = [];
     let start = 0;
-    const pageSize = 999;
+    const pageSize = 500; // Reduzido para evitar timeout
     let hasMore = true;
 
     while (hasMore) {
@@ -135,14 +162,23 @@ serve(async (req) => {
         }
       }
 
+      // Validar campos obrigatórios antes de criar o registro
+      if (!record.organization_id || !record.file_id) {
+        console.error(`❌ Registro ${index} com campos obrigatórios vazios:`, {
+          organization_id: record.organization_id,
+          file_id: record.file_id
+        });
+        return null; // Skip este registro
+      }
+
       let enrichedRecord = {
         organization_id: record.organization_id,
-        file_id: record.file_id || crypto.randomUUID(),
+        file_id: record.file_id, // Removido crypto.randomUUID() fallback
         data: record.data,
         hora: record.hora,
         pazeiro: record.pazeiro,
         vagao: record.vagao,
-        dieta: record.dieta,
+        dieta: normalizeText(record.dieta),
         nro_carregamento: record.nro_carregamento,
         ingrediente: record.ingrediente,
         tipo_ingrediente: record.tipo_ingrediente,
@@ -156,24 +192,32 @@ serve(async (req) => {
       };
 
       return enrichedRecord;
-    });
+    }).filter(record => record !== null); // Remove registros nulos (que falharam validação)
 
     const enrichedCount = fatoData.filter(record => record.id_carregamento !== null).length;
     console.log(`🔗 Enriquecimento: ${enrichedCount}/${fatoData.length} registros enriquecidos com id_carregamento`);
 
-    // Inserir em lotes de 500 para evitar timeout
-    const batchSize = 500;
+    // Inserir em lotes de 250 para evitar timeout
+    const batchSize = 250;
     let totalInserted = 0;
 
     for (let i = 0; i < fatoData.length; i += batchSize) {
       const batch = fatoData.slice(i, i + batchSize);
+
+      console.log(`🔄 Inserindo lote ${i/batchSize + 1}/${Math.ceil(fatoData.length/batchSize)}: ${batch.length} registros`);
 
       const { error: insertError } = await supabase
         .from('fato_carregamento')
         .insert(batch);
 
       if (insertError) {
-        throw new Error(`Erro ao inserir lote ${i/batchSize + 1}: ${insertError.message}`);
+        console.error(`❌ Erro detalhado no lote ${i/batchSize + 1}:`, {
+          message: insertError.message,
+          code: insertError.code,
+          details: insertError.details,
+          hint: insertError.hint
+        });
+        throw new Error(`Erro ao inserir lote ${i/batchSize + 1}: ${insertError.message} (code: ${insertError.code})`);
       }
 
       totalInserted += batch.length;

@@ -1,4 +1,4 @@
-# Schema Sync Report - 24/09/2025, 09:23:47
+# Schema Sync Report - 03/10/2025, 18:56:02
 
 ## Status: ✅ SINCRONIZADO
 
@@ -92,5 +92,5 @@
 
 
 ---
-*Relatório gerado automaticamente em 2025-09-24T12:23:47.808Z*
+*Relatório gerado automaticamente em 2025-10-03T21:56:02.421Z*
 *Comando: `npm run drizzle:sync-check`*

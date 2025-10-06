@@ -21,7 +21,7 @@ interface UseIngredienteResumoProps {
 export const getLatestAvailableDate = async (organizationId?: string): Promise<Date | null> => {
   try {
     let query = supabase
-      .from('view_ingrediente_resumo')
+      .from('fato_carregamento')
       .select('data')
       .order('data', { ascending: false })
       .limit(1);
@@ -74,12 +74,14 @@ export const useIngredienteResumo = ({ date, startDate, endDate, organizationId,
       }
 
       try {
-        // Usar any temporariamente para evitar problemas de tipagem
+        // Usar fato_carregamento diretamente e agregar os dados
         let query = (supabase as any)
-          .from('view_ingrediente_resumo')
-          .select('*')
+          .from('fato_carregamento')
+          .select('ingrediente, previsto_kg, realizado_kg, data')
           .eq('organization_id', orgId)
-          .order('ingrediente');
+          .not('ingrediente', 'is', null)
+          .not('previsto_kg', 'is', null)
+          .not('realizado_kg', 'is', null);
 
         // Se uma data específica foi fornecida
         if (date) {
@@ -105,7 +107,7 @@ export const useIngredienteResumo = ({ date, startDate, endDate, organizationId,
           throw fetchError;
         }
 
-        // Se houver múltiplas datas, agregar os valores por ingrediente
+        // Agregar os dados por ingrediente (somando todas as ocorrências)
         if (resultData && resultData.length > 0) {
           const aggregated = resultData.reduce((acc: { [key: string]: IngredienteResumo }, item: any) => {
             if (!acc[item.ingrediente]) {
@@ -115,12 +117,12 @@ export const useIngredienteResumo = ({ date, startDate, endDate, organizationId,
                 realizado_kg: 0
               };
             }
-            acc[item.ingrediente].previsto_kg += item.previsto_kg || 0;
-            acc[item.ingrediente].realizado_kg += item.realizado_kg || 0;
+            acc[item.ingrediente].previsto_kg += Number(item.previsto_kg) || 0;
+            acc[item.ingrediente].realizado_kg += Number(item.realizado_kg) || 0;
             return acc;
           }, {});
 
-          const finalData = Object.values(aggregated);
+          const finalData = Object.values(aggregated).sort((a, b) => a.ingrediente.localeCompare(b.ingrediente));
           setData(finalData);
         } else {
           setData([]);

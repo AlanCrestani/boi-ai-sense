@@ -1,11 +1,15 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, BarChart3, TrendingUp } from 'lucide-react';
+import { Loader2, BarChart3, Clock } from 'lucide-react';
 import { useCsvProcessor } from '@/hooks/useCsvProcessor';
+import { useLastUpdate } from '@/hooks/useLastUpdate';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export const FatoHistoricoConsumoProcessor: React.FC = () => {
   const { processFatoHistoricoConsumo, isProcessing } = useCsvProcessor();
+  const { lastUpdate, isLoading: isLoadingUpdate } = useLastUpdate('fato_historico_consumo');
 
   const handleProcess = async () => {
     const result = await processFatoHistoricoConsumo();
@@ -22,43 +26,29 @@ export const FatoHistoricoConsumoProcessor: React.FC = () => {
           Fato Histórico Consumo
         </CardTitle>
         <CardDescription>
-          Processa dados de histórico de consumo da staging_01_historico_consumo para a tabela de fatos
+          Processa dados de histórico de consumo
         </CardDescription>
+        {!isLoadingUpdate && lastUpdate && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
+            <Clock className="h-3 w-3" />
+            <span>Última atualização: {format(new Date(lastUpdate), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}</span>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="text-sm text-muted-foreground space-y-2">
-            <p><span className="font-medium">Fonte:</span> staging_01_historico_consumo</p>
-            <p><span className="font-medium">Destino:</span> fato_historico_consumo</p>
-            <p><span className="font-medium">Tipo:</span> Transformação 1:1 com limpeza de dados</p>
-          </div>
-
-          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-            <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-1">
-              <TrendingUp className="h-4 w-4" />
-              Métricas Processadas
-            </h4>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Dados dos animais (raça, sexo, lote, curral)</li>
-              <li>• Métricas de consumo (CMS, CMN, GMD)</li>
-              <li>• Informações nutricionais (MS dieta, NDT)</li>
-              <li>• Dados de performance e eficiência</li>
-            </ul>
-          </div>
-
+        <div className="flex justify-end">
           <Button
             onClick={handleProcess}
             disabled={isProcessing}
-            className="w-full"
+            size="sm"
+            className="gap-2"
           >
             {isProcessing ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processando...
-              </>
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              'Processar Fato Histórico Consumo'
+              <BarChart3 className="h-4 w-4" />
             )}
+            {isProcessing ? 'Processando...' : 'Processar'}
           </Button>
         </div>
       </CardContent>

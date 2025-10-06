@@ -61,29 +61,65 @@ export function useDietaResumo({ date, organizationId, enabled = true }: UseDiet
           formattedDate = `${year}-${month}-${day}`;
         }
 
-        // Query principal
+        // Query usando fato_carregamento diretamente
         const { data: resultData, error: fetchError } = await supabase
-          .from('view_dieta_resumo')
-          .select('*')
+          .from('fato_carregamento')
+          .select('dieta, previsto_kg, realizado_kg, desvio_kg, data, ingrediente')
           .eq('organization_id', orgId)
           .eq('data', formattedDate)
-          .order('dieta');
+          .not('dieta', 'is', null)
+          .not('previsto_kg', 'is', null)
+          .not('realizado_kg', 'is', null);
 
         if (fetchError) {
           throw fetchError;
         }
 
-        // Converter strings numéricas para números
-        const processedData = (resultData || []).map((item: any) => ({
-          ...item,
-          previsto_kg: Number(item.previsto_kg) || 0,
-          realizado_kg: Number(item.realizado_kg) || 0,
-          desvio_kg: Number(item.desvio_kg) || 0,
-          desvio_percentual: Number(item.desvio_percentual) || 0,
-          total_ingredientes: Number(item.total_ingredientes) || 0,
-        }));
+        // Agregar os dados por dieta
+        if (resultData && resultData.length > 0) {
+          const aggregated = resultData.reduce((acc: { [key: string]: any }, item: any) => {
+            if (!acc[item.dieta]) {
+              acc[item.dieta] = {
+                organization_id: orgId,
+                data: formattedDate,
+                dieta: item.dieta,
+                previsto_kg: 0,
+                realizado_kg: 0,
+                desvio_kg: 0,
+                desvio_percentual: 0,
+                total_ingredientes: 0,
+                ingredientes: new Set()
+              };
+            }
+            acc[item.dieta].previsto_kg += Number(item.previsto_kg) || 0;
+            acc[item.dieta].realizado_kg += Number(item.realizado_kg) || 0;
+            acc[item.dieta].desvio_kg += Number(item.desvio_kg) || 0;
+            acc[item.dieta].ingredientes.add(item.ingrediente);
+            return acc;
+          }, {});
 
-        setData(processedData);
+          // Converter para array e calcular percentuais
+          const processedData = Object.values(aggregated).map((item: any) => {
+            const desvio_percentual = item.previsto_kg > 0
+              ? ((item.desvio_kg / item.previsto_kg) * 100)
+              : 0;
+
+            return {
+              organization_id: item.organization_id,
+              data: item.data,
+              dieta: item.dieta,
+              previsto_kg: Math.round(item.previsto_kg),
+              realizado_kg: Math.round(item.realizado_kg),
+              desvio_kg: Math.round(item.desvio_kg),
+              desvio_percentual: Math.round(desvio_percentual * 100) / 100,
+              total_ingredientes: item.ingredientes.size
+            };
+          }).sort((a, b) => a.dieta.localeCompare(b.dieta));
+
+          setData(processedData);
+        } else {
+          setData([]);
+        }
       } catch (err) {
         console.error('Erro ao buscar dados da view_dieta_resumo:', err);
         setError(err as Error);
@@ -101,7 +137,7 @@ export function useDietaResumo({ date, organizationId, enabled = true }: UseDiet
 export async function getLatestAvailableDateDieta(organizationId?: string): Promise<Date | null> {
   try {
     let query = supabase
-      .from('view_dieta_resumo')
+      .from('fato_carregamento')
       .select('data')
       .order('data', { ascending: false })
       .limit(1);

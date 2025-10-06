@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -271,9 +272,9 @@ export default function CsvUpload() {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 py-2 sm:py-8 lg:px-8">
         {/* Breadcrumbs and Back Button */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -297,11 +298,8 @@ export default function CsvUpload() {
         </div>
 
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-text-primary mb-2">Upload de CSV</h1>
-          <p className="text-text-secondary">
-            Envie até 5 arquivos CSV para atualizar o banco de dados
-          </p>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary">Upload de CSV</h1>
         </div>
 
         {/* Upload Area */}
@@ -313,27 +311,19 @@ export default function CsvUpload() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Label htmlFor="csv-files">
-                  Escolha arquivos CSV (máximo 5)
-                </Label>
-                <Input
-                  id="csv-files"
-                  type="file"
-                  multiple
-                  accept=".csv"
-                  onChange={handleFileSelect}
-                  disabled={files.length >= 5 || isUploading}
-                  className="max-w-md"
-                />
-              </div>
-              
-              <div className="text-sm text-text-tertiary">
-                • Apenas arquivos .csv são aceitos
-                • Tamanho máximo: 20MB por arquivo
-                • Limite: 5 arquivos por upload
-              </div>
+            <div className="flex items-center gap-4">
+              <Label htmlFor="csv-files">
+                Arquivos CSV (máx. 5)
+              </Label>
+              <Input
+                id="csv-files"
+                type="file"
+                multiple
+                accept=".csv"
+                onChange={handleFileSelect}
+                disabled={files.length >= 5 || isUploading}
+                className="max-w-md"
+              />
             </div>
           </CardContent>
         </Card>
@@ -437,60 +427,65 @@ export default function CsvUpload() {
           </div>
         )}
 
-        {/* Processing Section */}
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold text-text-primary mb-4">Processamento de Dados</h2>
-          <p className="text-text-secondary mb-6">
-            Após o upload, processe os arquivos CSV usando os pipelines apropriados:
-          </p>
+        {/* Processing Section with Tabs */}
+        <Tabs defaultValue="historico" className="mt-8">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="historico">Histórico de Consumo</TabsTrigger>
+            <TabsTrigger value="carregamento">Desvio de Carregamento</TabsTrigger>
+            <TabsTrigger value="distribuicao">Desvio de Distribuição</TabsTrigger>
+          </TabsList>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <CsvProcessor
-              pipeline="01"
-              title="Histórico de Consumo"
-              description="Processa dados históricos de consumo dos animais"
-              filename="01_historico_consumo.csv"
-            />
-            <CsvProcessor
-              pipeline="02"
-              title="Desvio Carregamento"
-              description="Processa dados de desvio no carregamento de ingredientes"
-              filename="02_desvio_carregamento.csv"
-            />
-            <CsvProcessor
-              pipeline="03"
-              title="Desvio Distribuição"
-              description="Processa dados de desvio na distribuição de dietas"
-              filename="03_desvio_distribuicao.csv"
-            />
-            <CsvProcessor
-              pipeline="04"
-              title="Itens de Trato"
-              description="Processa dados de itens utilizados no trato"
-              filename="04_itens_trato.csv"
-            />
-            <CsvProcessor
-              pipeline="05"
-              title="Trato por Curral"
-              description="Processa dados de trato distribuído por curral"
-              filename="05_trato_por_curral.csv"
-            />
-          </div>
-        </div>
+          {/* Aba Histórico de Consumo */}
+          <TabsContent value="historico" className="space-y-4 mt-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <CsvProcessor
+                pipeline="01"
+                title="Pipeline 01"
+                description="Histórico de Consumo"
+                filename="01_historico_consumo.csv"
+              />
+              <FatoHistoricoConsumoProcessor />
+            </div>
+          </TabsContent>
 
-        {/* Fato Tables Section */}
-        <div className="mt-8">
-          <h2 className="text-2xl font-bold text-text-primary mb-4">Tabelas Fato</h2>
-          <p className="text-text-secondary mb-6">
-            Processe dados enriquecidos combinando informações das tabelas staging:
-          </p>
+          {/* Aba Desvio de Carregamento */}
+          <TabsContent value="carregamento" className="space-y-4 mt-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <CsvProcessor
+                pipeline="02"
+                title="Pipeline 02"
+                description="Desvio de Carregamento"
+                filename="02_desvio_carregamento.csv"
+              />
+              <CsvProcessor
+                pipeline="04"
+                title="Pipeline 04"
+                description="Itens de Trato"
+                filename="04_itens_trato.csv"
+              />
+              <FatoCarregamentoProcessor />
+            </div>
+          </TabsContent>
 
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
-            <FatoHistoricoConsumoProcessor />
-            <FatoDistribuicaoProcessor />
-            <FatoCarregamentoProcessor />
-          </div>
-        </div>
+          {/* Aba Desvio de Distribuição */}
+          <TabsContent value="distribuicao" className="space-y-4 mt-6">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <CsvProcessor
+                pipeline="03"
+                title="Pipeline 03"
+                description="Desvio de Distribuição"
+                filename="03_desvio_distribuicao.csv"
+              />
+              <CsvProcessor
+                pipeline="05"
+                title="Pipeline 05"
+                description="Trato por Curral"
+                filename="05_trato_por_curral.csv"
+              />
+              <FatoDistribuicaoProcessor />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

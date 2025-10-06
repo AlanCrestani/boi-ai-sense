@@ -2,11 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
-interface DietaFabricada {
-  dieta: string;
-  totalRealizado: number;
-  numCarregamentos: number;
-  color: string;
+export interface ChartDataDieta {
+  data: string;
+  dia: string;
+  [key: string]: string | number;
 }
 
 // Mapeamento de cores por tipo de dieta
@@ -46,24 +45,22 @@ const getDietaColor = (dieta: string, fallbackIndex: number = 0): string => {
   return FALLBACK_COLORS[fallbackIndex % FALLBACK_COLORS.length]; // Cor de fallback se não encontrar match
 };
 
-export const useDietasFabricadas = () => {
+export const useDietasFabricadas = (days: number = 14) => {
   const { organization } = useAuth();
 
-  return useQuery({
-    queryKey: ['dietas-fabricadas', organization?.id],
+  const query = useQuery({
+    queryKey: ['dietas-fabricadas', organization?.id, days],
     queryFn: async () => {
       console.log('useDietasFabricadas - Iniciando queryFn');
 
-      // Para teste ou quando não houver organization, usar ID padrão
       const orgId = organization?.id || 'b7a05c98-9fc5-4aef-b92f-bfa0586bf495';
       console.log('useDietasFabricadas - Usando orgId:', orgId);
 
-      // Primeiro, buscar a data mais recente disponível
+      // Buscar a data mais recente disponível
       const { data: latestDateData, error: latestDateError } = await supabase
         .from('fato_carregamento')
         .select('data')
         .eq('organization_id', orgId)
-        .not('realizado_kg', 'is', null)
         .order('data', { ascending: false })
         .limit(1);
 
@@ -72,56 +69,97 @@ export const useDietasFabricadas = () => {
         return [];
       }
 
-      const latestDate = latestDateData[0].data;
+      const latestDate = new Date(latestDateData[0].data);
 
-      // Buscar os dados agregados do dia mais recente
-      const { data, error } = await supabase
+      // Calcular a data de início (últimos X dias)
+      const startDate = new Date(latestDate);
+      startDate.setDate(startDate.getDate() - (days - 1));
+
+      // Formatar as datas para o filtro
+      const startDateStr = startDate.toISOString().split('T')[0];
+      const endDateStr = latestDate.toISOString().split('T')[0];
+
+      // Buscar dados de carregamento dos últimos dias
+      const { data: rawData, error: rawError } = await supabase
         .from('fato_carregamento')
-        .select('dieta, realizado_kg, id_carregamento')
+        .select('data, dieta, realizado_kg')
         .eq('organization_id', orgId)
-        .eq('data', latestDate)
+        .gte('data', startDateStr)
+        .lte('data', endDateStr)
+        .not('dieta', 'is', null)
         .not('realizado_kg', 'is', null)
-        .gt('realizado_kg', 0);
+        .order('data', { ascending: true })
+        .order('dieta', { ascending: true });
 
-      if (error) throw error;
+      if (rawError) throw rawError;
 
-      // Agrupar por dieta
-      const groupedData = data.reduce((acc: any, curr) => {
-        const dieta = curr.dieta;
-        if (!acc[dieta]) {
-          acc[dieta] = {
-            totalRealizado: 0,
-            carregamentos: new Set()
-          };
+      if (!rawData || rawData.length === 0) {
+        return [];
+      }
+
+      // Agrupar dados por data e dieta
+      const dataMap: Record<string, Record<string, number>> = {};
+      const dietasSet = new Set<string>();
+
+      rawData.forEach(item => {
+        const data = item.data;
+        const dieta = item.dieta.replace(/\s+\d{6}$/, ''); // Remove códigos numéricos
+        const realizado = item.realizado_kg || 0;
+
+        dietasSet.add(dieta);
+
+        if (!dataMap[data]) {
+          dataMap[data] = {};
         }
-        acc[dieta].totalRealizado += parseFloat(curr.realizado_kg);
-        acc[dieta].carregamentos.add(curr.id_carregamento);
-        return acc;
-      }, {});
 
-      // Converter para o formato final
-      const processedData: DietaFabricada[] = Object.entries(groupedData)
-        .map(([dieta, values]: [string, any], index) => {
-          const dietaSemCodigo = dieta.replace(/\s+\d{6}$/, ''); // Remove códigos numéricos do final
-          return {
-            dieta: dietaSemCodigo,
-            totalRealizado: parseFloat(values.totalRealizado.toFixed(2)),
-            numCarregamentos: values.carregamentos.size,
-            color: getDietaColor(dietaSemCodigo, index)
+        if (!dataMap[data][dieta]) {
+          dataMap[data][dieta] = 0;
+        }
+
+        dataMap[data][dieta] += realizado;
+      });
+
+      // Converter para array ordenado
+      const chartData: ChartDataDieta[] = Object.entries(dataMap)
+        .map(([data, dietas]) => {
+          const dateObj = new Date(data + 'T00:00:00');
+          const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+          const dia = dias[dateObj.getDay()];
+
+          const item: ChartDataDieta = {
+            data,
+            dia
           };
-        })
-        .sort((a, b) => b.totalRealizado - a.totalRealizado) // Ordenar por quantidade decrescente
-        .slice(0, 8); // Limitar a 8 dietas principais
 
-      console.log('useDietasFabricadas - Dados processados:', processedData);
-      console.log('useDietasFabricadas - Data mais recente:', latestDate);
+          // Adicionar cada dieta como propriedade do objeto
+          Array.from(dietasSet).forEach(dieta => {
+            item[dieta] = Math.round((dietas[dieta] || 0) * 100) / 100;
+          });
+
+          return item;
+        })
+        .sort((a, b) => new Date(a.data).getTime() - new Date(b.data).getTime());
+
+      console.log('useDietasFabricadas - Dietas encontradas:', Array.from(dietasSet));
+      console.log('useDietasFabricadas - Dados processados:', chartData.length);
 
       return {
-        data: processedData,
-        dataReferencia: latestDate
+        chartData,
+        dietas: Array.from(dietasSet).sort(),
+        dietasColors: Array.from(dietasSet).reduce((acc, dieta, index) => {
+          acc[dieta] = getDietaColor(dieta, index);
+          return acc;
+        }, {} as Record<string, string>)
       };
     },
     enabled: true,
     refetchInterval: 1000 * 60 * 5, // Refetch a cada 5 minutos
   });
+
+  return {
+    ...query,
+    chartData: query.data?.chartData || [],
+    dietas: query.data?.dietas || [],
+    dietasColors: query.data?.dietasColors || {}
+  };
 };

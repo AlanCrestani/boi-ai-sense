@@ -5,17 +5,23 @@ import { useAuth } from '@/hooks/useAuth';
 interface EficienciaCarregamento {
   nroCarregamento: string;
   dieta: string;
+  vagao: string;
   previsto: number;
   realizado: number;
   eficiencia: number;
   color: string;
 }
 
-export const useEficienciaCarregamento = () => {
+interface UseEficienciaCarregamentoProps {
+  vagaoFilter?: string;
+}
+
+export const useEficienciaCarregamento = (props?: UseEficienciaCarregamentoProps) => {
   const { organization } = useAuth();
+  const { vagaoFilter } = props || {};
 
   return useQuery({
-    queryKey: ['eficiencia-carregamento', organization?.id],
+    queryKey: ['eficiencia-carregamento', organization?.id, vagaoFilter],
     queryFn: async () => {
       console.log('useEficienciaCarregamento - Iniciando queryFn');
 
@@ -41,14 +47,21 @@ export const useEficienciaCarregamento = () => {
       const latestDate = latestDateData[0].data;
 
       // Buscar os dados agregados do dia mais recente
-      const { data, error } = await supabase
+      let query = supabase
         .from('fato_carregamento')
-        .select('nro_carregamento, dieta, previsto_kg, realizado_kg')
+        .select('nro_carregamento, dieta, vagao, previsto_kg, realizado_kg')
         .eq('organization_id', orgId)
         .eq('data', latestDate)
         .not('previsto_kg', 'is', null)
         .not('realizado_kg', 'is', null)
         .gt('previsto_kg', 0); // Apenas carregamentos com previsto > 0
+
+      // Aplicar filtro por vagão se fornecido
+      if (vagaoFilter) {
+        query = query.eq('vagao', vagaoFilter);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -93,6 +106,7 @@ export const useEficienciaCarregamento = () => {
         if (!acc[nroCarregamento]) {
           acc[nroCarregamento] = {
             dieta: curr.dieta,
+            vagao: curr.vagao,
             totalPrevisto: 0,
             totalRealizado: 0
           };
@@ -107,6 +121,7 @@ export const useEficienciaCarregamento = () => {
         .map(([nroCarregamento, values]: [string, any]) => ({
           nroCarregamento,
           dieta: values.dieta,
+          vagao: values.vagao,
           previsto: parseFloat(values.totalPrevisto.toFixed(2)),
           realizado: parseFloat(values.totalRealizado.toFixed(2)),
           eficiencia: parseFloat(((values.totalRealizado / values.totalPrevisto) * 100).toFixed(1)),

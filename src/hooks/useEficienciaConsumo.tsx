@@ -9,6 +9,51 @@ interface EficienciaConsumoData {
   percentualVariacao: number;
   totalRegistros: number;
   totalAnimais: number;
+  taxaAcerto: number;
+  totalAcertos: number;
+  totalValidacoes: number;
+}
+
+/**
+ * Valida se a nota de ontem estava correta baseado na nota de hoje
+ */
+function validarNotaOntem(notaOntem: number, notaHoje: number): boolean {
+  // NOTA 1 é sempre acerto (é o objetivo, pode repetir)
+  if (notaOntem === 1) {
+    return true;
+  }
+
+  // NOTA -2 (aumentar muito)
+  if (notaOntem === -2) {
+    return [-1, 0, 1].includes(notaHoje);
+  }
+
+  // NOTA -1 (aumentar moderado)
+  if (notaOntem === -1) {
+    return [0, 1].includes(notaHoje);
+  }
+
+  // NOTA 0 (aumentar leve)
+  if (notaOntem === 0) {
+    return notaHoje === 1;
+  }
+
+  // NOTA 2 (diminuir leve)
+  if (notaOntem === 2) {
+    return notaHoje === 1;
+  }
+
+  // NOTA 3 (diminuir moderado)
+  if (notaOntem === 3) {
+    return notaHoje === 1;
+  }
+
+  // NOTA 4 (diminuir muito)
+  if (notaOntem === 4) {
+    return [1, 2, 3].includes(notaHoje);
+  }
+
+  return false;
 }
 
 export const useEficienciaConsumo = () => {
@@ -39,7 +84,10 @@ export const useEficienciaConsumo = () => {
           variacaoOntem: 0,
           percentualVariacao: 0,
           totalRegistros: 0,
-          totalAnimais: 0
+          totalAnimais: 0,
+          taxaAcerto: 0,
+          totalAcertos: 0,
+          totalValidacoes: 0
         };
       }
 
@@ -87,7 +135,10 @@ export const useEficienciaConsumo = () => {
           variacaoOntem: 0,
           percentualVariacao: 0,
           totalRegistros: currentData.length,
-          totalAnimais: totalAnimaisHoje
+          totalAnimais: totalAnimaisHoje,
+          taxaAcerto: 0,
+          totalAcertos: 0,
+          totalValidacoes: 0
         };
       }
 
@@ -104,11 +155,83 @@ export const useEficienciaConsumo = () => {
         ? ((variacaoOntem / eficienciaConsumoOntem) * 100)
         : 0;
 
+      // Calcular Taxa de Acerto (das notas de ontem, quantas acertei hoje?)
+      // Buscar dados da view_consumo_materia_seca para as últimas 2 datas
+      console.log('[useEficienciaConsumo] Buscando dados da view para:', { previousDateStr, latestDate, orgId });
+
+      const { data: viewData, error: viewError } = await supabase
+        .from('view_consumo_materia_seca')
+        .select('curral_lote, lote, data, escore, cms_realizado_kg')
+        .eq('organization_id', orgId)
+        .in('data', [previousDateStr, latestDate])
+        .not('escore', 'is', null)
+        .order('curral_lote', { ascending: true })
+        .order('data', { ascending: true });
+
+      console.log('[useEficienciaConsumo] Dados da view:', {
+        viewError,
+        viewDataLength: viewData?.length,
+        sampleData: viewData?.slice(0, 5)
+      });
+
+      // Debug: verificar primeiro lote com detalhes
+      if (viewData && viewData.length > 0) {
+        const primeiroLote = viewData.filter(d => d.lote === '01-G2-25');
+        console.log('[useEficienciaConsumo] Exemplo lote 01-G2-25:', primeiroLote);
+      }
+
+      let totalAcertos = 0;
+      let totalValidacoes = 0;
+
+      if (!viewError && viewData && viewData.length > 0) {
+        // Agrupar por lote para comparar ontem vs hoje
+        const loteMap = new Map<string, any[]>();
+        viewData.forEach(row => {
+          const key = row.lote;
+          if (!loteMap.has(key)) {
+            loteMap.set(key, []);
+          }
+          loteMap.get(key)!.push(row);
+        });
+
+        console.log('[useEficienciaConsumo] Lotes agrupados:', loteMap.size);
+        console.log('[useEficienciaConsumo] Sample lote data:', Array.from(loteMap.entries()).slice(0, 2));
+
+        // Para cada lote, validar se a nota de ontem estava correta
+        loteMap.forEach((dados, lote) => {
+          const dadosValidos = dados
+            .filter(d => d.escore !== null && d.escore !== undefined && d.escore !== 0)
+            .sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
+
+          console.log(`[useEficienciaConsumo] Lote ${lote} - total: ${dados.length}, válidos: ${dadosValidos.length}`);
+
+          if (dadosValidos.length >= 2) {
+            const hoje = dadosValidos[0];
+            const ontem = dadosValidos[1];
+
+            console.log(`[useEficienciaConsumo] Lote ${lote} - Ontem: ${ontem.escore}, Hoje: ${hoje.escore}`);
+
+            const acertou = validarNotaOntem(ontem.escore, hoje.escore);
+            if (acertou) {
+              totalAcertos++;
+            }
+            totalValidacoes++;
+          }
+        });
+
+        console.log('[useEficienciaConsumo] Totais finais:', { totalAcertos, totalValidacoes });
+      }
+
+      const taxaAcerto = totalValidacoes > 0 ? (totalAcertos / totalValidacoes) * 100 : 0;
+
       console.log('useEficienciaConsumo - Dados retornados:', {
         eficienciaConsumoHoje,
         eficienciaConsumoOntem,
         variacaoOntem,
-        percentualVariacao
+        percentualVariacao,
+        taxaAcerto,
+        totalAcertos,
+        totalValidacoes
       });
 
       return {
@@ -117,7 +240,10 @@ export const useEficienciaConsumo = () => {
         variacaoOntem: parseFloat(variacaoOntem.toFixed(2)),
         percentualVariacao: parseFloat(percentualVariacao.toFixed(2)),
         totalRegistros: currentData.length,
-        totalAnimais: totalAnimaisHoje
+        totalAnimais: totalAnimaisHoje,
+        taxaAcerto: parseFloat(taxaAcerto.toFixed(2)),
+        totalAcertos,
+        totalValidacoes
       };
     },
     enabled: true, // Sempre habilitado, usando o ID padrão quando necessário

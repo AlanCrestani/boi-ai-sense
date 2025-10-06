@@ -44,16 +44,43 @@ export const useAnimalCount = () => {
 
       const latestDate = latestDateData[0].data;
 
-      // Buscar a soma de qtd_animais da última data
+      // Buscar a soma de qtd_animais da última data, agrupando por curral/lote para evitar duplicatas
       const { data: currentData, error: currentError } = await supabase
-        .from('fato_historico_consumo')
-        .select('qtd_animais')
-        .eq('organization_id', orgId)
-        .eq('data', latestDate);
+        .rpc('get_total_animais_por_data', {
+          p_organization_id: orgId,
+          p_data: latestDate
+        });
 
-      if (currentError) throw currentError;
+      if (currentError) {
+        console.error('Erro ao buscar total de animais:', currentError);
+        // Fallback: usar query direta com DISTINCT
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('fato_historico_consumo')
+          .select('curral, lote, qtd_animais')
+          .eq('organization_id', orgId)
+          .eq('data', latestDate);
 
-      const totalAnimaisHoje = currentData?.reduce((sum, item) => sum + (item.qtd_animais || 0), 0) || 0;
+        if (fallbackError) throw fallbackError;
+
+        // Agrupar por curral+lote e pegar o MAX de qtd_animais para cada grupo
+        const grouped = new Map<string, number>();
+        fallbackData?.forEach(item => {
+          const key = `${item.curral}-${item.lote}`;
+          const current = grouped.get(key) || 0;
+          grouped.set(key, Math.max(current, item.qtd_animais || 0));
+        });
+
+        const totalAnimaisHoje = Array.from(grouped.values()).reduce((sum, val) => sum + val, 0);
+
+        return {
+          totalAnimais: totalAnimaisHoje,
+          dataAtualizacao: latestDate,
+          variacaoOntem: 0,
+          percentualVariacao: 0
+        };
+      }
+
+      const totalAnimaisHoje = currentData || 0;
 
       // Buscar a soma de qtd_animais do dia anterior
       const previousDate = new Date(latestDate);
@@ -62,11 +89,11 @@ export const useAnimalCount = () => {
 
       const { data: previousData, error: previousError } = await supabase
         .from('fato_historico_consumo')
-        .select('qtd_animais')
+        .select('curral, lote, qtd_animais')
         .eq('organization_id', orgId)
         .eq('data', previousDateStr);
 
-      if (previousError) {
+      if (previousError || !previousData || previousData.length === 0) {
         // Se não houver dados do dia anterior, retornar sem variação
         return {
           totalAnimais: totalAnimaisHoje,
@@ -76,7 +103,15 @@ export const useAnimalCount = () => {
         };
       }
 
-      const totalAnimaisOntem = previousData?.reduce((sum, item) => sum + (item.qtd_animais || 0), 0) || 0;
+      // Agrupar por curral+lote e pegar o MAX de qtd_animais para cada grupo
+      const groupedPrevious = new Map<string, number>();
+      previousData.forEach(item => {
+        const key = `${item.curral}-${item.lote}`;
+        const current = groupedPrevious.get(key) || 0;
+        groupedPrevious.set(key, Math.max(current, item.qtd_animais || 0));
+      });
+
+      const totalAnimaisOntem = Array.from(groupedPrevious.values()).reduce((sum, val) => sum + val, 0);
       const variacaoOntem = totalAnimaisHoje - totalAnimaisOntem;
       const percentualVariacao = totalAnimaisOntem > 0
         ? ((variacaoOntem / totalAnimaisOntem) * 100)

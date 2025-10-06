@@ -21,6 +21,11 @@ import Logistics from "./pages/Logistics";
 import CsvUpload from "./pages/CsvUpload";
 import ETLOperations from "./pages/ETLOperations";
 import MetricsDashboard from "./pages/MetricsDashboard";
+import CadastrosPasto from "./pages/CadastrosPasto";
+import EstoqueProdutosPasto from "./pages/EstoqueProdutosPasto";
+import DistribuicaoPasto from "./pages/DistribuicaoPasto";
+import Nutricao from "./pages/Nutricao";
+import AcompanhamentoTecnico from "./pages/AcompanhamentoTecnico";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +55,11 @@ const App = () => (
             <Route path="/csv-upload" element={<CsvUpload />} />
             <Route path="/etl-operations" element={<ETLOperations />} />
             <Route path="/metrics-dashboard" element={<MetricsDashboard />} />
+            <Route path="/cadastros-pasto" element={<CadastrosPasto />} />
+            <Route path="/estoque-pasto" element={<EstoqueProdutosPasto />} />
+            <Route path="/distribuicao-pasto" element={<DistribuicaoPasto />} />
+            <Route path="/nutricao" element={<Nutricao />} />
+            <Route path="/acompanhamento-tecnico" element={<AcompanhamentoTecnico />} />
             <Route path="/invite/:token" element={<InvitePage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

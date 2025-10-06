@@ -227,3 +227,8 @@ If you encounter authentication issues:
 - GitHub uses Personal Access Token authentication
 - Supabase uses project-specific tokens and keys
 - Most remote servers use OAuth which may require specific redirect URI setup
+- Recomendação: Use sempre mcp__supabase__apply_migration para novas migrações neste projeto! 🎯
+- O padrão correto é:
+  - created_by e updated_by devem referenciar profiles.id (não auth.users.id)
+  - A tabela profiles tem tanto id quanto user_id
+  - O user_id é que referencia auth.users.id

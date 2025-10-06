@@ -8,7 +8,13 @@ import {
   Home,
   Power,
   Database,
-  TrendingUp
+  TrendingUp,
+  TreePine,
+  MapPin,
+  Package,
+  Truck,
+  Apple,
+  ClipboardCheck
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,10 +36,18 @@ const principalItems = [
   { title: "Dashboard", url: "/dashboard", icon: Home },
 ];
 
-const operationalItems = [
+const operationalConfinamentoItems = [
   { title: "Leitura de Cocho", url: "/feed-reading", icon: BarChart3 },
   { title: "Análise de Desvios", url: "/desvios", icon: Activity },
   { title: "Logística de Tratos", url: "/logistica", icon: FileText },
+  { title: "Nutrição", url: "/nutricao", icon: Apple },
+  { title: "Acompanhamento Técnico", url: "/acompanhamento-tecnico", icon: ClipboardCheck },
+];
+
+const operationalPastoItems = [
+  { title: "Cadastros", url: "/cadastros-pasto", icon: MapPin },
+  { title: "Estoque Produtos", url: "/estoque-pasto", icon: Package },
+  { title: "Distribuição Proteinado", url: "/distribuicao-pasto", icon: Truck },
 ];
 
 const aiInsightsItems = [
@@ -43,9 +57,6 @@ const aiInsightsItems = [
 
 const managementItems = [
   { title: "Upload CSV", url: "/csv-upload", icon: FileText },
-  { title: "Operações ETL", url: "/etl-operations", icon: Database },
-  { title: "Dashboard Métricas", url: "/metrics-dashboard", icon: TrendingUp },
-  { title: "Relatórios", url: "/reports", icon: FileText },
   { title: "Equipe", url: "/team", icon: Users },
   { title: "Configurações", url: "/settings", icon: Settings },
 ];
@@ -145,12 +156,12 @@ export function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
 
-          {/* Operacional */}
+          {/* Operacional Confinamento */}
           <SidebarGroup>
-            <SidebarGroupLabel className="text-text-tertiary">Operacional</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-text-tertiary">Operacional Confinamento</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {operationalItems.map((item) => (
+                {operationalConfinamentoItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <NavLink 
@@ -181,6 +192,56 @@ export function AppSidebar() {
                             <span className={`truncate transition-all duration-200 ${
                               isActive(item.url) 
                                 ? "text-accent-primary font-medium" 
+                                : "group-hover:text-text-primary group-hover:font-medium"
+                            }`}>
+                              {item.title}
+                            </span>
+                          )}
+                        </div>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          {/* Operacional Pasto */}
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-text-tertiary">Operacional Pasto</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {operationalPastoItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end
+                        className={`flex items-center justify-between w-full py-2 px-4 text-left transition-all duration-200 ease-in-out cursor-pointer group relative overflow-hidden ${
+                          isActive(item.url)
+                            ? "bg-accent-primary/20 text-accent-primary border-r-2 border-accent-primary"
+                            : "text-text-secondary hover:bg-background-secondary/50 hover:text-text-primary"
+                        }`}
+                      >
+                        {/* Gradient effect background */}
+                        <div
+                          className={`absolute inset-0 transition-opacity duration-200 ${
+                            isActive(item.url)
+                              ? "bg-gradient-to-r from-accent-primary/20 to-transparent opacity-100"
+                              : "bg-gradient-to-l from-transparent to-accent-primary/25 opacity-0 group-hover:opacity-100"
+                          }`}
+                        />
+
+                        <div className="flex items-center gap-3 relative z-10">
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-all duration-200 ${
+                            isActive(item.url)
+                              ? "text-accent-primary"
+                              : "group-hover:text-accent-primary"
+                          }`} />
+                          {!collapsed && (
+                            <span className={`truncate transition-all duration-200 ${
+                              isActive(item.url)
+                                ? "text-accent-primary font-medium"
                                 : "group-hover:text-text-primary group-hover:font-medium"
                             }`}>
                               {item.title}

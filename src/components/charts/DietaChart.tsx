@@ -1,5 +1,36 @@
 import { useEffect, useRef } from 'react';
-import * as echarts from 'echarts';
+import * as echarts from 'echarts/core';
+import {
+  BarChart,
+  type BarSeriesOption
+} from 'echarts/charts';
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  type GridComponentOption,
+  type TooltipComponentOption,
+  type LegendComponentOption
+} from 'echarts/components';
+import {
+  CanvasRenderer
+} from 'echarts/renderers';
+
+// Register required components
+echarts.use([
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer
+]);
+
+type EChartsOption = echarts.ComposeOption<
+  | BarSeriesOption
+  | GridComponentOption
+  | TooltipComponentOption
+  | LegendComponentOption
+>;
 
 interface DietaData {
   name: string;
@@ -35,7 +66,7 @@ export function DietaChart({ data, height = 400, date }: DietaChartProps) {
       chartInstance.current = echarts.init(chartRef.current);
     }
 
-    const option: echarts.EChartsOption = {
+    const option: EChartsOption = {
       tooltip: {
         trigger: 'axis',
         axisPointer: {

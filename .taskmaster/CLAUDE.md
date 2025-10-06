@@ -415,3 +415,8 @@ These commands make AI calls and may take up to a minute:
 ---
 
 _This guide ensures Claude Code has immediate access to Task Master's essential functionality for agentic development workflows._
+- Recomendação: Use sempre mcp__supabase__apply_migration para novas migrações neste projeto! 🎯
+- O padrão correto é:
+  - created_by e updated_by devem referenciar profiles.id (não auth.users.id)
+  - A tabela profiles tem tanto id quanto user_id
+  - O user_id é que referencia auth.users.id

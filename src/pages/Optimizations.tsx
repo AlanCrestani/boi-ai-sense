@@ -9,7 +9,7 @@ const mockOptimizations = [
   {
     id: 1,
     category: "Logística",
-    title: "Otimização de Rota - Setor Norte",
+    title: "Otimização de Rota - Setor Principal",
     description: "Reordenar sequência de tratos pode reduzir tempo em 18 minutos",
     impact: "Alta",
     savings: "R$ 240/dia",

@@ -1,7 +1,36 @@
 import { useEffect, useRef, memo } from 'react';
-import * as echarts from 'echarts';
+import * as echarts from 'echarts/core';
+import {
+  PieChart,
+  type PieSeriesOption
+} from 'echarts/charts';
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  type TitleComponentOption,
+  type TooltipComponentOption,
+  type LegendComponentOption
+} from 'echarts/components';
+import {
+  CanvasRenderer
+} from 'echarts/renderers';
 
-type EChartsOption = echarts.EChartsOption;
+// Register required components
+echarts.use([
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  CanvasRenderer
+]);
+
+type EChartsOption = echarts.ComposeOption<
+  | PieSeriesOption
+  | TitleComponentOption
+  | TooltipComponentOption
+  | LegendComponentOption
+>;
 
 interface ChartData {
   name: string;

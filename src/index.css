@@ -44,9 +44,9 @@
     --muted: 210 65% 20%;
     --muted-foreground: 220 9% 67%; /* #9CA3AF */
 
-    /* Accent - Ciano energético para ações */
-    --accent: 174 100% 50%;     /* #00FFC6 */
-    --accent-foreground: 207 71% 8%;
+    /* Accent - 10% mais escuro que hover das tabelas */
+    --accent: 210 65% 18%;     /* 10% mais escuro que muted */
+    --accent-foreground: 0 0% 96%;
 
     /* Destructive - Vermelho de atenção para alertas */
     --destructive: 351 89% 50%; /* #F2133C */

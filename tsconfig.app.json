@@ -13,9 +13,6 @@
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
-    "composite": true,
-    "declaration": true,
-    "outDir": "./dist",
     "jsx": "react-jsx",
     /* Linting */
     "strict": false,
